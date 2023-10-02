@@ -36,6 +36,6 @@ public class Seat {
 	
 	@JsonIgnore
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "shuttleId", nullable = false)
+	@JoinColumn(name = "orderId", nullable = false)
 	private Order order;
 }

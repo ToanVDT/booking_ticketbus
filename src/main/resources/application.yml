@@ -1,0 +1,49 @@
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: DEBUG
+        cache: DEBUG
+        stat: DEBUG
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    password: 123456
+    url: jdbc:mysql://localhost:3306/booking_ticket
+    username: root
+  jpa:
+    hibernate:
+      ddl-auto: update
+#===============EMAIL_VIA_SMTP===================
+  mail:
+    host: smtp.gmail.com
+    username: vanthanhtoan731@gmail.com
+    password: zatdwgsjaamjpkke
+    port: 587
+    properties:
+      mail:
+        smtp:
+          starttls:
+            enable: true
+          auth: true  
+server:
+  servlet:
+    context-path: /booking-ticket/api
+    
+azure:
+  storage:
+    account-key: JlsWQe84ylbZW/Jfli78YWQit5tXhl/acQ2K3t4wqdpB3U2bmAO5jYcpSt/w4Bx8Inakuvlqb8E3+AStkc/URw==
+    connection-string: DefaultEndpointsProtocol=https;AccountName=imgfile;AccountKey=JlsWQe84ylbZW/Jfli78YWQit5tXhl/acQ2K3t4wqdpB3U2bmAO5jYcpSt/w4Bx8Inakuvlqb8E3+AStkc/URw==;EndpointSuffix=core.windows.net
+    account-name: imgfile
+    container: test
+    blob-enpoint: https://imgfile.blob.core.windows.net
+      
+#project:
+#  jwtSecret: =========BookingTicketPTIT=========
+#  jwtExpirationMs: 300000
+#  jwtRefreshExpirationMs: 86400000
+#ForTest      
+project:
+  jwtSecret: ==D19CQCNPM02N==BookingTicketPTIT==N19DCCN172==
+  jwtExpirationMs: 600000000
+  jwtRefreshExpirationMs: 1200000000

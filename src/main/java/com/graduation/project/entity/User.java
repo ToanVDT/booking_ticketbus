@@ -47,18 +47,26 @@ public class User {
 	@Column(name = "address")
 	private String address;
 	
+	@Column(name ="identity_code")
+	private String identityCode;
+	
 	@Column(name = "point")
-	private String point;
+	private Integer point;
 	
 	@Column(name = "active")
 	private Boolean active;
 	
 	@JsonIgnore
-	@OneToMany(fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "user",fetch = FetchType.LAZY)
 	private List<Order> orders;
 	
 	@JsonIgnore
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "rankId", nullable = false)
 	private Ranking rank;
+	
+	@JsonIgnore
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name ="roleId", nullable = false)
+	private Role role;
 }
