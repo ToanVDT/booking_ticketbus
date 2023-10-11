@@ -25,6 +25,9 @@ public class Bus {
 	
 	@Column(name = "identity_code")
 	private String identityCode;
+	
+	@Column(name = "name")
+	private String name;
 		
 	@Column(name = "seats")
 	private Integer seats;
@@ -46,6 +49,6 @@ public class Bus {
 	private BusType type;
 	
 	@JsonIgnore
-	@OneToMany(fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "bus",fetch = FetchType.LAZY)
 	private List<Shuttle> shuttles;
 }

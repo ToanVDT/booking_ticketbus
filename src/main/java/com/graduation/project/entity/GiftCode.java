@@ -1,5 +1,7 @@
 package com.graduation.project.entity;
 
+import java.util.Date;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;
@@ -22,6 +24,9 @@ public class GiftCode {
 	
 	@Column(name = "giftcode")
 	private String giftCode;
+	
+	@Column(name = "expire_date")
+	private Date expireDate;
 	
 	@JsonIgnore
 	@ManyToOne(fetch = FetchType.LAZY)

@@ -28,6 +28,9 @@ public class Brand {
 	@Column(name = "description")
 	private String description;
 	
+	@Column(name = "phone_brand")
+	private String phoneBrand;
+	
 	@Column(name = "image")
 	private String image;
 	
