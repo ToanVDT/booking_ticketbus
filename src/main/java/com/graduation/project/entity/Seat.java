@@ -10,6 +10,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import lombok.Data;
 
 @Entity
@@ -35,7 +36,7 @@ public class Seat {
 	private Shuttle shuttle;
 	
 	@JsonIgnore
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "orderId", nullable = false)
-	private Order order;
+	@OneToOne(mappedBy = "seat",fetch = FetchType.LAZY)
+	private Ticket ticket;
+
 }

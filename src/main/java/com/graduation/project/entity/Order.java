@@ -46,7 +46,12 @@ public class Order {
 	private User user;
 	
 	@JsonIgnore
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "statusId", nullable = false)
+	private OrderStatus orderStatus;
+	
+	@JsonIgnore
 	@OneToMany(mappedBy = "order", fetch = FetchType.LAZY)
-	private List<Seat> seats;
+	private List<Ticket> tickets;
 	
 }
