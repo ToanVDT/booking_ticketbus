@@ -10,6 +10,6 @@ import com.graduation.project.payload.response.DropOffResponse;
 
 public interface DropOffRepository extends JpaRepository<DropOff, Integer>{
 
-	@Query(nativeQuery = true, value = "SELECT id as id, dropoff_time as dropOffTime, dropoff_point sd dropOffPoint FROM drop_off d WHERE d.route_id=:routeId")
-	List<DropOffResponse> findAllDropOff(Integer routeId);
+	@Query(nativeQuery = true, value = "SELECT id as id, dropoff_time as dropOffTime, dropoff_point sd dropOffPoint FROM drop_off d WHERE d.shuttle_id=:shuttleId")
+	List<DropOffResponse> findAllDropOff(Integer shuttleId);
 }

@@ -1,6 +1,6 @@
 package com.graduation.project.entity;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -29,11 +29,17 @@ public class Order {
 	@Column(name ="total_price")
 	private Double totalPrice;
 	
-	@Column(name ="deposit")
-	private Double deposit;
+	@Column(name = "order_code")
+	private String orderCode;
+	
+	@Column(name = "pickup_point")
+	private String pickupPoint;
+	
+	@Column(name = "dropoff_point")
+	private String dropoffPoint;
 	
 	@Column(name ="order_date")
-	private Date orderDate;
+	private LocalDateTime orderDate;
 	
 	@JsonIgnore
 	@ManyToOne(fetch = FetchType.LAZY)

@@ -51,18 +51,18 @@ public class AuthServiceImpl implements AuthService {
 	public APIResponse signIn(LoginRequest loginRequest) {
 		APIResponse response = new APIResponse();
 		JwtRespone jwtResponse = new JwtRespone();
-		if (!getUserByUsername(loginRequest.getUsername())) {
-			response.setMessage(ConstraintMSG.ACCOUNT_INACTIVE_MSG);
-			response.setData(null);
-			response.setSuccess(false);
-			return response;
-		} 
-		else if(!CompareUsernameAndPassword(loginRequest.getUsername(), loginRequest.getPassword())){
+		if(!CompareUsernameAndPassword(loginRequest.getUsername(), loginRequest.getPassword())){
 			response.setMessage(ConstraintMSG.LOGIN_FAIL_MSG);
 			response.setData(null);
 			response.setSuccess(false);
 			return response;
 		}
+		else if (!getUserByUsername(loginRequest.getUsername())) {
+			response.setMessage(ConstraintMSG.ACCOUNT_INACTIVE_MSG);
+			response.setData(null);
+			response.setSuccess(false);
+			return response;
+		} 
 		else  {
 			Authentication authentication = authenticationManager.authenticate(
 					new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));

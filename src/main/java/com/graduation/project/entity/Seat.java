@@ -32,8 +32,8 @@ public class Seat {
 	
 	@JsonIgnore
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "shuttleId", nullable = false)
-	private Shuttle shuttle;
+	@JoinColumn(name = "scheduleId", nullable = false)
+	private Schedule schedule;
 	
 	@JsonIgnore
 	@OneToOne(mappedBy = "seat",fetch = FetchType.LAZY)

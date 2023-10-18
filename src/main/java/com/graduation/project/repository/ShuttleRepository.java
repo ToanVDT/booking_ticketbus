@@ -1,15 +1,21 @@
 package com.graduation.project.repository;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.graduation.project.entity.Shuttle;
+import com.graduation.project.payload.response.SearchShuttleResponse;
 import com.graduation.project.payload.response.ShuttleResponse;
 
 public interface ShuttleRepository extends JpaRepository<Shuttle, Integer>{
 
-	@Query(nativeQuery = true, value = "SELECT distinct sh.start_time as startTime, sh.end_time as endTime, b.name as busName, b.seats as seats, s.price as price FROM shuttle sh, seat s, bus b WHERE sh.bus_id = b.id and s.shuttle_id = sh.id and sh.route_id =:routeId")
+	@Query(nativeQuery = true, value = "SELECT DISTINCT shuttle.start_time as startTime, shuttle.travel_time as travelTime, CONCAT( ' từ ', route.start_point, ' đến ', route.end_point ) as routeName FROM shuttle, route, brand WHERE shuttle.route_id = route.id AND route.brand_id = brand.id AND route.brand_id =: brandId;")
 	List<ShuttleResponse> findShuttle(Integer routeId);
+	
+	@Query(nativeQuery = true, value = "SELECT COUNT(*) as emptySeats, seat.price as price, xe.* FROM seat join( SELECT bus.seats as seats, brand.image as image, brand.brand_name as brandName, bus_type.type as type, shuttles.* FROM bus, brand, bus_type, ( SELECT shuttle.id as shuttleId, shuttle.bus_id as busId, shuttle.start_time as startTime, shuttle.end_time as endTime, route.* FROM shuttle join( SELECT route.start_point as startPoint, route.end_point as endPoint, route.id as routeId FROM route, brand WHERE brand.id = route.brand_id and route.start_point =:startPoint and route.end_point =:endPoint ) route on route.routeId = shuttle.route_id WHERE day(shuttle.start_time) = day(:startTime)and month(shuttle.start_time) = month(:startTime) and year(shuttle.start_time) = year(:startTime) ) shuttles WHERE bus.id = shuttles.busId AND bus.type_id = bus_type.id and brand.id = bus.brand_id ) xe on seat.shuttle_id = xe.shuttleId WHERE seat.booked = false GROUP BY shuttle_id, price")
+	List<SearchShuttleResponse> findShuttleAvailable(@Param("startPoint") String startPoint, @Param("endPoint") String endPoint, @Param("startTime") Date startTime);
 }

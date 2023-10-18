@@ -5,7 +5,7 @@ import com.graduation.project.payload.response.APIResponse;
 
 public interface PickUpService {
 
-	public APIResponse savePickUp(PickUpRequest pickUpRequest);
-	public APIResponse rempvePickUp(Integer id, Integer routeId);
+	public APIResponse updatePickUp(PickUpRequest pickUpRequest);
+	public APIResponse removePickUp(Integer id, Integer routeId);
 	public APIResponse getAllPickUp(Integer routeId);
 }

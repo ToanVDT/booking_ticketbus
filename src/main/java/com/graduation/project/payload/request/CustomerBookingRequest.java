@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class AnonymousRequest {
+public class CustomerBookingRequest {
 
 	private String firstName;
 	private String lastName;

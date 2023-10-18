@@ -36,13 +36,13 @@ public class RouteServiceImpl implements RouteService{
 			route = routeRepository.findById(routeRequest.getId()).orElse(null);
 			response.setMessage(ConstraintMSG.UPDATE_DATA_MSG);
 		}
-		Brand brand = brandRepository.findById(routeRequest.getBrandId()).orElse(null);
+		Brand brand = brandRepository.findByUserId(routeRequest.getUserId());
 		route.setBrand(brand);
 		route.setStartPoint(routeRequest.getStartPoint());
 		route.setEndPoint(routeRequest.getEndPoint());
 		routeRepository.save(route);
-		getAllRoute(routeRequest.getBrandId());
-		response.setData(route);
+		List<RouteResponse>  responses=getAllRoute(routeRequest.getUserId());
+		response.setData(responses);
 		response.setSuccess(true);
 		return response;
 	}
@@ -58,35 +58,26 @@ public class RouteServiceImpl implements RouteService{
 	}
 
 	@Override
-	public APIResponse getAllRoute(Integer brandId) {
-		APIResponse response = new APIResponse();
-		List<RouteResponse> routeResponses = routeRepository.findAllRoute(brandId);
-		response.setData(routeResponses);
-		response.setMessage(ConstraintMSG.GET_DATA_MSG);
-		response.setSuccess(true);
-		return response;
+	public List<RouteResponse> getAllRoute(Integer userId) {
+		Brand brand = brandRepository.findByUserId(userId);
+		List<RouteResponse> routeResponses = routeRepository.findAllRoute(brand.getId());
+		return routeResponses;
 	}
 
 	@Override
-	public APIResponse removeRoute(Integer id, Integer brandId) {
+	public APIResponse removeRoute(Integer id, Integer userId) {
 		APIResponse response = new APIResponse();
 		Route route = routeRepository.findById(id).orElse(null);
-		if(!route.getDropOffs().isEmpty()) {
-			response.setMessage(ConstraintMSG.ERROR_DELETE_MSG);
-			response.setSuccess(false);
-		}
-		if(!route.getPickUps().isEmpty()) {
-			response.setMessage(ConstraintMSG.ERROR_DELETE_MSG);
-			response.setSuccess(false);
-		}
 		if(!route.getShuttles().isEmpty()) {
-			response.setMessage(ConstraintMSG.ERROR_DELETE_MSG);
+			response.setMessage(ConstraintMSG.ERROR_DELETE_ROUTE_SHUTTLE);
 			response.setSuccess(false);
+			return response;
 		}
 		routeRepository.deleteById(id);
-		getAllRoute(brandId);
+		List<RouteResponse> responses =  getAllRoute(userId);
 		response.setMessage(ConstraintMSG.DELETE_DATA_MSG);
 		response.setSuccess(true);
+		response.setData(responses);
 		return response;
 	}
 

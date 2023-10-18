@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class BrandDTO {
 
+	private Integer id;
 	private String name;
 	private String image;
 	private String phone;

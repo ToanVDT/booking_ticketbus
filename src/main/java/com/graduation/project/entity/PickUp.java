@@ -1,7 +1,7 @@
 package com.graduation.project.entity;
 
 
-import java.util.Date;
+import java.time.LocalTime;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -27,11 +27,11 @@ public class PickUp {
 	private String pickUpPoint;
 	
 	@Column(name ="pickup_time")
-	private Date pickUpTime;
+	private LocalTime pickUpTime;
 	
 	@JsonIgnore
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "routeId", nullable = false)
-	private Route route;
+	@JoinColumn(name = "shuttleId", nullable = false)
+	private Shuttle shuttle;
 	
 }

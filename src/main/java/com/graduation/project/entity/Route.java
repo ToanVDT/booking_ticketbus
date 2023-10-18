@@ -36,13 +36,5 @@ public class Route {
 	
 	@JsonIgnore
 	@OneToMany(mappedBy = "route", fetch = FetchType.LAZY)
-	private List<PickUp> pickUps;
-	
-	@JsonIgnore
-	@OneToMany(mappedBy = "route", fetch = FetchType.LAZY)
-	private List<DropOff> dropOffs;
-	
-	@JsonIgnore
-	@OneToMany(mappedBy = "route", fetch = FetchType.LAZY)
 	private List<Shuttle> shuttles;
 }

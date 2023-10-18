@@ -80,9 +80,9 @@ public class SecurityConfig {
 				.exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authorizeHttpRequests(auth -> auth
-//						.anyRequest().permitAll());
-						.requestMatchers("/auth/**","/customer/**").permitAll()
-						.requestMatchers(HttpMethod.OPTIONS).permitAll().anyRequest().authenticated());
+						.anyRequest().permitAll());
+//						.requestMatchers("/auth/**","/customer/**").permitAll()
+//						.requestMatchers(HttpMethod.OPTIONS).permitAll().anyRequest().authenticated());
 
 		http.authenticationProvider(authenticationProvider());
 

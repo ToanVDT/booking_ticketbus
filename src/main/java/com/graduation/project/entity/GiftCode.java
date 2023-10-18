@@ -1,6 +1,6 @@
 package com.graduation.project.entity;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -26,7 +26,10 @@ public class GiftCode {
 	private String giftCode;
 	
 	@Column(name = "expire_date")
-	private Date expireDate;
+	private LocalDateTime expireDate;
+	
+	@Column(name = "is_used")
+	private Boolean isUsed;
 	
 	@JsonIgnore
 	@ManyToOne(fetch = FetchType.LAZY)

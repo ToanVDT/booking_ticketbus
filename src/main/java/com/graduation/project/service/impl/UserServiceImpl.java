@@ -7,12 +7,14 @@ import org.springframework.stereotype.Service;
 import com.graduation.project.common.ConstraintMSG;
 import com.graduation.project.config.AnonymousMapper;
 import com.graduation.project.dto.AnonymousDTO;
+import com.graduation.project.entity.Ranking;
 import com.graduation.project.entity.Role;
 import com.graduation.project.entity.User;
-import com.graduation.project.payload.request.AnonymousRequest;
+import com.graduation.project.payload.request.CustomerBookingRequest;
 import com.graduation.project.payload.request.CustomerRequest;
 import com.graduation.project.payload.request.UserRequest;
 import com.graduation.project.payload.response.APIResponse;
+import com.graduation.project.repository.RankingRepository;
 import com.graduation.project.repository.RoleRepository;
 import com.graduation.project.repository.UserRepository;
 import com.graduation.project.service.UserService;
@@ -28,6 +30,9 @@ public class UserServiceImpl implements UserService{
 	
 	@Autowired
 	private RoleRepository roleRepository;
+	
+	@Autowired
+	private RankingRepository rankingRepository;
 	
 	@Override
 	public APIResponse createUser(UserRequest userRequest) {
@@ -53,6 +58,8 @@ public class UserServiceImpl implements UserService{
 			respone.setSuccess(false);
 			return respone;
 		}
+		Ranking ranking = rankingRepository.findById(1).orElse(null);
+		user.setRank(ranking);
 		user.setUsername(userRequest.getUsername());
 		user.setAddress(userRequest.getAddress());
 		user.setFirstName(userRequest.getFirstName());
@@ -142,9 +149,13 @@ public class UserServiceImpl implements UserService{
 	}
 
 	@Override
-	public APIResponse createAnonymous(AnonymousRequest request) {
+	public User createAnonymous(CustomerBookingRequest request) {
 		APIResponse apiResponse = new APIResponse();
 		User anonymous = new User();
+		Ranking ranking = rankingRepository.findById(ConstraintMSG.RANK_NEW_MEMBER).get();
+		anonymous.setRank(ranking);
+		Role role = roleRepository.findRoleByName("ROLE_CUSTOMER");
+		anonymous.setRole(role);
 		anonymous.setFirstName(request.getFirstName());
 		anonymous.setLastName(request.getLastName());
 		anonymous.setEmail(request.getEmail());
@@ -162,7 +173,7 @@ public class UserServiceImpl implements UserService{
 		apiResponse.setData(dto);
 		apiResponse.setMessage(ConstraintMSG.CREATE_DATA_MSG);
 		apiResponse.setSuccess(true);
-		return apiResponse;
+		return anonymous;
 	}
 	
 	

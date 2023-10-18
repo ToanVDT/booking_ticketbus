@@ -1,6 +1,6 @@
 package com.graduation.project.dto;
 
-import java.util.Date;
+import java.time.LocalTime;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,9 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ShuttleDTO {
 
-	private String busName;
-	private Double price;
-	private Date startTime;
-	private Date endTime;
-	private Integer seats;
+	private String routeName;
+	private LocalTime startTime;
+	private LocalTime travelTime;
 }

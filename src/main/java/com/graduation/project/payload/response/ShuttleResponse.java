@@ -1,12 +1,10 @@
 package com.graduation.project.payload.response;
 
-import java.util.Date;
+import java.time.LocalTime;
 
 public interface ShuttleResponse {
 
-	public Date getStarTime();
-	public Date getEndTime();
-	public String getBusName();
-	public Double getPrice();
-	public Integer getSeats();
+	public LocalTime getStarTime();
+	public LocalTime getTravelTime();
+	public String getRouteName();
 }

@@ -7,6 +7,7 @@ public class BrandMapper {
 
 	public BrandDTO toDTO(Brand brand) {
 		BrandDTO dto = new BrandDTO();
+		dto.setId(brand.getId());
 		dto.setAddress(brand.getAddress());
 		dto.setDescription(brand.getDescription());
 		dto.setImage(brand.getImage());

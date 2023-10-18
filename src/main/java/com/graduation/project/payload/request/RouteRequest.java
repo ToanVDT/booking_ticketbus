@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 public class RouteRequest {
 
 	private Integer id;
-	private Integer brandId;
+	private Integer userId;
 	private String startPoint;
 	private String endPoint;
 }

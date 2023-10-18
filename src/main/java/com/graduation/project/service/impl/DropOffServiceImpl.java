@@ -7,12 +7,10 @@ import org.springframework.stereotype.Service;
 
 import com.graduation.project.common.ConstraintMSG;
 import com.graduation.project.entity.DropOff;
-import com.graduation.project.entity.Route;
 import com.graduation.project.payload.request.DropOffRequest;
 import com.graduation.project.payload.response.APIResponse;
 import com.graduation.project.payload.response.DropOffResponse;
 import com.graduation.project.repository.DropOffRepository;
-import com.graduation.project.repository.RouteRepository;
 import com.graduation.project.service.DropOffService;
 
 @Service
@@ -21,28 +19,15 @@ public class DropOffServiceImpl implements DropOffService{
 	@Autowired
 	private DropOffRepository dropOffRepository;
 	
-	@Autowired
-	private RouteRepository routeRepository;
-	
 	@Override
-	public APIResponse saveDropOff(DropOffRequest dropOffRequest) {
+	public APIResponse updateDropOff(DropOffRequest dropOffRequest) {
 		APIResponse response = new APIResponse();
-		DropOff dropOff = null;
-		if(dropOffRequest.getId() == null) {
-			dropOff = new DropOff();
-			response.setMessage(ConstraintMSG.CREATE_DATA_MSG);
-		}
-		else {
-			dropOff = dropOffRepository.findById(dropOffRequest.getId()).orElse(null);
-			response.setMessage(ConstraintMSG.UPDATE_DATA_MSG);
-		}
-		Route route = routeRepository.findById(dropOffRequest.getRouteId()).orElse(null);
-		dropOff.setRoute(route);
+		DropOff dropOff = dropOffRepository.findById(dropOffRequest.getId()).orElse(null);
 		dropOff.setDropOffPoint(dropOffRequest.getDropOffPoint());
 		dropOff.setDropOffTime(dropOffRequest.getDropOffTime());
 		dropOffRepository.save(dropOff);
-		getAllDropOff(dropOffRequest.getRouteId());
 		response.setData(dropOff);
+		response.setMessage(ConstraintMSG.UPDATE_DATA_MSG);
 		response.setSuccess(true);
 		return response;
 	}

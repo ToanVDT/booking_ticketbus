@@ -5,7 +5,7 @@ import com.graduation.project.payload.response.APIResponse;
 
 public interface DropOffService {
 
-	public APIResponse saveDropOff(DropOffRequest dropOffRequest);
+	public APIResponse updateDropOff(DropOffRequest dropOffRequest);
 	public APIResponse removeDropOff(Integer id, Integer routeId);
 	public APIResponse getAllDropOff(Integer routeId);
 }

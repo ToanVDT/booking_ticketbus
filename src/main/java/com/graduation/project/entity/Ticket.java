@@ -2,6 +2,7 @@ package com.graduation.project.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -19,6 +20,9 @@ public class Ticket {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
+	
+	@Column(name ="deposit")
+	private Double deposit;
 	
 	@JsonIgnore
 	@OneToOne(fetch = FetchType.LAZY)

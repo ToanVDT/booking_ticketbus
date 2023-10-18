@@ -1,6 +1,6 @@
 package com.graduation.project.entity;
 
-import java.util.Date;
+import java.time.LocalTime;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -25,22 +25,20 @@ public class Shuttle {
 	private Integer id;
 	
 	@Column(name = "start_time")
-	private Date startTime;
+	private LocalTime startTime;
 	
-	@Column(name = "end_time")
-	private Date endTime;
+	@Column(name = "travel_time")
+	private LocalTime travelTime;
 	
 	@JsonIgnore
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name ="routeId", nullable = false)
 	private Route route;
-	
 	@JsonIgnore
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name ="busId", nullable = false)
-	private Bus bus;
+	@OneToMany(mappedBy = "shuttle", fetch = FetchType.LAZY)
+	private List<PickUp> pickUps;
 	
 	@JsonIgnore
 	@OneToMany(mappedBy = "shuttle", fetch = FetchType.LAZY)
-	private List<Seat> seats;
+	private List<DropOff> dropOffs;
 }

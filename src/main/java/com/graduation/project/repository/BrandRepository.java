@@ -12,4 +12,8 @@ public interface BrandRepository extends JpaRepository<Brand, Integer>{
 
 	@Query(nativeQuery = true, value = "SELECT concat(u.last_name,' ',u.first_name) as name, u.username as username, u.email as email, u.phone_number as personalPhone, b.brand_name as brandName, b.address as addressBrand, b.phone_brand as phoneBrand, u.active as active FROM brand b, user u WHERE u.id = b.user_id")
 	List<BrandResponse> findAllBrand();
+	
+	Brand findByUserId(Integer userId);
+	Brand findByBrandName(String brandName);
+	Brand findByPhoneBrand(String phoneBrand);
 }

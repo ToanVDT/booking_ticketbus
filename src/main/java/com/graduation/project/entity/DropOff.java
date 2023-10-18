@@ -1,7 +1,7 @@
 package com.graduation.project.entity;
 
 
-import java.util.Date;
+import java.time.LocalTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -25,9 +25,9 @@ public class DropOff {
 	private String dropOffPoint;
 	
 	@Column(name ="dropoff_time")
-	private Date dropOffTime;
+	private LocalTime dropOffTime;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name ="routeId", nullable = false)
-	private Route route;
+	@JoinColumn(name ="shuttleId", nullable = false)
+	private Shuttle shuttle;
 }
