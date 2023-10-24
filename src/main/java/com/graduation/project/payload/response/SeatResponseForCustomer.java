@@ -1,9 +1,9 @@
 package com.graduation.project.payload.response;
 
-public interface SeatResponse {
+public interface SeatResponseForCustomer {
 
 	public String getSeatName();
 	public Double getPrice();
 	public Integer getId();
-	public Boolean getBooked();
+	public String getStatus();
 }

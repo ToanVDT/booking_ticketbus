@@ -34,10 +34,7 @@ public class Bus {
 	
 	@Column(name = "description")
 	private String description;
-	
-	@Column(name = "images")
-	private List<String> images;
-	
+
 	@JsonIgnore
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "brandId",nullable = false)
@@ -50,5 +47,9 @@ public class Bus {
 	
 	@JsonIgnore
 	@OneToMany(mappedBy = "bus",fetch = FetchType.LAZY)
-	private List<Shuttle> shuttles;
+	private List<Schedule> schedules;
+	
+	@JsonIgnore
+	@OneToMany(mappedBy = "bus",fetch = FetchType.LAZY)
+	private List<Image> images;
 }

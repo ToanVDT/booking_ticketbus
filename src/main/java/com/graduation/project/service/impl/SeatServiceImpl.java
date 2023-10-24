@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.graduation.project.common.ConstraintMSG;
 import com.graduation.project.payload.response.APIResponse;
-import com.graduation.project.payload.response.SeatResponse;
+import com.graduation.project.payload.response.SeatResponseForCustomer;
 import com.graduation.project.repository.SeatRepository;
 import com.graduation.project.service.SeatService;
 
@@ -20,7 +20,7 @@ public class SeatServiceImpl implements SeatService{
 	@Override
 	public APIResponse getSeatInShuttle(Integer scheduleId) {
 		APIResponse response = new APIResponse();
-		List<SeatResponse> responses = seatRepository.findSeatInSchedule(scheduleId);
+		List<SeatResponseForCustomer> responses = seatRepository.findSeatsBySchedule(scheduleId);
 		response.setData(responses);
 		response.setMessage(ConstraintMSG.GET_DATA_MSG);
 		response.setSuccess(true);

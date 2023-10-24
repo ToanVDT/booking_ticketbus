@@ -33,10 +33,10 @@ public class DropOffServiceImpl implements DropOffService{
 	}
 
 	@Override
-	public APIResponse removeDropOff(Integer id, Integer routeId) {
+	public APIResponse removeDropOff(Integer id, Integer shuttleId) {
 		APIResponse response = new APIResponse();
 		dropOffRepository.deleteById(id);
-		getAllDropOff(routeId);
+		getAllDropOff(shuttleId);
 //		response.setData(response);
 		response.setMessage(ConstraintMSG.DELETE_DATA_MSG);
 		response.setSuccess(true);
@@ -44,9 +44,9 @@ public class DropOffServiceImpl implements DropOffService{
 	}
 
 	@Override
-	public APIResponse getAllDropOff(Integer routeId) {
+	public APIResponse getAllDropOff(Integer shuttleId) {
 		APIResponse response = new APIResponse();
-		List<DropOffResponse> dropOffResponses = dropOffRepository.findAllDropOff(routeId);
+		List<DropOffResponse> dropOffResponses = dropOffRepository.findAllDropOff(shuttleId);
 		response.setData(dropOffResponses);
 		response.setMessage(ConstraintMSG.GET_DATA_MSG);
 		response.setSuccess(true);

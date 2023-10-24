@@ -11,8 +11,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.graduation.project.payload.request.ParkingRequest;
 import com.graduation.project.payload.request.SearchShuttleRequest;
 import com.graduation.project.payload.request.ShuttleRequest;
+import com.graduation.project.payload.request.ShuttleRequestUpdate;
 import com.graduation.project.payload.response.APIResponse;
 import com.graduation.project.service.ShuttleService;
 
@@ -36,14 +38,24 @@ public class ShuttleController {
 	}
 	
 	@PutMapping("/shuttle")
-	private ResponseEntity<APIResponse> updateShuttle(@RequestBody ShuttleRequest request){
+	private ResponseEntity<APIResponse> updateShuttle(@RequestBody ShuttleRequestUpdate request){
 		final APIResponse response = shuttleService.updateShuttle(request);
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 	
 	@GetMapping("/shuttles")
-	private ResponseEntity<APIResponse> getAllShuttle(@RequestParam Integer routeId){
-		final APIResponse response = shuttleService.getAllShuttle(routeId);
+	private ResponseEntity<APIResponse> getAllShuttle(@RequestParam Integer userId){
+		final APIResponse response = shuttleService.getAllShuttle(userId);
+		return ResponseEntity.status(HttpStatus.OK).body(response);
+	}
+	@GetMapping("/shuttle")
+	private ResponseEntity<APIResponse> getShuttleByRoute(@RequestParam Integer routeId){
+		final APIResponse response = shuttleService.getShuttleByRoute(routeId);
+		return ResponseEntity.status(HttpStatus.OK).body(response);
+	}
+	@PostMapping("/shuttle/parking")
+	private ResponseEntity<APIResponse> createParking(@RequestBody ParkingRequest request){
+		final APIResponse response = shuttleService.createParkings(request);
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 }

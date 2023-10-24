@@ -18,8 +18,15 @@ public class ConstraintMSG {
 	public static String METHOD_PAYMENT_CAST = "CAST";
 	public static String LOGIN_FAIL_MSG = "Tài khoản hoặc mật khẩu không đúng";
 	public static String PREFIX_ORDER_CODE = "ORDER";
+	public static String APPROVAL_ORDER_MSG = "Duyệt đơn đặt vé";
+	public static String CANCEL_ORDER_MSG = "Hủy đơn đặt vé";
+	public static String NO_GIFT_CODE = "NO_GIFT_CODE";
 	public static Integer RANK_NEW_MEMBER = 1;
 	public static Integer RANK_MEMBER = 2;
 	public static Integer RANK_VIPPER = 3;
-	public static String NO_GIFT_CODE = "NO_GIFT_CODE";
+	public static Integer STATUS_ORDERD = 1;
+	public static Integer STATUS_CANCELED = 2;
+	public static Integer STATUS_PENDING = 3;
+	public static Integer STATUS_COMPLETED = 4;
+	public static Integer STATUS_INITIALIZED = 5;
 }

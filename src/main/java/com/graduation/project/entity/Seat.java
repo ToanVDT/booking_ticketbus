@@ -27,13 +27,18 @@ public class Seat {
 	@Column(name ="price")
 	private Double price;
 	
-	@Column(name ="booked")
-	private Boolean booked;
+	@Column(name = "eating_fee")
+	private Double eatingFee;
 	
 	@JsonIgnore
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "scheduleId", nullable = false)
 	private Schedule schedule;
+	
+	@JsonIgnore
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "statusId", nullable = false)
+	private Status status;
 	
 	@JsonIgnore
 	@OneToOne(mappedBy = "seat",fetch = FetchType.LAZY)

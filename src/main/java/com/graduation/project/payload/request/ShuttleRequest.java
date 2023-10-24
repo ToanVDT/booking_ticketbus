@@ -15,7 +15,7 @@ public class ShuttleRequest {
 	private Integer id;
 	private Integer routeId;
 	private LocalTime startTime;
-	private LocalTime travelTime;
+	private LocalTime endTime;
 	private List<DropOffRequest> dropOffs;
 	private List<PickUpRequest> pickUps;
 }

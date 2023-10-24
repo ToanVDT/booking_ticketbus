@@ -11,6 +11,7 @@ import com.graduation.project.entity.Route;
 import com.graduation.project.payload.request.RouteRequest;
 import com.graduation.project.payload.response.APIResponse;
 import com.graduation.project.payload.response.RouteResponse;
+import com.graduation.project.payload.response.RouteResponseForDropDown;
 import com.graduation.project.repository.BrandRepository;
 import com.graduation.project.repository.RouteRepository;
 import com.graduation.project.service.RouteService;
@@ -38,8 +39,8 @@ public class RouteServiceImpl implements RouteService{
 		}
 		Brand brand = brandRepository.findByUserId(routeRequest.getUserId());
 		route.setBrand(brand);
-		route.setStartPoint(routeRequest.getStartPoint());
-		route.setEndPoint(routeRequest.getEndPoint());
+		route.setStartPoint(routeRequest.getStartPoint().replace("Tỉnh", "").trim());
+		route.setEndPoint(routeRequest.getEndPoint().replace("Tỉnh", "").trim());
 		routeRepository.save(route);
 		List<RouteResponse>  responses=getAllRoute(routeRequest.getUserId());
 		response.setData(responses);
@@ -80,6 +81,11 @@ public class RouteServiceImpl implements RouteService{
 		response.setData(responses);
 		return response;
 	}
-
+	@Override
+	public List<RouteResponseForDropDown> getListRouteDropDown(Integer userId){
+		Brand brand = brandRepository.findByUserId(userId);
+		List<RouteResponseForDropDown> list = routeRepository.findRouteCustomName(brand.getId());
+		return list;
+	}
 	
 }

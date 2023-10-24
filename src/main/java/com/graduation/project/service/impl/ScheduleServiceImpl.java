@@ -10,6 +10,7 @@ import com.graduation.project.entity.Bus;
 import com.graduation.project.entity.Schedule;
 import com.graduation.project.entity.Seat;
 import com.graduation.project.entity.Shuttle;
+import com.graduation.project.entity.Status;
 import com.graduation.project.payload.request.ScheduleRequest;
 import com.graduation.project.payload.response.APIResponse;
 import com.graduation.project.payload.response.ScheduleResponse;
@@ -17,6 +18,7 @@ import com.graduation.project.repository.BusRepository;
 import com.graduation.project.repository.ScheduleRepository;
 import com.graduation.project.repository.SeatRepository;
 import com.graduation.project.repository.ShuttleRepository;
+import com.graduation.project.repository.StatusRepository;
 import com.graduation.project.service.ScheduleService;
 
 @Service
@@ -34,52 +36,70 @@ public class ScheduleServiceImpl implements ScheduleService{
 	@Autowired
 	private SeatRepository seatRepository;
 	
+	@Autowired
+	private StatusRepository statusRepository;
+	
 	@Override
 	public APIResponse createSchedule(ScheduleRequest request) {
 		APIResponse response  = new APIResponse();
-		Schedule schedule = new Schedule();
-		Bus bus = busRepository.findById(request.getBusId()).orElse(null);
-		schedule.setBus(bus);
-		Shuttle shuttle = shuttleRepository.findById(request.getShuttleId()).orElse(null);
-		schedule.setShuttle(shuttle);
-		schedule.setDateStart(request.getTravelDate());
-		scheduleRepository.save(schedule);
-		for (int i = 0; i < bus.getSeats(); i++) {
-			Seat seat = new Seat();
-			seat.setSchedule(schedule);
-			seat.setBooked(false);
-			seat.setPrice(request.getPrice());
-			if (i < bus.getSeats() / 2) {
-				seat.setName("A" + (i + 1));
-			} else {
-				seat.setName("B" + (i - bus.getSeats() / 2 + 1));
+		try {
+			
+			Schedule schedule = new Schedule();
+			Bus bus = busRepository.findById(request.getBusId()).orElse(null);
+			schedule.setBus(bus);
+			Shuttle shuttle = shuttleRepository.findById(request.getShuttleId()).orElse(null);
+			schedule.setShuttle(shuttle);
+			schedule.setDateStart(request.getTravelDate());
+			scheduleRepository.save(schedule);
+			for (int i = 0; i < bus.getSeats(); i++) {
+				Seat seat = new Seat();
+				seat.setSchedule(schedule);
+				Status status = statusRepository.findById(ConstraintMSG.STATUS_INITIALIZED).orElse(null);
+				seat.setStatus(status);
+				seat.setPrice(request.getPrice());
+				seat.setEatingFee(request.getEatingFee());
+				if (i < bus.getSeats() / 2) {
+					seat.setName("A" + (i + 1));
+				} else {
+					seat.setName("B" + (i - bus.getSeats() / 2 + 1));
+				}
+				seatRepository.save(seat);
 			}
-			seatRepository.save(seat);
+			response.setData(schedule);
+			response.setMessage(ConstraintMSG.CREATE_DATA_MSG);
+			response.setSuccess(true);
 		}
-		response.setData(schedule);
-		response.setMessage(ConstraintMSG.CREATE_DATA_MSG);
-		response.setSuccess(true);
+		catch(Exception e) {
+			e.printStackTrace();
+		}
 		return response;
 	}
 
 	@Override
 	public APIResponse updateSchedule(ScheduleRequest request) {
 		APIResponse response  = new APIResponse();
-		Schedule schedule = scheduleRepository.findById(request.getId()).orElse(null);
-		Bus bus = busRepository.findById(request.getBusId()).orElse(null);
-		schedule.setBus(bus);
-		Shuttle shuttle = shuttleRepository.findById(request.getShuttleId()).orElse(null);
-		schedule.setShuttle(shuttle);
-		schedule.setDateStart(request.getTravelDate());
-		scheduleRepository.save(schedule);
-		List<Seat> seats = seatRepository.findBySchedule(schedule);
-		for(Seat seat :seats) {
-			seat.setPrice(request.getPrice());
-			seatRepository.save(seat);
+		try {
+			
+			Schedule schedule = scheduleRepository.findById(request.getId()).orElse(null);
+			Bus bus = busRepository.findById(request.getBusId()).orElse(null);
+			schedule.setBus(bus);
+			Shuttle shuttle = shuttleRepository.findById(request.getShuttleId()).orElse(null);
+			schedule.setShuttle(shuttle);
+			schedule.setDateStart(request.getTravelDate());
+			scheduleRepository.save(schedule);
+			List<Seat> seats = seatRepository.findBySchedule(schedule);
+			for(Seat seat :seats) {
+				seat.setPrice(request.getPrice());
+				seat.setEatingFee(request.getEatingFee());
+				seatRepository.save(seat);
+			}
+			response.setData(schedule);
+			response.setMessage(ConstraintMSG.UPDATE_DATA_MSG);
+			response.setSuccess(true);
 		}
-		response.setData(schedule);
-		response.setMessage(ConstraintMSG.UPDATE_DATA_MSG);
-		response.setSuccess(true);
+		catch(Exception e) {
+			e.printStackTrace();
+		}
 		return response;
 	}
 

@@ -29,6 +29,15 @@ public class Order {
 	@Column(name ="total_price")
 	private Double totalPrice;
 	
+	
+	@Column(name ="ticket_fee")
+	private Double ticketFee;
+	
+	
+	@Column(name ="deposit")
+	private Double deposit;
+	
+	
 	@Column(name = "order_code")
 	private String orderCode;
 	
@@ -54,7 +63,7 @@ public class Order {
 	@JsonIgnore
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "statusId", nullable = false)
-	private OrderStatus orderStatus;
+	private Status status;
 	
 	@JsonIgnore
 	@OneToMany(mappedBy = "order", fetch = FetchType.LAZY)

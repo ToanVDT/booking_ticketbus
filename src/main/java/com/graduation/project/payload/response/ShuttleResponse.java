@@ -4,7 +4,8 @@ import java.time.LocalTime;
 
 public interface ShuttleResponse {
 
-	public LocalTime getStarTime();
-	public LocalTime getTravelTime();
+	public Integer getId();
+	public LocalTime getStartTime();
+	public LocalTime getEndTime();
 	public String getRouteName();
 }

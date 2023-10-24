@@ -30,14 +30,14 @@ public class DropOffController {
 	}
 	
 	@GetMapping("/drop_offs")
-	private ResponseEntity<APIResponse> getAllDropOff(@RequestParam Integer routeId){
-		final APIResponse response = dropOffService.getAllDropOff(routeId);
+	private ResponseEntity<APIResponse> getAllDropOff(@RequestParam Integer shuttleId){
+		final APIResponse response = dropOffService.getAllDropOff(shuttleId);
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 	
 	@DeleteMapping("/drop_off/{id}")
-	private ResponseEntity<APIResponse> removeDropOff(@PathVariable Integer id, @RequestParam Integer routeId){
-		final APIResponse response = dropOffService.removeDropOff(id, routeId);
+	private ResponseEntity<APIResponse> removeDropOff(@PathVariable Integer id, @RequestParam Integer shuttleId){
+		final APIResponse response = dropOffService.removeDropOff(id, shuttleId);
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 }

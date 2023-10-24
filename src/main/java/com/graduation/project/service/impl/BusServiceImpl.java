@@ -14,6 +14,7 @@ import com.graduation.project.entity.BusType;
 import com.graduation.project.payload.request.BusRequest;
 import com.graduation.project.payload.response.APIResponse;
 import com.graduation.project.payload.response.BusResponse;
+import com.graduation.project.payload.response.BusResponseForDropDown;
 import com.graduation.project.repository.BrandRepository;
 import com.graduation.project.repository.BusRepository;
 import com.graduation.project.repository.TypeRepository;
@@ -34,57 +35,64 @@ public class BusServiceImpl implements BusService{
 	@Override
 	public APIResponse saveBus(BusRequest busRequest) {
 		APIResponse response = new APIResponse();
-		Bus bus = null;
-		if(busRequest.getId() == null) {
-			bus = new Bus();
-			response.setMessage(ConstraintMSG.CREATE_DATA_MSG);
+		try {			
+			Bus bus = null;
+			if(busRequest.getId() == null) {
+				bus = new Bus();
+				response.setMessage(ConstraintMSG.CREATE_DATA_MSG);
+			}
+			else {
+				bus = busRepository.findById(busRequest.getId()).orElse(null);
+				response.setMessage(ConstraintMSG.UPDATE_DATA_MSG);
+			}
+			
+			Brand brand = brandRepository.findByUserId(busRequest.getUserId());
+			bus.setBrand(brand);
+			BusType type = typeRepository.findById(busRequest.getTypeId()).orElse(null);
+			bus.setType(type);
+			bus.setDescription(busRequest.getDescription());
+			bus.setIdentityCode(busRequest.getIdentityCode());
+			bus.setSeats(busRequest.getSeats());
+			bus.setName(busRequest.getName());
+			busRepository.save(bus);
+			List<BusResponse> busResponses= getAllBusInBrand(busRequest.getUserId());
+			BusMapper mapper = new BusMapper();
+			BusDTO dto = mapper.toDTO(bus);
+			response.setData(busResponses);
+			response.setSuccess(true);
 		}
-		else {
-			bus = busRepository.findById(busRequest.getId()).orElse(null);
-			response.setMessage(ConstraintMSG.UPDATE_DATA_MSG);
+		catch(Exception e) {
+			e.printStackTrace();
 		}
-		Brand brand = brandRepository.findById(busRequest.getBrandId()).orElse(null);
-		bus.setBrand(brand);
-		BusType type = typeRepository.findById(busRequest.getTypeId()).orElse(null);
-		bus.setType(type);
-		bus.setDescription(busRequest.getDescription());
-		bus.setIdentityCode(busRequest.getIdentityCode());
-		bus.setSeats(busRequest.getSeats());
-		bus.setName(busRequest.getName());
-		busRepository.save(bus);
-		getAllBusInBrand(busRequest.getBrandId());
-		BusMapper mapper = new BusMapper();
-		BusDTO dto = mapper.toDTO(bus);
-		response.setData(dto);
-		response.setSuccess(true);
 		return response;
 	}
 
 	@Override
-	public APIResponse getAllBusInBrand(Integer brandId) {
-		APIResponse response = new APIResponse();
-		List<BusResponse> busResponses = busRepository.findAllBus(brandId);
-		response.setData(busResponses);
-		response.setMessage(ConstraintMSG.GET_DATA_MSG);
-		response.setSuccess(true);
-		return response;
+	public List<BusResponse> getAllBusInBrand(Integer userId) {
+		Brand brand = brandRepository.findByUserId(userId);
+		List<BusResponse> busResponses = busRepository.findAllBus(brand.getId());
+		return busResponses;
 	}
 
 	@Override
 	public APIResponse removeBus(Integer id, Integer brandId) {
 		APIResponse response = new APIResponse();
-		Bus bus = busRepository.findById(id).orElse(null);
-		if(!bus.getShuttles().isEmpty()) {
+		try {			
+			Bus bus = busRepository.findById(id).orElse(null);
+			if(!bus.getSchedules().isEmpty()) {
 //			response.setData(bus);
-			response.setMessage(ConstraintMSG.ERROR_DELETE_MSG);
-			response.setSuccess(false);
-			return response;
+				response.setMessage(ConstraintMSG.ERROR_DELETE_MSG);
+				response.setSuccess(false);
+				return response;
+			}
+			busRepository.deleteById(id);
+			getAllBusInBrand(brandId);
+			response.setMessage(ConstraintMSG.DELETE_DATA_MSG);
+			response.setSuccess(true);
 		}
-		busRepository.deleteById(id);
-		getAllBusInBrand(brandId);
-//		response.setData(bus);
-		response.setMessage(ConstraintMSG.DELETE_DATA_MSG);
-		response.setSuccess(true);
+		catch(Exception e) {
+			e.printStackTrace();
+		}
 		return response;
 	}
 
@@ -98,6 +106,13 @@ public class BusServiceImpl implements BusService{
 		response.setMessage(ConstraintMSG.GET_DATA_MSG);
 		response.setSuccess(true);
 		return response;
+	}
+
+	@Override
+	public List<BusResponseForDropDown> getBusForDropDown(Integer userId) {
+		Brand brand = brandRepository.findByUserId(userId);
+		List<BusResponseForDropDown> list = busRepository.findBusDropDown(brand.getId());
+		return list;
 	}
 
 }

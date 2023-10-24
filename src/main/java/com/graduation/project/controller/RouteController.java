@@ -18,6 +18,7 @@ import com.graduation.project.common.ConstraintMSG;
 import com.graduation.project.payload.request.RouteRequest;
 import com.graduation.project.payload.response.APIResponse;
 import com.graduation.project.payload.response.RouteResponse;
+import com.graduation.project.payload.response.RouteResponseForDropDown;
 import com.graduation.project.service.RouteService;
 
 @RestController
@@ -42,6 +43,12 @@ public class RouteController {
 	@GetMapping("/route/{id}")
 	private ResponseEntity<APIResponse> getRoute(@PathVariable Integer id){
 		final APIResponse response = routeService.getRoute(id);
+		return ResponseEntity.status(HttpStatus.OK).body(response);
+	}
+	
+	@GetMapping("/route/custom_name")
+	private ResponseEntity<List<RouteResponseForDropDown>> getRouteCustomName(@RequestParam Integer userId){
+		final List<RouteResponseForDropDown> response = routeService.getListRouteDropDown(userId);
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 	

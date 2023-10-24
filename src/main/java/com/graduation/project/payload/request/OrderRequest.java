@@ -19,4 +19,5 @@ public class OrderRequest {
 	private String giftCode;
 	private Integer paymentId;
 	private Double paidAmount;
+	private Double eatingFee;
 }

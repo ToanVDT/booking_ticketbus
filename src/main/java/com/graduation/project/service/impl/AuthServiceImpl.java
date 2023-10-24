@@ -80,10 +80,11 @@ public class AuthServiceImpl implements AuthService {
 				refreshTokenService.deleteByUserId(userDetails.getId());
 			}
 			refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
-
+			User user = userRepository.findUserByUsername(userDetails.getUsername()).orElse(null);
 			jwtResponse.setId(userDetails.getId());
 			jwtResponse.setEmail(userDetails.getEmail());
 			jwtResponse.setUsername(userDetails.getUsername());
+			jwtResponse.setName(user.getLastName()+' '+user.getFirstName());
 			jwtResponse.setRefreshToken(refreshToken.getRefreshToken());
 			jwtResponse.setAccessToken(jwt);
 			jwtResponse.setRoles(roles);

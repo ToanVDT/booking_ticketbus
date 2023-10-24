@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 public class BusRequest {
 
 	private Integer id;
-	private Integer brandId;
+	private Integer userId;
 	private Integer typeId;
 	private Integer seats;
 	private String description;

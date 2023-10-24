@@ -21,7 +21,7 @@ public class ShuttleMapper {
 	public ShuttleDTO toDTO(Shuttle shuttle ) {
 		ShuttleDTO dto = new ShuttleDTO();
 		dto.setStartTime(shuttle.getStartTime());
-		dto.setTravelTime(shuttle.getTravelTime());
+		dto.setEndTime(shuttle.getEndTime());
 		dto.setRouteName(shuttle.getRoute().getStartPoint()+'-'+shuttle.getRoute().getEndPoint());
 		return dto;
 	}

@@ -83,6 +83,11 @@ public class BrandServiceImpl implements BrandService{
 	public APIResponse getBrandByUserId(Integer userId) {
 		APIResponse response = new APIResponse();
 		Brand brand = brandRepository.findByUserId(userId);
+		if(brand == null) {
+			response.setMessage("error get");
+			response.setSuccess(false);
+			return response;
+		}
 		BrandMapper mapper = new BrandMapper();
 		BrandDTO dto = mapper.toDTO(brand);
 		response.setMessage(ConstraintMSG.GET_DATA_MSG);

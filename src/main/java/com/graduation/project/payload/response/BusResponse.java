@@ -7,4 +7,5 @@ public interface BusResponse {
 	public String getIdentityCode();
 	public String getDescription();
 	public String getBusType();
+	public String getName();
 }

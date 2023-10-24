@@ -3,6 +3,8 @@ package com.graduation.project.entity;
 
 import java.time.LocalTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -27,6 +29,7 @@ public class DropOff {
 	@Column(name ="dropoff_time")
 	private LocalTime dropOffTime;
 	
+	@JsonIgnore
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name ="shuttleId", nullable = false)
 	private Shuttle shuttle;

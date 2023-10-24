@@ -14,9 +14,11 @@ import com.graduation.project.entity.PickUp;
 import com.graduation.project.entity.Route;
 import com.graduation.project.entity.Shuttle;
 import com.graduation.project.payload.request.DropOffRequest;
+import com.graduation.project.payload.request.ParkingRequest;
 import com.graduation.project.payload.request.PickUpRequest;
 import com.graduation.project.payload.request.SearchShuttleRequest;
 import com.graduation.project.payload.request.ShuttleRequest;
+import com.graduation.project.payload.request.ShuttleRequestUpdate;
 import com.graduation.project.payload.response.APIResponse;
 import com.graduation.project.payload.response.SearchShuttleResponse;
 import com.graduation.project.payload.response.ShuttleResponse;
@@ -52,7 +54,7 @@ public class ShuttleServiceImpl implements ShuttleService{
 		Route route = routeRepository.findById(shuttleRequest.getRouteId()).orElse(null);
 		shuttle.setRoute(route);
 		shuttle.setStartTime(shuttleRequest.getStartTime());
-		shuttle.setTravelTime(shuttleRequest.getTravelTime());
+		shuttle.setEndTime(shuttleRequest.getEndTime());
 		shuttleRepository.save(shuttle);
 		for(DropOffRequest request:shuttleRequest.getDropOffs()) {
 			DropOff dropOff = new DropOff();
@@ -92,13 +94,11 @@ public class ShuttleServiceImpl implements ShuttleService{
 	}
 
 	@Override
-	public APIResponse updateShuttle(ShuttleRequest shuttleRequest) {
+	public APIResponse updateShuttle(ShuttleRequestUpdate shuttleRequest) {
 		APIResponse response = new APIResponse();
 		Shuttle shuttle = shuttleRepository.findById(shuttleRequest.getId()).orElse(null);
-		Route route = routeRepository.findById(shuttleRequest.getRouteId()).orElse(null);
-		shuttle.setRoute(route);
 		shuttle.setStartTime(shuttleRequest.getStartTime());
-		shuttle.setTravelTime(shuttleRequest.getTravelTime());
+		shuttle.setEndTime(shuttleRequest.getEndTime());
 		shuttleRepository.save(shuttle);
 		ShuttleMapper mapper = new ShuttleMapper();
 		ShuttleDTO dto = mapper.toDTO(shuttle);
@@ -115,6 +115,45 @@ public class ShuttleServiceImpl implements ShuttleService{
 		response.setData(list);
 		response.setMessage(ConstraintMSG.GET_DATA_MSG);
 		response.setSuccess(true);
+		return response;
+	}
+
+	@Override
+	public APIResponse getShuttleByRoute(Integer routeId) {
+		APIResponse response = new APIResponse();
+		List<Shuttle> shuttleResponses = shuttleRepository.findShuttleByRoute(routeId);
+		response.setData(shuttleResponses);
+		response.setMessage(ConstraintMSG.GET_DATA_MSG);
+		response.setSuccess(true);
+		return response;
+	}
+
+	@Override
+	public APIResponse createParkings(ParkingRequest requests) {
+		APIResponse response = new APIResponse();
+		try {
+			Shuttle shuttle = shuttleRepository.findById(requests.getShuttleId()).orElse(null);
+			for(DropOffRequest request:requests.getDropOffs()) {
+				DropOff dropOff = new DropOff();
+				dropOff.setDropOffPoint(request.getDropOffPoint());
+				dropOff.setDropOffTime(request.getDropOffTime());
+				dropOff.setShuttle(shuttle);
+				dropOffRepository.save(dropOff);
+			}
+			for(PickUpRequest request:requests.getPickUps()) {
+				PickUp pickUp = new PickUp();
+				pickUp.setPickUpPoint(request.getPickUpPoint());
+				pickUp.setPickUpTime(request.getPickUpTime());
+				pickUp.setShuttle(shuttle);
+				pickUpRepository.save(pickUp);
+			}
+			response.setData(shuttle);
+			response.setMessage(ConstraintMSG.CREATE_DATA_MSG);
+			response.setSuccess(true);
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
 		return response;
 	}
 

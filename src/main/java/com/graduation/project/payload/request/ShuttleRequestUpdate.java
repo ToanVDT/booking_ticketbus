@@ -1,6 +1,6 @@
 package com.graduation.project.payload.request;
 
-import java.time.LocalDate;
+import java.time.LocalTime;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,12 +9,9 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ScheduleRequest {
+public class ShuttleRequestUpdate {
 
 	private Integer id;
-	private Integer busId;
-	private Integer shuttleId;
-	private LocalDate travelDate;
-	private Double price;
-	private Double eatingFee;
+	private LocalTime startTime;
+	private LocalTime endTime;
 }

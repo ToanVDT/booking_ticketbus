@@ -15,18 +15,12 @@ import com.graduation.project.entity.User;
 
 public class UserDetailsImpl implements UserDetails {
 	  private static final long serialVersionUID = 1L;
-
 	  private Integer id;
-
 	  private String username;
-
 	  private String email;
-
 	  @JsonIgnore
 	  private String password;
-
 	  private GrantedAuthority authoritie;
-
 	  public UserDetailsImpl(Integer id, String username, String email, String password,
 			  GrantedAuthority authoritie) {
 	    this.id = id;
@@ -37,13 +31,7 @@ public class UserDetailsImpl implements UserDetails {
 	  }
 
 	  public static UserDetailsImpl build(User user) {
-//	    List<GrantedAuthority> authorities = user.getRole().stream()
-//	        .map(role -> new SimpleGrantedAuthority(role.getName().name()))
-//	        .collect(Collectors.toList());
-
 		  GrantedAuthority authorities = new SimpleGrantedAuthority(user.getRole().getName()) ;
-//				  .map(role-> new SimpleGrantedAuthority(role.getName().name()))
-//				  .collect(Collectors.toList());
 	    return new UserDetailsImpl(
 	        user.getId(), 
 	        user.getUsername(), 

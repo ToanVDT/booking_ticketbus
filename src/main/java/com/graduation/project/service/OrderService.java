@@ -6,5 +6,6 @@ import com.graduation.project.payload.response.APIResponse;
 public interface OrderService {
 
 	public APIResponse BookingTicket(OrderRequest request);
-	public APIResponse CancelBooking();
+	public APIResponse CancelBooking(Integer orderId);
+	public APIResponse ApprovalOrder(Integer orderId);
 }

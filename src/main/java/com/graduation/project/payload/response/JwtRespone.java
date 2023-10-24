@@ -14,14 +14,10 @@ import lombok.Setter;
 public class JwtRespone {
 
 	private String accessToken;
-	
 	private String refreshToken;
-	
 	private Integer id;
-	
 	private String username;
-	
 	private String email;
-	
+	private String name;
 	private List<String> roles;
 }

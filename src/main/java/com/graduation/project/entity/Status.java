@@ -15,7 +15,7 @@ import lombok.Data;
 
 @Entity
 @Data
-public class OrderStatus {
+public class Status {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,6 +25,10 @@ public class OrderStatus {
 	private String status;
 	
 	@JsonIgnore
-	@OneToMany(mappedBy = "orderStatus", fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "status", fetch = FetchType.LAZY)
 	private List<Order> orders;
+	
+	@JsonIgnore
+	@OneToMany(mappedBy = "status", fetch = FetchType.LAZY)
+	private List<Seat> seats;
 }

@@ -27,8 +27,8 @@ public class Shuttle {
 	@Column(name = "start_time")
 	private LocalTime startTime;
 	
-	@Column(name = "travel_time")
-	private LocalTime travelTime;
+	@Column(name = "end_time")
+	private LocalTime endTime;
 	
 	@JsonIgnore
 	@ManyToOne(fetch = FetchType.LAZY)
