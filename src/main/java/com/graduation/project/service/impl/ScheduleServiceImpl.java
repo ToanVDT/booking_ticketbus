@@ -1,5 +1,6 @@
 package com.graduation.project.service.impl;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import com.graduation.project.entity.Status;
 import com.graduation.project.payload.request.ScheduleRequest;
 import com.graduation.project.payload.response.APIResponse;
 import com.graduation.project.payload.response.ScheduleResponse;
+import com.graduation.project.payload.response.ScheduleResponseForDropDown;
 import com.graduation.project.repository.BusRepository;
 import com.graduation.project.repository.ScheduleRepository;
 import com.graduation.project.repository.SeatRepository;
@@ -58,10 +60,22 @@ public class ScheduleServiceImpl implements ScheduleService{
 				seat.setStatus(status);
 				seat.setPrice(request.getPrice());
 				seat.setEatingFee(request.getEatingFee());
-				if (i < bus.getSeats() / 2) {
-					seat.setName("A" + (i + 1));
-				} else {
-					seat.setName("B" + (i - bus.getSeats() / 2 + 1));
+				if(bus.getType().getType().equals("PHONG") ) {					
+					if (i < bus.getSeats() / 2) {
+						seat.setName("A" + (i + 1));
+					} else {
+						seat.setName("B" + (i - bus.getSeats() / 2 + 1));
+					}
+				}
+				else {
+					if (i < bus.getSeats() / 3) {
+						seat.setName("A" + (i + 1));
+					} else if(i >= bus.getSeats() / 3 && i < 2*bus.getSeats()/3){
+						seat.setName("B" + (i - bus.getSeats() / 3 + 1));
+					}
+					else {
+						seat.setName("C" + (i - 2*bus.getSeats()/3 + 1));
+					}
 				}
 				seatRepository.save(seat);
 			}
@@ -111,6 +125,12 @@ public class ScheduleServiceImpl implements ScheduleService{
 		response.setMessage(ConstraintMSG.GET_DATA_MSG);
 		response.setSuccess(true);
 		return response;
+	}
+
+	@Override
+	public List<ScheduleResponseForDropDown> getScheduleByTravelDate(LocalDate dateStart) {
+		List<ScheduleResponseForDropDown> list  = scheduleRepository.findScheduleByTravelDate(dateStart);
+		return list;
 	}
 
 }

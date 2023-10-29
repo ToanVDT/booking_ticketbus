@@ -1,16 +1,20 @@
 package com.graduation.project.service.impl;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
 import com.graduation.project.common.ConstraintMSG;
 import com.graduation.project.common.Utility;
+import com.graduation.project.dto.OrderDTO;
+import com.graduation.project.dto.OrderDTOForCustomerSearch;
 import com.graduation.project.entity.GiftCode;
 import com.graduation.project.entity.Order;
 import com.graduation.project.entity.Payment;
 import com.graduation.project.entity.Ranking;
+import com.graduation.project.entity.Schedule;
 import com.graduation.project.entity.Seat;
 import com.graduation.project.entity.Status;
 import com.graduation.project.entity.Ticket;
@@ -21,6 +25,7 @@ import com.graduation.project.repository.GiftCodeRepository;
 import com.graduation.project.repository.OrderRepository;
 import com.graduation.project.repository.PaymentRepository;
 import com.graduation.project.repository.RankingRepository;
+import com.graduation.project.repository.ScheduleRepository;
 import com.graduation.project.repository.SeatRepository;
 import com.graduation.project.repository.StatusRepository;
 import com.graduation.project.repository.TicketRepository;
@@ -40,11 +45,12 @@ public class OrderServiceImpl implements OrderService{
 	private UserService userService;
 	private RankingRepository rankingRepository;
 	private TicketRepository ticketRepository;
+	private ScheduleRepository scheduleRepository;
 
 	public OrderServiceImpl(PaymentRepository paymentRepository, OrderRepository orderRepository,
 			SeatRepository seatRepository, StatusRepository statusRepository,
 			TicketRepository ticketRepository, RankingRepository rankingRepository, UserRepository userRepository,
-			UserService userService, GiftCodeRepository giftCodeRepository) {
+			UserService userService, GiftCodeRepository giftCodeRepository, ScheduleRepository scheduleRepository) {
 		this.paymentRepository = paymentRepository;
 		this.orderRepository = orderRepository;
 		this.seatRepository = seatRepository;
@@ -54,6 +60,7 @@ public class OrderServiceImpl implements OrderService{
 		this.userService = userService;
 		this.rankingRepository = rankingRepository;
 		this.ticketRepository = ticketRepository;
+		this.scheduleRepository = scheduleRepository;
 	}
 
 	@Override
@@ -75,6 +82,7 @@ public class OrderServiceImpl implements OrderService{
 			order.setPickupPoint(request.getPickUp());
 			order.setOrderCode(Utility.RandomOrderCode());
 			order.setOrderDate(now);
+			order.setQuantityEating(request.getQuantityEating());
 			if (request.getGiftCode() == null) {
 				request.setGiftCode(ConstraintMSG.NO_GIFT_CODE);
 			}
@@ -93,15 +101,15 @@ public class OrderServiceImpl implements OrderService{
 				paidAmount = 0.0;
 				status = statusRepository.findById(ConstraintMSG.STATUS_PENDING).get();
 			}
-			if(request.getEatingFee() == null) {
+			if(request.getQuantityEating() == null || request.getQuantityEating() == 0) {
 				eatingFee = 0.0;
 			}
 			else {
-				eatingFee = request.getEatingFee();
+				eatingFee = request.getQuantityEating()*seat.getEatingFee();
 			}
 			order.setStatus(status);
 			double totalPrice = request.getSeatId().size() * seat.getPrice() + eatingFee - giftPrice;
-			order.setTicketFee(request.getSeatId().size() * seat.getPrice() + eatingFee);
+//			order.setTicketFee(request.getSeatId().size() * seat.getPrice() + eatingFee);
 			int value = (int) totalPrice;
 			order.setTotalPrice(totalPrice);
 			if(totalPrice == paidAmount) {
@@ -175,19 +183,89 @@ public class OrderServiceImpl implements OrderService{
 	@Override
 	public APIResponse ApprovalOrder(Integer orderId) {
 		APIResponse response = new APIResponse();
-		Order order = orderRepository.findById(orderId).get();
-		Status status = statusRepository.findById(ConstraintMSG.STATUS_ORDERD).get();
-		order.setStatus(status);
-		orderRepository.save(order);
-		List<Ticket> tickets = order.getTickets();
-		for(Ticket ticket:tickets) {
-			Seat seat = seatRepository.findByTicket(ticket);
-			seat.setStatus(status);
-			seatRepository.save(seat);
+		try {
+			Order order = orderRepository.findById(orderId).get();
+			Status status = statusRepository.findById(ConstraintMSG.STATUS_ORDERD).get();
+			order.setStatus(status);
+			orderRepository.save(order);
+			List<Ticket> tickets = order.getTickets();
+			for(Ticket ticket:tickets) {
+				Seat seat = seatRepository.findByTicket(ticket);
+				seat.setStatus(status);
+				seatRepository.save(seat);
+			}
+			response.setData(order);
+			response.setMessage(ConstraintMSG.APPROVAL_ORDER_MSG);
+			response.setSuccess(true);
 		}
-		response.setData(order);
-		response.setMessage(ConstraintMSG.APPROVAL_ORDER_MSG);
-		response.setSuccess(true);
+		catch(Exception e) {
+			e.printStackTrace();
+		}
 		return response;
+	}
+
+	@Override
+	public List<OrderDTO> getOrderInSchedule(Integer scheduleId) {
+		List<OrderDTO> dtos = new ArrayList<>();
+		try {
+//			Schedule schedule = scheduleRepository.findById(scheduleId).orElse(null);
+			List<Order> orders = orderRepository.findOrderByShcedule(scheduleId);
+			OrderDTO dto = null;
+			for(Order order : orders) {
+				dto = new OrderDTO();
+				dto.setOrderDate(order.getOrderDate());
+				dto.setOrderCode(order.getOrderCode());
+				dto.setOrderStatus(order.getStatus().getStatus());
+				dto.setDeposit(order.getDeposit());
+				dto.setTotalPrice(order.getTotalPrice());
+//				ticket.setOrder(order);
+				List<String> seatNames = new ArrayList<>();
+				String seatName = null;
+				List<Ticket> tickets = order.getTickets();
+				for(Ticket ticket:tickets) {
+					seatName  = new String();
+					seatName = ticket.getSeat().getName();
+					seatNames.add(seatName);
+				}
+				dto.setListSeat(seatNames);
+				dtos.add(dto);
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		return dtos;
+	}
+
+	@Override
+	public OrderDTOForCustomerSearch getOrderByOrderCode(String orderCode) {
+		OrderDTOForCustomerSearch dto = new OrderDTOForCustomerSearch();
+		try {
+			Order order = orderRepository.findByOrderCode(orderCode);
+			dto.setDeposit(order.getDeposit());
+			dto.setOrderCode(orderCode);
+			dto.setOrderDate(order.getOrderDate());
+			dto.setOrderStatus(order.getStatus().getStatus());
+			dto.setTotalPrice(order.getTotalPrice());
+			List<String> seatNames = new ArrayList<>();
+			String seatName = null;
+			List<Ticket> tickets = order.getTickets();
+			for(Ticket ticket:tickets) {
+				seatName  = new String();
+				seatName = ticket.getSeat().getName();
+				seatNames.add(seatName);
+			}
+			dto.setListSeat(seatNames);
+			Integer scheduleId = orderRepository.findScheduleIdByOrder(order.getId());
+			Schedule schedule = scheduleRepository.findById(scheduleId).orElse(null);
+			dto.setBrandName(schedule.getShuttle().getRoute().getBrand().getBrandName());
+			dto.setRouteName(schedule.getShuttle().getRoute().getStartPoint()+'-'+schedule.getShuttle().getRoute().getEndPoint());
+			dto.setStartTime(schedule.getShuttle().getStartTime());
+			dto.setTravelDate(schedule.getDateStart());
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		return dto;
 	}
 }

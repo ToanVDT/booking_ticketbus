@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import com.graduation.project.entity.Schedule;
 import com.graduation.project.entity.Seat;
 import com.graduation.project.entity.Ticket;
+import com.graduation.project.payload.response.SeatEmptyResponse;
 import com.graduation.project.payload.response.SeatResponseForCustomer;
 import com.graduation.project.payload.response.SeatResponseForTicketPage;
 
@@ -25,4 +26,8 @@ public interface SeatRepository extends JpaRepository<Seat, Integer>{
 	
 	@Query(nativeQuery = true, value = "SELECT distinct seat.name AS seatName, seat.price AS price, seat.eating_fee AS eatingFee, status.status AS statusTicket, CONCAT(user.last_name, ' ', user.first_name) AS customerName, user.phone_number AS customerPhone FROM seat, status, ticket, orders, user WHERE ticket.order_id = orders.id AND orders.user_id = user.id AND seat.status_id = status.id AND seat.schedule_id =:scheduleId")
 	List<SeatResponseForTicketPage> findSeatForTicketPage(Integer scheduleId);
+	
+	@Query(nativeQuery = true, value = "SELECT COUNT(seat.id) as seatEmpty FROM seat where schedule_id =:scheduleId and seat.id not in(select seat.id from status where seat.status_id = status.id and status.status = 'ORDERED')")
+	SeatEmptyResponse findSeatEmpty(Integer scheduleId);
+
 }

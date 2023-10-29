@@ -15,7 +15,7 @@ public class ConstraintMSG {
 	public static String LOGIN_SUCCESS_MSG = "Đăng nhập";
 	public static String BOOKING_SUCCESS_MSG = "Đặt vé";
 	public static String METHOD_PAYMENT_CREDIT = "CREDIT";
-	public static String METHOD_PAYMENT_CAST = "CAST";
+	public static String METHOD_PAYMENT_CASH = "CASH";
 	public static String LOGIN_FAIL_MSG = "Tài khoản hoặc mật khẩu không đúng";
 	public static String PREFIX_ORDER_CODE = "ORDER";
 	public static String APPROVAL_ORDER_MSG = "Duyệt đơn đặt vé";

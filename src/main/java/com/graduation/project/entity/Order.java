@@ -30,8 +30,8 @@ public class Order {
 	private Double totalPrice;
 	
 	
-	@Column(name ="ticket_fee")
-	private Double ticketFee;
+	@Column(name ="quantity_eating")
+	private Integer quantityEating;
 	
 	
 	@Column(name ="deposit")
