@@ -1,5 +1,6 @@
 package com.graduation.project.service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import com.graduation.project.dto.SeatDTO;
@@ -10,7 +11,7 @@ public interface SeatService {
 
 	public APIResponse getSeatInShuttle(Integer shuttleId);
 
-	public SeatEmptyResponse getSeatEmpty(Integer scheduleId);
+	public SeatEmptyResponse getSeatEmpty(LocalDate dateStart,Integer scheduleId);
 
 	public List<SeatDTO> getSeatWithScheduleId(Integer scheduleId);
 }

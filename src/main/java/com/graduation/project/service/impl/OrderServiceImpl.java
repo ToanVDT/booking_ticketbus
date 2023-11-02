@@ -21,6 +21,9 @@ import com.graduation.project.entity.Ticket;
 import com.graduation.project.entity.User;
 import com.graduation.project.payload.request.OrderRequest;
 import com.graduation.project.payload.response.APIResponse;
+import com.graduation.project.payload.response.DateAndTimeResponse;
+import com.graduation.project.payload.response.DetailInFoCustomer;
+import com.graduation.project.payload.response.DetailMoneyOrder;
 import com.graduation.project.repository.GiftCodeRepository;
 import com.graduation.project.repository.OrderRepository;
 import com.graduation.project.repository.PaymentRepository;
@@ -71,6 +74,7 @@ public class OrderServiceImpl implements OrderService{
 			Double giftPrice;
 			Double deposit;
 			Double eatingFee;
+			Integer quantityEating;
 			Status status = null;
 			Order order = new Order();
 			Seat seat = seatRepository.findSeatByScheduleId(request.getScheduleId());
@@ -82,7 +86,13 @@ public class OrderServiceImpl implements OrderService{
 			order.setPickupPoint(request.getPickUp());
 			order.setOrderCode(Utility.RandomOrderCode());
 			order.setOrderDate(now);
-			order.setQuantityEating(request.getQuantityEating());
+			if(request.getQuantityEating() == null) {
+				quantityEating = 0;
+			}
+			else {
+				quantityEating = request.getQuantityEating();
+			}
+			order.setQuantityEating(quantityEating);
 			if (request.getGiftCode() == null) {
 				request.setGiftCode(ConstraintMSG.NO_GIFT_CODE);
 			}
@@ -109,13 +119,14 @@ public class OrderServiceImpl implements OrderService{
 			}
 			order.setStatus(status);
 			double totalPrice = request.getSeatId().size() * seat.getPrice() + eatingFee - giftPrice;
-//			order.setTicketFee(request.getSeatId().size() * seat.getPrice() + eatingFee);
 			int value = (int) totalPrice;
 			order.setTotalPrice(totalPrice);
 			if(totalPrice == paidAmount) {
+				order.setIsPaid(true);
 				deposit = 0.0;
 			}
 			else {
+				order.setIsPaid(false);
 				deposit = paidAmount;
 			}
 			order.setDeposit(deposit);
@@ -144,6 +155,7 @@ public class OrderServiceImpl implements OrderService{
 				Seat seat1 = seatRepository.findById(seatId).get();
 				seat1.setStatus(order.getStatus());
 				seatRepository.save(seat1);
+				ticket.setIsCanceled(false);
 				ticket.setSeat(seat1);
 				ticket.setOrder(order);
 				ticketRepository.save(ticket);
@@ -161,22 +173,28 @@ public class OrderServiceImpl implements OrderService{
 	@Override
 	public APIResponse CancelBooking(Integer orderId) {
 		APIResponse response = new APIResponse();
-		Order order = orderRepository.findById(orderId).get();
-		Status status = null;
-		status = statusRepository.findById(ConstraintMSG.STATUS_CANCELED).get();
-		order.setStatus(status);
-		orderRepository.save(order);
-		List<Ticket> tickets = order.getTickets();
-		for(Ticket ticket:tickets) {
-			Seat seat = seatRepository.findByTicket(ticket);
-			ticketRepository.deleteTicketWhenCancel(seat.getId());
-			status = statusRepository.findById(ConstraintMSG.STATUS_INITIALIZED).orElse(null);
-			seat.setStatus(status);
-			seatRepository.save(seat);
+		try {
+			Order order = orderRepository.findById(orderId).get();
+			Status status = null;
+			status = statusRepository.findById(ConstraintMSG.STATUS_CANCELED).get();
+			order.setStatus(status);
+			orderRepository.save(order);
+			List<Ticket> tickets = order.getTickets();
+			for(Ticket ticket:tickets) {
+				Seat seat = seatRepository.findByTicket(ticket.getId());
+				ticket.setIsCanceled(true);
+				status = statusRepository.findById(ConstraintMSG.STATUS_INITIALIZED).orElse(null);
+				seat.setStatus(status);
+				seatRepository.save(seat);
+				ticketRepository.save(ticket);
+			}
+			response.setData(order);
+			response.setMessage(ConstraintMSG.CANCEL_ORDER_MSG);
+			response.setSuccess(true);
 		}
-		response.setData(order);
-		response.setMessage(ConstraintMSG.CANCEL_ORDER_MSG);
-		response.setSuccess(true);
+		catch(Exception e) {
+			e.printStackTrace();
+		}
 		return response;
 	}
 
@@ -190,7 +208,7 @@ public class OrderServiceImpl implements OrderService{
 			orderRepository.save(order);
 			List<Ticket> tickets = order.getTickets();
 			for(Ticket ticket:tickets) {
-				Seat seat = seatRepository.findByTicket(ticket);
+				Seat seat = seatRepository.findByTicket(ticket.getId());
 				seat.setStatus(status);
 				seatRepository.save(seat);
 			}
@@ -208,25 +226,36 @@ public class OrderServiceImpl implements OrderService{
 	public List<OrderDTO> getOrderInSchedule(Integer scheduleId) {
 		List<OrderDTO> dtos = new ArrayList<>();
 		try {
-//			Schedule schedule = scheduleRepository.findById(scheduleId).orElse(null);
 			List<Order> orders = orderRepository.findOrderByShcedule(scheduleId);
 			OrderDTO dto = null;
 			for(Order order : orders) {
 				dto = new OrderDTO();
+				dto.setId(order.getId());
 				dto.setOrderDate(order.getOrderDate());
 				dto.setOrderCode(order.getOrderCode());
 				dto.setOrderStatus(order.getStatus().getStatus());
 				dto.setDeposit(order.getDeposit());
 				dto.setTotalPrice(order.getTotalPrice());
-//				ticket.setOrder(order);
+				if(!order.getIsPaid()) {
+					if(order.getDeposit() == 0) {
+						dto.setPaymentStatus(ConstraintMSG.NO_PAYMENT_STATUS);
+					}
+					else {
+						dto.setPaymentStatus(ConstraintMSG.DEPOSIT_PAYMENT_STATUS);
+					}
+				}
+				else {
+					dto.setPaymentStatus(ConstraintMSG.PAYMENT_STATUS);
+				}
 				List<String> seatNames = new ArrayList<>();
 				String seatName = null;
-				List<Ticket> tickets = order.getTickets();
-				for(Ticket ticket:tickets) {
-					seatName  = new String();
-					seatName = ticket.getSeat().getName();
-					seatNames.add(seatName);
-				}
+				
+					List<Ticket> tickets = order.getTickets();
+					for(Ticket ticket:tickets) {
+						seatName  = new String();
+						seatName = ticket.getSeat().getName();
+						seatNames.add(seatName);
+					}
 				dto.setListSeat(seatNames);
 				dtos.add(dto);
 			}
@@ -267,5 +296,57 @@ public class OrderServiceImpl implements OrderService{
 			e.printStackTrace();
 		}
 		return dto;
+	}
+
+	@Override
+	public APIResponse ConfirmPaid(Integer orderId) {
+		APIResponse response = new APIResponse();
+		try {
+			Order order = orderRepository.findById(orderId).orElse(null);
+			order.setIsPaid(true);
+			orderRepository.save(order);
+			response.setData(order);
+			response.setMessage(ConstraintMSG.GET_DATA_MSG);
+			response.setSuccess(true);
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		return response;
+	}
+
+	@Override
+	public DetailMoneyOrder getDetailPriceOrder(Integer orderId) {
+		DetailMoneyOrder detailMoneyOrder = orderRepository.findDetailMoney(orderId);
+		return detailMoneyOrder;
+	}
+
+	@Override
+	public DetailInFoCustomer getInfoCusomerInOrder(Integer orderId) {
+		DetailInFoCustomer detailInFoCustomer = orderRepository.findDetailInFoCustomerByOrderId(orderId);
+		return detailInFoCustomer;
+	}
+
+	@Override
+	public DateAndTimeResponse getDateAndTimeByOrderId(Integer orderId) {
+		DateAndTimeResponse response = orderRepository.findDateAndTimeByOrderId(orderId);
+		return response;
+	}
+
+	@Override
+	public APIResponse EnterDeposit(Integer orderId,Double deposit) {
+		APIResponse response = new APIResponse();
+		try {
+			Order order = orderRepository.findById(orderId).orElse(null);
+			order.setDeposit(deposit);
+			orderRepository.save(order);
+			response.setData(order);
+			response.setMessage(ConstraintMSG.UPDATE_DATA_MSG);
+			response.setSuccess(true);
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		return response;
 	}
 }

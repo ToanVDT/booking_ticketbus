@@ -21,6 +21,9 @@ public class ConstraintMSG {
 	public static String APPROVAL_ORDER_MSG = "Duyệt đơn đặt vé";
 	public static String CANCEL_ORDER_MSG = "Hủy đơn đặt vé";
 	public static String NO_GIFT_CODE = "NO_GIFT_CODE";
+	public static String NO_PAYMENT_STATUS = "Chưa thanh toán";
+	public static String PAYMENT_STATUS = "Đã thanh toán";
+	public static String DEPOSIT_PAYMENT_STATUS = "Đã cọc";
 	public static Integer RANK_NEW_MEMBER = 1;
 	public static Integer RANK_MEMBER = 2;
 	public static Integer RANK_VIPPER = 3;

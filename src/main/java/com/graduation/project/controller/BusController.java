@@ -1,5 +1,6 @@
 package com.graduation.project.controller;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +50,12 @@ public class BusController {
 	@GetMapping("/bus/dropdown")
 	private ResponseEntity<List<BusResponseForDropDown>> getBusForDropDown(@RequestParam Integer userId){
 		final List<BusResponseForDropDown> response = busService.getBusForDropDown(userId);
+		return ResponseEntity.status(HttpStatus.OK).body(response);
+	}
+	
+	@GetMapping("/bus/dropdown1")
+	private ResponseEntity<List<BusResponseForDropDown>> getBusForDropDownByTravelDate(@RequestParam Integer userId, @RequestParam LocalDate travelDate){
+		final List<BusResponseForDropDown> response = busService.getBusAvailableByTravelDate(userId, travelDate);
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 	

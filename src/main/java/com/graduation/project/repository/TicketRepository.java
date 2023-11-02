@@ -14,4 +14,7 @@ public interface TicketRepository extends JpaRepository<Ticket, Integer>{
 	@Modifying
 	@Query(nativeQuery = true, value = "delete from ticket where ticket.seat_id=:seatId")
 	void deleteTicketWhenCancel(Integer seatId);
+	
+	@Query(nativeQuery = true, value = "select * from ticket where ticket.seat_id=:seatId and ticket.is_canceled = false")
+	Ticket findBySeat(Integer seatId);
 }

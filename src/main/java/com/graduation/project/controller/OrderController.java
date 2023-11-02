@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -17,6 +18,9 @@ import com.graduation.project.dto.OrderDTO;
 import com.graduation.project.dto.OrderDTOForCustomerSearch;
 import com.graduation.project.payload.request.OrderRequest;
 import com.graduation.project.payload.response.APIResponse;
+import com.graduation.project.payload.response.DateAndTimeResponse;
+import com.graduation.project.payload.response.DetailInFoCustomer;
+import com.graduation.project.payload.response.DetailMoneyOrder;
 import com.graduation.project.service.OrderService;
 
 @RestController
@@ -41,6 +45,11 @@ public class OrderController {
 		final APIResponse response = orderService.CancelBooking(orderId);
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
+	@PostMapping("/order/confirmPaid")
+	private ResponseEntity<APIResponse> ConfirmPaid(@RequestParam Integer orderId){
+		final APIResponse response = orderService.ConfirmPaid(orderId);
+		return ResponseEntity.status(HttpStatus.OK).body(response);
+	}
 	@GetMapping("/orders")
 	private ResponseEntity<APIResponse> getOrdersInSchedule(@RequestParam Integer scheduleId){
 		final List<OrderDTO> response = orderService.getOrderInSchedule(scheduleId);
@@ -50,5 +59,25 @@ public class OrderController {
 	private ResponseEntity<APIResponse> getOrdersByOrderCode(@RequestParam String orderCode){
 		final OrderDTOForCustomerSearch response = orderService.getOrderByOrderCode(orderCode);
 		return ResponseEntity.status(HttpStatus.OK).body(new APIResponse(ConstraintMSG.GET_DATA_MSG,response,true));
+	}
+	@GetMapping("/order/detailmoney")
+	private ResponseEntity<APIResponse> getDetailMoneyInOrder(@RequestParam Integer orderId){
+		final DetailMoneyOrder response = orderService.getDetailPriceOrder(orderId);
+		return ResponseEntity.status(HttpStatus.OK).body(new APIResponse(ConstraintMSG.GET_DATA_MSG,response,true));
+	}
+	@GetMapping("/order/detailcustomer")
+	private ResponseEntity<APIResponse> getDetailInFoCustomer(@RequestParam Integer orderId){
+		final DetailInFoCustomer response = orderService.getInfoCusomerInOrder(orderId);
+		return ResponseEntity.status(HttpStatus.OK).body(new APIResponse(ConstraintMSG.GET_DATA_MSG,response,true));
+	}
+	@GetMapping("/order/datetime")
+	private ResponseEntity<APIResponse> getDateAndTimeInScheduleByOrderId(@RequestParam Integer orderId){
+		final DateAndTimeResponse response = orderService.getDateAndTimeByOrderId(orderId);
+		return ResponseEntity.status(HttpStatus.OK).body(new APIResponse(ConstraintMSG.GET_DATA_MSG,response,true));
+	}
+	@PutMapping("/order/deposit")
+	private ResponseEntity<APIResponse> enterDeposit(@RequestParam Integer orderId, @RequestParam Double deposit){
+		final APIResponse response = orderService.EnterDeposit(orderId, deposit);
+		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 }

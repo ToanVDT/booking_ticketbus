@@ -1,5 +1,6 @@
 package com.graduation.project.controller;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,8 +34,8 @@ public class SeatController {
 		return ResponseEntity.status(HttpStatus.OK).body(new APIResponse("getdata", response,true));
 	}
 	@GetMapping("/empty_seat")
-	private ResponseEntity<SeatEmptyResponse> getSeatEmpty(@RequestParam Integer scheduleId){
-		final SeatEmptyResponse response = seatService.getSeatEmpty(scheduleId);
+	private ResponseEntity<SeatEmptyResponse> getSeatEmpty(@RequestParam LocalDate dateStart,@RequestParam Integer scheduleId){
+		final SeatEmptyResponse response = seatService.getSeatEmpty(dateStart,scheduleId);
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 }

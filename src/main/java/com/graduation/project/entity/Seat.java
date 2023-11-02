@@ -1,5 +1,7 @@
 package com.graduation.project.entity;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;
@@ -10,7 +12,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.OneToMany;
 import lombok.Data;
 
 @Entity
@@ -41,7 +43,7 @@ public class Seat {
 	private Status status;
 	
 	@JsonIgnore
-	@OneToOne(mappedBy = "seat",fetch = FetchType.LAZY)
-	private Ticket ticket;
+	@OneToMany(mappedBy = "seat",fetch = FetchType.LAZY)
+	private List<Ticket> tickets;
 
 }

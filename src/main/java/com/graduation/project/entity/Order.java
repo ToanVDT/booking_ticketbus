@@ -29,14 +29,14 @@ public class Order {
 	@Column(name ="total_price")
 	private Double totalPrice;
 	
-	
 	@Column(name ="quantity_eating")
 	private Integer quantityEating;
 	
+	@Column(name ="is_paid")
+	private Boolean isPaid;
 	
 	@Column(name ="deposit")
 	private Double deposit;
-	
 	
 	@Column(name = "order_code")
 	private String orderCode;

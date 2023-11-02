@@ -1,5 +1,6 @@
 package com.graduation.project.service.impl;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,8 +57,8 @@ public class BusServiceImpl implements BusService{
 			bus.setName(busRequest.getName());
 			busRepository.save(bus);
 			List<BusResponse> busResponses= getAllBusInBrand(busRequest.getUserId());
-			BusMapper mapper = new BusMapper();
-			BusDTO dto = mapper.toDTO(bus);
+//			BusMapper mapper = new BusMapper();
+//			BusDTO dto = mapper.toDTO(bus);
 			response.setData(busResponses);
 			response.setSuccess(true);
 		}
@@ -80,7 +81,6 @@ public class BusServiceImpl implements BusService{
 		try {			
 			Bus bus = busRepository.findById(id).orElse(null);
 			if(!bus.getSchedules().isEmpty()) {
-//			response.setData(bus);
 				response.setMessage(ConstraintMSG.ERROR_DELETE_MSG);
 				response.setSuccess(false);
 				return response;
@@ -115,4 +115,10 @@ public class BusServiceImpl implements BusService{
 		return list;
 	}
 
+	@Override
+	public List<BusResponseForDropDown> getBusAvailableByTravelDate(Integer userId, LocalDate travelDate) {
+		Brand brand = brandRepository.findByUserId(userId);
+		List<BusResponseForDropDown> list = busRepository.findBusAvailableInBrandByTravelDate(brand.getId(), travelDate);
+		return list;
+	}
 }

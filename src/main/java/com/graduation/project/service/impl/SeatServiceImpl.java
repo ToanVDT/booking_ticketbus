@@ -1,5 +1,6 @@
 package com.graduation.project.service.impl;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,11 +12,13 @@ import com.graduation.project.common.Utility;
 import com.graduation.project.dto.SeatDTO;
 import com.graduation.project.entity.Schedule;
 import com.graduation.project.entity.Seat;
+import com.graduation.project.entity.Ticket;
 import com.graduation.project.payload.response.APIResponse;
 import com.graduation.project.payload.response.SeatEmptyResponse;
 import com.graduation.project.payload.response.SeatResponseForCustomer;
 import com.graduation.project.repository.ScheduleRepository;
 import com.graduation.project.repository.SeatRepository;
+import com.graduation.project.repository.TicketRepository;
 import com.graduation.project.service.SeatService;
 
 @Service
@@ -26,6 +29,9 @@ public class SeatServiceImpl implements SeatService{
 	
 	@Autowired
 	private ScheduleRepository scheduleRepository;
+	
+	@Autowired
+	private TicketRepository ticketRepository;
 
 	@Override
 	public APIResponse getSeatInShuttle(Integer scheduleId) {
@@ -58,13 +64,14 @@ public class SeatServiceImpl implements SeatService{
 			dto.setId(seat.getId());
 			dto.setSeatName(seat.getName());
 			dto.setStatusTicket(seat.getStatus().getStatus());
-			if(seat.getTicket() == null) {
+			if(seat.getTickets().isEmpty()) {
 				dto.setCustomerName("");
 				dto.setCustomerPhone("");
 			}
 			else {
-				dto.setCustomerName(seat.getTicket().getOrder().getUser().getLastName()+' '+seat.getTicket().getOrder().getUser().getFirstName());
-				dto.setCustomerPhone(seat.getTicket().getOrder().getUser().getPhoneNumber());
+				Ticket ticket = ticketRepository.findBySeat(seat.getId());
+				dto.setCustomerName(ticket.getOrder().getUser().getLastName()+' '+ticket.getOrder().getUser().getFirstName());
+				dto.setCustomerPhone(ticket.getOrder().getUser().getPhoneNumber());
 			}
 			dtos.add(dto);
 		}
@@ -72,9 +79,8 @@ public class SeatServiceImpl implements SeatService{
 	}
 
 	@Override
-	public SeatEmptyResponse getSeatEmpty(Integer scheduleId) {
-		SeatEmptyResponse seatEmpty = seatRepository.findSeatEmpty(scheduleId);
+	public SeatEmptyResponse getSeatEmpty(LocalDate dateStart,Integer scheduleId) {
+		SeatEmptyResponse seatEmpty = seatRepository.findSeatEmpty(dateStart,scheduleId);
 		return seatEmpty;
 	}
-
 }

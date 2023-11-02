@@ -14,4 +14,5 @@ public interface BusService {
 	public APIResponse removeBus(Integer id,Integer brandId);
 	public APIResponse getBus(Integer id);
 	public List<BusResponseForDropDown> getBusForDropDown(Integer userId);
+	public List<BusResponseForDropDown> getBusAvailableByTravelDate(Integer userId, java.time.LocalDate travelDate);
 }
