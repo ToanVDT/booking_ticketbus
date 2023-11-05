@@ -45,7 +45,6 @@ public class ScheduleServiceImpl implements ScheduleService{
 	public APIResponse createSchedule(ScheduleRequest request) {
 		APIResponse response  = new APIResponse();
 		try {
-			
 			Schedule schedule = new Schedule();
 			Bus bus = busRepository.findById(request.getBusId()).orElse(null);
 			schedule.setBus(bus);
@@ -93,7 +92,6 @@ public class ScheduleServiceImpl implements ScheduleService{
 	public APIResponse updateSchedule(ScheduleRequest request) {
 		APIResponse response  = new APIResponse();
 		try {
-			
 			Schedule schedule = scheduleRepository.findById(request.getId()).orElse(null);
 			Bus bus = busRepository.findById(request.getBusId()).orElse(null);
 			schedule.setBus(bus);

@@ -4,7 +4,7 @@ public interface DetailMoneyOrder {
 
 	public Double getPrice();
 	public Double getEatingFee();
-	public Double getTicketFee();
+	public Double getRestPrice();
 	public Double getGiftCode();
 	public Double getDeposit();
 	public Double getTotalPrice();

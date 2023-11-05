@@ -60,8 +60,18 @@ public class BusController {
 	}
 	
 	@DeleteMapping("/bus/{id}")
-	private ResponseEntity<APIResponse> removeBus(@PathVariable Integer id, @RequestParam Integer userId){
-		final APIResponse response = busService.removeBus(id, userId);
+	private ResponseEntity<APIResponse> removeBus(@PathVariable Integer id){
+		final APIResponse response = busService.removeBus(id);
 		return ResponseEntity.status(HttpStatus.OK).body(response);
+	}
+	@GetMapping("/bus/duplicateName")
+	private Boolean checkDuplicateName(@RequestParam String name) {
+		final Boolean response = busService.checkDuplicateBusName(name);
+		return response;
+	}
+	@GetMapping("/bus/duplicateIdentityCode")
+	private Boolean checkDuplicateIdentityCode(@RequestParam String identityCode) {
+		final Boolean response = busService.checkDuplicateIdentityCode(identityCode);
+		return response;
 	}
 }

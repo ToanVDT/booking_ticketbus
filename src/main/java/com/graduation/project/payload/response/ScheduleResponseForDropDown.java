@@ -7,4 +7,5 @@ public interface ScheduleResponseForDropDown {
 	public Integer getId();
 	public String getRouteName();
 	public LocalTime getStartTime();
+	public Integer getShuttleId();
 }

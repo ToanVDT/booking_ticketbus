@@ -39,8 +39,8 @@ public class RouteServiceImpl implements RouteService{
 		}
 		Brand brand = brandRepository.findByUserId(routeRequest.getUserId());
 		route.setBrand(brand);
-		route.setStartPoint(routeRequest.getStartPoint().replace("Tỉnh", "").trim());
-		route.setEndPoint(routeRequest.getEndPoint().replace("Tỉnh", "").trim());
+		route.setStartPoint(routeRequest.getStartPoint());
+		route.setEndPoint(routeRequest.getEndPoint());
 		routeRepository.save(route);
 		List<RouteResponse>  responses=getAllRoute(routeRequest.getUserId());
 		response.setData(responses);

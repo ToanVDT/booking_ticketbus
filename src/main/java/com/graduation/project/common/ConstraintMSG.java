@@ -24,6 +24,7 @@ public class ConstraintMSG {
 	public static String NO_PAYMENT_STATUS = "Chưa thanh toán";
 	public static String PAYMENT_STATUS = "Đã thanh toán";
 	public static String DEPOSIT_PAYMENT_STATUS = "Đã cọc";
+	public static String CHANGE_PASSWORD_SUCCESS = "Đổi mật khẩu";
 	public static Integer RANK_NEW_MEMBER = 1;
 	public static Integer RANK_MEMBER = 2;
 	public static Integer RANK_VIPPER = 3;
@@ -32,4 +33,7 @@ public class ConstraintMSG {
 	public static Integer STATUS_PENDING = 3;
 	public static Integer STATUS_COMPLETED = 4;
 	public static Integer STATUS_INITIALIZED = 5;
+	public static Integer QUANTITY_COL_4 = 4;
+	public static Integer QUANTITY_COL_6 = 6;
+	public static Integer QUANTITY_ROW = 6;
 }

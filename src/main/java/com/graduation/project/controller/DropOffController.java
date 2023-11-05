@@ -1,5 +1,7 @@
 package com.graduation.project.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -7,6 +9,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -38,6 +41,11 @@ public class DropOffController {
 	@DeleteMapping("/drop_off/{id}")
 	private ResponseEntity<APIResponse> removeDropOff(@PathVariable Integer id, @RequestParam Integer shuttleId){
 		final APIResponse response = dropOffService.removeDropOff(id, shuttleId);
+		return ResponseEntity.status(HttpStatus.OK).body(response);
+	}
+	@PutMapping("/drop_off")
+	private ResponseEntity<APIResponse> addDropOff(@RequestParam Integer shuttleId, @RequestBody List<DropOffRequest> requests){
+		final APIResponse response = dropOffService.addDropOffs(shuttleId, requests);
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 }

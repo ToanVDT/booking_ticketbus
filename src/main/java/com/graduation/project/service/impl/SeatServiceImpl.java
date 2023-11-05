@@ -40,10 +40,10 @@ public class SeatServiceImpl implements SeatService{
 		List<SeatResponseForCustomer> responses = seatRepository.findSeatsBySchedule(scheduleId);
 		List<List<SeatResponseForCustomer>> result = new ArrayList<>();
 		if(schedule.getBus().getType().getType().equals("PHONG")) {
-			result = Utility.getSeatWithTypeBus(responses,4,6);
+			result = Utility.getSeatWithTypeBus(responses,ConstraintMSG.QUANTITY_COL_4,ConstraintMSG.QUANTITY_ROW);
 		}
 		else {
-			result = Utility.getSeatWithTypeBus(responses,6,6);
+			result = Utility.getSeatWithTypeBus(responses,ConstraintMSG.QUANTITY_COL_6,ConstraintMSG.QUANTITY_ROW);
 		}
 		response.setData(result);
 		response.setMessage(ConstraintMSG.GET_DATA_MSG);
@@ -53,6 +53,7 @@ public class SeatServiceImpl implements SeatService{
 
 	@Override
 	public List<SeatDTO> getSeatWithScheduleId(Integer scheduleId) {
+		Ticket ticket = null;
 		Schedule schedule = scheduleRepository.findById(scheduleId).orElse(null);
 		List<Seat> seats = seatRepository.findBySchedule(schedule);
 		List<SeatDTO> dtos = new ArrayList<>();
@@ -64,12 +65,12 @@ public class SeatServiceImpl implements SeatService{
 			dto.setId(seat.getId());
 			dto.setSeatName(seat.getName());
 			dto.setStatusTicket(seat.getStatus().getStatus());
-			if(seat.getTickets().isEmpty()) {
+			ticket = ticketRepository.findBySeat(seat.getId());
+			if(ticket == null) {
 				dto.setCustomerName("");
 				dto.setCustomerPhone("");
 			}
 			else {
-				Ticket ticket = ticketRepository.findBySeat(seat.getId());
 				dto.setCustomerName(ticket.getOrder().getUser().getLastName()+' '+ticket.getOrder().getUser().getFirstName());
 				dto.setCustomerPhone(ticket.getOrder().getUser().getPhoneNumber());
 			}

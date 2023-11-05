@@ -5,6 +5,7 @@ import java.time.LocalTime;
 public interface ScheduleResponse {
 
 	public Integer getId();
+	public Integer getBusId();
 	public LocalDate getDateStart();
 	public LocalTime getStartTime();
 	public String getBusName();

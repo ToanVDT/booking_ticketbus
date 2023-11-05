@@ -11,8 +11,10 @@ public interface BusService {
 
 	public APIResponse saveBus(BusRequest busRequest);
 	public List<BusResponse> getAllBusInBrand(Integer brandId);
-	public APIResponse removeBus(Integer id,Integer brandId);
+	public APIResponse removeBus(Integer id);
 	public APIResponse getBus(Integer id);
 	public List<BusResponseForDropDown> getBusForDropDown(Integer userId);
 	public List<BusResponseForDropDown> getBusAvailableByTravelDate(Integer userId, java.time.LocalDate travelDate);
+	public Boolean checkDuplicateBusName(String name);
+	public Boolean checkDuplicateIdentityCode(String identityCode);
 }

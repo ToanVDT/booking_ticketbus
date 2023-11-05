@@ -10,10 +10,13 @@ import com.graduation.project.dto.AnonymousDTO;
 import com.graduation.project.entity.Ranking;
 import com.graduation.project.entity.Role;
 import com.graduation.project.entity.User;
+import com.graduation.project.payload.request.ChangePasswordRequest;
 import com.graduation.project.payload.request.CustomerBookingRequest;
 import com.graduation.project.payload.request.CustomerRequest;
+import com.graduation.project.payload.request.UpdateProfileRequest;
 import com.graduation.project.payload.request.UserRequest;
 import com.graduation.project.payload.response.APIResponse;
+import com.graduation.project.payload.response.ProfileResponse;
 import com.graduation.project.repository.RankingRepository;
 import com.graduation.project.repository.RoleRepository;
 import com.graduation.project.repository.UserRepository;
@@ -38,26 +41,6 @@ public class UserServiceImpl implements UserService{
 	public APIResponse createUser(UserRequest userRequest) {
 		APIResponse respone = new APIResponse();
 		User user = new User();
-		if (!userRepository.findUserByUsername(userRequest.getUsername()).isEmpty()) {
-			respone.setMessage(ConstraintMSG.DUPLICATE_DATA_MSG);
-			respone.setSuccess(false);
-			return respone;
-		}
-		if (userRepository.findUserByEmail(userRequest.getEmail()) != null) {
-			respone.setMessage(ConstraintMSG.DUPLICATE_DATA_MSG);
-			respone.setSuccess(false);
-			return respone;
-		}
-		if (userRepository.findUserByIdentityCode(userRequest.getIdentityCode()) != null) {
-			respone.setMessage(ConstraintMSG.DUPLICATE_DATA_MSG);
-			respone.setSuccess(false);
-			return respone;
-		}
-		if (userRepository.findUserByNumberPhone(userRequest.getPhone()) != null) {
-			respone.setMessage(ConstraintMSG.DUPLICATE_DATA_MSG);
-			respone.setSuccess(false);
-			return respone;
-		}
 		Ranking ranking = rankingRepository.findById(1).orElse(null);
 		user.setRank(ranking);
 		user.setUsername(userRequest.getUsername());
@@ -81,12 +64,6 @@ public class UserServiceImpl implements UserService{
 	}
 
 	@Override
-	public APIResponse updateUser(UserRequest userRequest) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public APIResponse createCustomer(CustomerRequest customerRequest) {
 		APIResponse response = new APIResponse();
 		User user = null;
@@ -101,26 +78,6 @@ public class UserServiceImpl implements UserService{
 		}
 		else {
 			user = new User();
-			if (!userRepository.findUserByUsername(customerRequest.getUsername()).isEmpty()) {
-				response.setMessage(ConstraintMSG.DUPLICATE_DATA_MSG);
-				response.setSuccess(false);
-				return response;
-			}
-			if (userRepository.findUserByEmail(customerRequest.getEmail()) != null) {
-				response.setMessage(ConstraintMSG.DUPLICATE_DATA_MSG);
-				response.setSuccess(false);
-				return response;
-			}
-			if (userRepository.findUserByIdentityCode(customerRequest.getIdentityCode()) != null) {
-				response.setMessage(ConstraintMSG.DUPLICATE_DATA_MSG);
-				response.setSuccess(false);
-				return response;
-			}
-			if (userRepository.findUserByNumberPhone(customerRequest.getPhoneNumber()) != null) {
-				response.setMessage(ConstraintMSG.DUPLICATE_DATA_MSG);
-				response.setSuccess(false);
-				return response;
-			}
 			user.setUsername(customerRequest.getUsername());
 			user.setFirstName(customerRequest.getFirstName());
 			user.setLastName(customerRequest.getLastName());
@@ -175,6 +132,88 @@ public class UserServiceImpl implements UserService{
 		apiResponse.setSuccess(true);
 		return anonymous;
 	}
-	
-	
+
+	@Override
+	public ProfileResponse getProfileByUserId(Integer userId) {
+		ProfileResponse profileResponse = userRepository.findProfileByUserId(userId);
+		return profileResponse;
+	}
+
+	@Override
+	public Boolean checkOldPassWordValid(Integer userId, String oldPassword) {
+			User user =  userRepository.findById(userId).orElse(null);
+			if(user !=null) {
+				if (encoder.matches(oldPassword, user.getPassword())) {
+					return true;
+				}
+			}
+		return false;
+	}
+
+	@Override
+	public APIResponse changePassword(ChangePasswordRequest request) {
+		APIResponse response = new APIResponse();
+		User user = userRepository.findById(request.getUserId()).orElse(null);
+		user.setPassword(encoder.encode(request.getNewPassword()));
+		userRepository.save(user);
+		response.setSuccess(true);
+		response.setMessage(ConstraintMSG.CHANGE_PASSWORD_SUCCESS);
+		return response;
+	}
+
+	@Override
+	public APIResponse updateProfile(UpdateProfileRequest request) {
+		APIResponse response = new APIResponse();
+		try {
+			User user = userRepository.findById(request.getUserId()).orElse(null);
+			user.setAddress(request.getAddress());
+			user.setEmail(request.getEmail());
+			user.setFirstName(request.getFirstName());
+			user.setIdentityCode(request.getIdentityCode());
+			user.setLastName(request.getLastName());
+			user.setPhoneNumber(request.getPhone());
+			userRepository.save(user);
+			response.setMessage(ConstraintMSG.UPDATE_DATA_MSG);
+			response.setSuccess(true);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return response;
+	}
+
+	@Override
+	public Boolean checkExistEmail(String email) {
+		User user = userRepository.findUserByEmail(email);
+		if(user == null) {
+			return false;
+		}
+		return true;
+	}
+
+	@Override
+	public Boolean checkExistPhone(String phone) {
+		User user = userRepository.findUserByNumberPhone(phone);
+		if(user == null) {
+			return false;
+		}
+		return true;
+	}
+
+	@Override
+	public Boolean checkExistIdentityCode(String identityCode) {
+		User user = userRepository.findUserByIdentityCode(identityCode);
+		if(user == null) {
+			return false;
+		}
+		return true;
+	}
+
+	@Override
+	public Boolean checkExistUsername(String username) {
+		User user = userRepository.findUserByUsername(username).orElse(null);
+		if(user == null) {
+			return false;
+		}
+		return true;
+	}
 }

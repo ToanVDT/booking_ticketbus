@@ -76,7 +76,7 @@ public class BusServiceImpl implements BusService{
 	}
 
 	@Override
-	public APIResponse removeBus(Integer id, Integer brandId) {
+	public APIResponse removeBus(Integer id) {
 		APIResponse response = new APIResponse();
 		try {			
 			Bus bus = busRepository.findById(id).orElse(null);
@@ -86,7 +86,6 @@ public class BusServiceImpl implements BusService{
 				return response;
 			}
 			busRepository.deleteById(id);
-			getAllBusInBrand(brandId);
 			response.setMessage(ConstraintMSG.DELETE_DATA_MSG);
 			response.setSuccess(true);
 		}
@@ -120,5 +119,23 @@ public class BusServiceImpl implements BusService{
 		Brand brand = brandRepository.findByUserId(userId);
 		List<BusResponseForDropDown> list = busRepository.findBusAvailableInBrandByTravelDate(brand.getId(), travelDate);
 		return list;
+	}
+
+	@Override
+	public Boolean checkDuplicateBusName(String name) {
+		Bus bus = busRepository.findByName(name);
+		if(bus == null) {
+			return false;
+		}
+		return true;
+	}
+
+	@Override
+	public Boolean checkDuplicateIdentityCode(String identityCode) {
+		Bus bus = busRepository.findByIdentityCode(identityCode);
+		if(bus == null) {
+			return false;
+		}
+		return true;
 	}
 }

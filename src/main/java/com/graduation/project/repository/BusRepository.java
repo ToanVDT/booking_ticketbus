@@ -20,4 +20,8 @@ public interface BusRepository extends JpaRepository<Bus, Integer>{
 	
 	@Query(nativeQuery = true, value = "SELECT bus.id, bus.name FROM bus WHERE bus.brand_id =:brandId and bus.id NOT in ( SELECT bus.id FROM bus, shuttle, schedule where bus.id = schedule.bus_id and shuttle.id = schedule.shuttle_id and schedule.date_start =:travelDate)")
 	List<BusResponseForDropDown> findBusAvailableInBrandByTravelDate(Integer brandId, LocalDate travelDate);
+	
+	Bus findByName(String name);
+	
+	Bus findByIdentityCode(String identityCode);
 }
