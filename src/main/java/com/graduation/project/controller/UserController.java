@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.graduation.project.payload.request.ChangePasswordRequest;
+import com.graduation.project.payload.request.CustomerRequest;
 import com.graduation.project.payload.request.UpdateProfileRequest;
 import com.graduation.project.payload.request.UserRequest;
 import com.graduation.project.payload.response.APIResponse;
@@ -29,6 +30,11 @@ public class UserController {
 	private ResponseEntity<APIResponse> createUser(@RequestBody UserRequest userRequest){
 		final APIResponse response = userService.createUser(userRequest);
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
+	}
+	@PostMapping("/customer")
+	private ResponseEntity<APIResponse> createCustomer(@RequestBody CustomerRequest request){
+		final APIResponse response = userService.createCustomer(request);
+		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 	@GetMapping("/profile")
 	private ResponseEntity<ProfileResponse> getProfile(@RequestParam Integer userId) {

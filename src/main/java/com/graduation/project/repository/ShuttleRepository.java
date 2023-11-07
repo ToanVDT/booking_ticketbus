@@ -1,6 +1,6 @@
 package com.graduation.project.repository;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -19,6 +19,6 @@ public interface ShuttleRepository extends JpaRepository<Shuttle, Integer>{
 	@Query(nativeQuery = true, value = "SELECT * FROM shuttle WHERE shuttle.route_id =:routeId")
 	List<Shuttle> findShuttleByRoute(Integer routeId);
 	
-	@Query(nativeQuery = true, value = "SELECT COUNT(*) as emptySeats, seat.price as price, xe.* FROM seat join( SELECT bus.seats as seats, brand.image as image, brand.brand_name as brandName, bus_type.type as type, shuttles.* FROM bus, brand, bus_type, ( SELECT shuttle.id as shuttleId, shuttle.bus_id as busId, shuttle.start_time as startTime, shuttle.end_time as endTime, route.* FROM shuttle join( SELECT route.start_point as startPoint, route.end_point as endPoint, route.id as routeId FROM route, brand WHERE brand.id = route.brand_id and route.start_point =:startPoint and route.end_point =:endPoint ) route on route.routeId = shuttle.route_id WHERE day(shuttle.start_time) = day(:startTime)and month(shuttle.start_time) = month(:startTime) and year(shuttle.start_time) = year(:startTime) ) shuttles WHERE bus.id = shuttles.busId AND bus.type_id = bus_type.id and brand.id = bus.brand_id ) xe on seat.shuttle_id = xe.shuttleId WHERE seat.booked = false GROUP BY shuttle_id, price")
-	List<SearchShuttleResponse> findShuttleAvailable(@Param("startPoint") String startPoint, @Param("endPoint") String endPoint, @Param("startTime") Date startTime);
+	@Query(nativeQuery = true, value = "SELECT seat3.price AS price, seat3.eating_fee AS eatingFee, seat3.emptySeat, xe.* FROM (SELECT DISTINCT seat.eating_fee, seat.schedule_id, seat.price, seat2.emptys as emptySeat FROM seat JOIN (SELECT COUNT(id) AS emptys, seat.schedule_id FROM seat WHERE seat.status_id = 5 GROUP BY seat.schedule_id) AS seat2 ON seat.schedule_id = seat2.schedule_id) AS seat3 JOIN (SELECT bus.seats AS seats, brand.image AS image, brand.brand_name AS brandName, brand.phone_brand AS brandPhone, bus_type.type AS type, shuttles.* FROM bus, brand, bus_type, (SELECT shuttle.id AS shuttleId, schedule.bus_id AS busId, schedule.id AS scheduleId, shuttle.start_time AS startTime, shuttle.end_time AS endTime, route.start_point AS startPoint, route.end_point AS endPoint, route.id AS routeId FROM shuttle, schedule, route, brand WHERE shuttle.route_id = route.id AND schedule.shuttle_id = shuttle.id AND brand.id = route.brand_id AND route.start_point =:startPoint AND route.end_point =:endPoint AND schedule.date_start =:travelDate and schedule.id not in (select schedule.id from schedule, shuttle where schedule.shuttle_id= shuttle.id and schedule.date_start= date(now()) and  ADDTIME(time(now()), \"01:00:00\") >shuttle.start_time  ) ) shuttles WHERE bus.id = shuttles.busId AND bus.type_id = bus_type.id AND brand.id = bus.brand_id) xe ON seat3.schedule_id = xe.scheduleId")
+	List<SearchShuttleResponse> findShuttleAvailable(@Param("startPoint") String startPoint, @Param("endPoint") String endPoint, @Param("travelDate") LocalDate travelDate);
 }

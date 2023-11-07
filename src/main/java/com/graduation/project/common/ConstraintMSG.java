@@ -4,8 +4,8 @@ public class ConstraintMSG {
 
 	public static String CREATE_DATA_MSG = "Thêm";
 	public static String UPDATE_DATA_MSG = "Chỉnh sửa";
-	public static String DELETE_DATA_MSG = "Delete successfully";
-	public static String GET_DATA_MSG = "Get data successfully";
+	public static String DELETE_DATA_MSG = "Delete";
+	public static String GET_DATA_MSG = "Get data";
 	public static String DUPLICATE_DATA_MSG = "Duplicate data";
 	public static String ERROR_DELETE_MSG = "Error delete";
 	public static String ERROR_DELETE_ROUTE_PICKUP = "Tuyến đường đã tạo các điểm xuất phát";

@@ -34,9 +34,14 @@ public class Shuttle {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name ="routeId", nullable = false)
 	private Route route;
+	
 	@JsonIgnore
 	@OneToMany(mappedBy = "shuttle", fetch = FetchType.LAZY)
 	private List<PickUp> pickUps;
+	
+	@JsonIgnore
+	@OneToMany(mappedBy = "shuttle", fetch = FetchType.LAZY)
+	private List<Schedule> schedules;
 	
 	@JsonIgnore
 	@OneToMany(mappedBy = "shuttle", fetch = FetchType.LAZY)

@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PickUpRequest {
 
-	private Integer id;
+	private Integer pickUpId;
 	private String pickUpPoint;
 	private LocalTime pickUpTime;
 }

@@ -26,7 +26,7 @@ public class DropOffServiceImpl implements DropOffService{
 	@Override
 	public APIResponse updateDropOff(DropOffRequest dropOffRequest) {
 		APIResponse response = new APIResponse();
-		DropOff dropOff = dropOffRepository.findById(dropOffRequest.getId()).orElse(null);
+		DropOff dropOff = dropOffRepository.findById(dropOffRequest.getDropOffId()).orElse(null);
 		dropOff.setDropOffPoint(dropOffRequest.getDropOffPoint());
 		dropOff.setDropOffTime(dropOffRequest.getDropOffTime());
 		dropOffRepository.save(dropOff);
@@ -37,11 +37,9 @@ public class DropOffServiceImpl implements DropOffService{
 	}
 
 	@Override
-	public APIResponse removeDropOff(Integer id, Integer shuttleId) {
+	public APIResponse removeDropOff(Integer shuttleId) {
 		APIResponse response = new APIResponse();
-		dropOffRepository.deleteById(id);
-		getAllDropOff(shuttleId);
-//		response.setData(response);
+		dropOffRepository.deleteDropOff(shuttleId);
 		response.setMessage(ConstraintMSG.DELETE_DATA_MSG);
 		response.setSuccess(true);
 		return response;

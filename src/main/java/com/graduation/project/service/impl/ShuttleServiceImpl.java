@@ -1,5 +1,6 @@
 package com.graduation.project.service.impl;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,6 @@ import com.graduation.project.entity.Shuttle;
 import com.graduation.project.payload.request.DropOffRequest;
 import com.graduation.project.payload.request.ParkingRequest;
 import com.graduation.project.payload.request.PickUpRequest;
-import com.graduation.project.payload.request.SearchShuttleRequest;
 import com.graduation.project.payload.request.ShuttleRequest;
 import com.graduation.project.payload.request.ShuttleRequestUpdate;
 import com.graduation.project.payload.response.APIResponse;
@@ -27,6 +27,8 @@ import com.graduation.project.repository.DropOffRepository;
 import com.graduation.project.repository.PickUpRepository;
 import com.graduation.project.repository.RouteRepository;
 import com.graduation.project.repository.ShuttleRepository;
+import com.graduation.project.service.DropOffService;
+import com.graduation.project.service.PickUpService;
 import com.graduation.project.service.ShuttleService;
 
 @Service
@@ -34,6 +36,12 @@ public class ShuttleServiceImpl implements ShuttleService{
 
 	@Autowired
 	private ShuttleRepository shuttleRepository;
+	
+	@Autowired
+	private PickUpService pickUpService;
+	
+	@Autowired
+	private DropOffService dropOffService;
 
 	@Autowired
 	private RouteRepository routeRepository;
@@ -89,8 +97,25 @@ public class ShuttleServiceImpl implements ShuttleService{
 
 	@Override
 	public APIResponse removeShuttle(Integer id) {
-		// TODO Auto-generated method stub
-		return null;
+		APIResponse response = new APIResponse();
+		try {
+			Shuttle shuttle = shuttleRepository.findById(id).orElse(null);
+			if(!shuttle.getSchedules().isEmpty()) {
+				response.setMessage(ConstraintMSG.ERROR_DELETE_MSG);
+				response.setSuccess(false);
+				return response;
+			}
+			else {
+				dropOffService.removeDropOff(id);
+				pickUpService.removePickUp(id);
+				shuttleRepository.deleteById(id);
+				response.setMessage(ConstraintMSG.DELETE_DATA_MSG);
+				response.setSuccess(true);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return response;
 	}
 
 	@Override
@@ -109,9 +134,9 @@ public class ShuttleServiceImpl implements ShuttleService{
 	}
 
 	@Override
-	public APIResponse searchShuttle(SearchShuttleRequest request) {
+	public APIResponse searchShuttle(String startPoint,String endPoint, LocalDate travelDate) {
 		APIResponse response = new APIResponse();
-		List<SearchShuttleResponse> list = shuttleRepository.findShuttleAvailable(request.getStartPoint(), request.getEndPoint(), request.getStartTime());
+		List<SearchShuttleResponse> list = shuttleRepository.findShuttleAvailable(startPoint, endPoint, travelDate);
 		response.setData(list);
 		response.setMessage(ConstraintMSG.GET_DATA_MSG);
 		response.setSuccess(true);

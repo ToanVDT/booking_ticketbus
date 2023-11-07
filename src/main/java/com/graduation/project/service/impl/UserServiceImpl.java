@@ -67,22 +67,17 @@ public class UserServiceImpl implements UserService{
 	public APIResponse createCustomer(CustomerRequest customerRequest) {
 		APIResponse response = new APIResponse();
 		User user = null;
-		if(userRepository.findUserByNumberPhone(customerRequest.getPhoneNumber()) !=  null) {
-			user = userRepository.findUserByNumberPhone(customerRequest.getPhoneNumber());
-			user.setActive(true);
-			user.setAnonymous(false);
-			user.setIdentityCode(customerRequest.getIdentityCode());
-			user.setUsername(customerRequest.getUsername());
-			user.setPassword(customerRequest.getPassword());
-			user.setPoint(0);
-		}
-		else {
-			user = new User();
-			user.setUsername(customerRequest.getUsername());
+		try {
+			if(userRepository.findUserByNumberPhone(customerRequest.getPhoneNumber()) !=  null) {
+				user = userRepository.findUserByNumberPhone(customerRequest.getPhoneNumber());
+			}
+			else {
+				user = new User();
+			}
+			user.setUsername(customerRequest.getPhoneNumber());
 			user.setFirstName(customerRequest.getFirstName());
 			user.setLastName(customerRequest.getLastName());
 			user.setEmail(customerRequest.getEmail());
-			user.setIdentityCode(customerRequest.getIdentityCode());
 			user.setActive(true);
 			user.setAnonymous(false);
 			user.setPoint(0);
@@ -90,12 +85,16 @@ public class UserServiceImpl implements UserService{
 			user.setPassword(encoder.encode(customerRequest.getPassword()));
 			Role role = roleRepository.findRoleByName("ROLE_CUSTOMER");
 			user.setRole(role);
+			Ranking ranking = rankingRepository.findById(ConstraintMSG.RANK_NEW_MEMBER).orElse(null);
+			user.setRank(ranking);
 			userRepository.save(user);
-
+			response.setData(user);
+			response.setMessage(ConstraintMSG.CREATE_DATA_MSG);
+			response.setSuccess(true);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		response.setData(user);
-		response.setMessage(ConstraintMSG.CREATE_DATA_MSG);
-		response.setSuccess(true);
+		
 		return response;
 	}
 

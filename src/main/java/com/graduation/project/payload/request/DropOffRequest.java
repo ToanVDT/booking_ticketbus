@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class DropOffRequest {
 
-	private Integer id;
+	private Integer dropOffId;
 	private String dropOffPoint;
 	private LocalTime dropOffTime;
 }

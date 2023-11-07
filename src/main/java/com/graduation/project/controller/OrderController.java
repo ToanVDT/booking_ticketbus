@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.graduation.project.common.ConstraintMSG;
 import com.graduation.project.dto.OrderDTO;
-import com.graduation.project.dto.OrderDTOForCustomerSearch;
 import com.graduation.project.payload.request.OrderRequest;
 import com.graduation.project.payload.response.APIResponse;
 import com.graduation.project.payload.response.DateAndTimeResponse;
@@ -57,8 +56,8 @@ public class OrderController {
 	}
 	@GetMapping("/order")
 	private ResponseEntity<APIResponse> getOrdersByOrderCode(@RequestParam String orderCode){
-		final OrderDTOForCustomerSearch response = orderService.getOrderByOrderCode(orderCode);
-		return ResponseEntity.status(HttpStatus.OK).body(new APIResponse(ConstraintMSG.GET_DATA_MSG,response,true));
+		final APIResponse response = orderService.getOrderByOrderCode(orderCode);
+		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 	@GetMapping("/order/detailmoney")
 	private ResponseEntity<APIResponse> getDetailMoneyInOrder(@RequestParam Integer orderId){

@@ -24,4 +24,12 @@ public class OrderDTOForCustomerSearch {
 	private String brandName;
 	private LocalDate travelDate;
 	private LocalTime startTime;
+	private String paymentStatus;
+	private Double price;
+	private Double eatingFee;
+	private Integer quantityEating;
+	private Integer quantityTicket;
+	private Double giftMoney;
+	private Double restMoney;
+	private String brandPhone;
 }

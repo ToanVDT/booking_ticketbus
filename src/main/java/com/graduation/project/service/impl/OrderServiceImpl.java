@@ -140,12 +140,16 @@ public class OrderServiceImpl implements OrderService{
 				user.setPoint(point);
 				if (point > 100 && point < 500) {
 					ranking = rankingRepository.findById(ConstraintMSG.RANK_MEMBER).get();
+					
 				} else if (point > 500) {
 					ranking = rankingRepository.findById(ConstraintMSG.RANK_VIPPER).get();
+					
 				} else {
 					ranking = rankingRepository.findById(ConstraintMSG.RANK_NEW_MEMBER).get();
+					
 				}
 				user.setRank(ranking);
+				
 				userRepository.save(user);
 			}
 			order.setUser(user);
@@ -267,35 +271,66 @@ public class OrderServiceImpl implements OrderService{
 	}
 
 	@Override
-	public OrderDTOForCustomerSearch getOrderByOrderCode(String orderCode) {
+	public APIResponse getOrderByOrderCode(String orderCode) {
+		APIResponse response = new APIResponse();
 		OrderDTOForCustomerSearch dto = new OrderDTOForCustomerSearch();
+		Integer quantityTicket = 0;
 		try {
 			Order order = orderRepository.findByOrderCode(orderCode);
-			dto.setDeposit(order.getDeposit());
-			dto.setOrderCode(orderCode);
-			dto.setOrderDate(order.getOrderDate());
-			dto.setOrderStatus(order.getStatus().getStatus());
-			dto.setTotalPrice(order.getTotalPrice());
-			List<String> seatNames = new ArrayList<>();
-			String seatName = null;
-			List<Ticket> tickets = order.getTickets();
-			for(Ticket ticket:tickets) {
-				seatName  = new String();
-				seatName = ticket.getSeat().getName();
-				seatNames.add(seatName);
+			if(order == null) {
+				response.setMessage(ConstraintMSG.GET_DATA_MSG);
+				response.setSuccess(false);
 			}
-			dto.setListSeat(seatNames);
-			Integer scheduleId = orderRepository.findScheduleIdByOrder(order.getId());
-			Schedule schedule = scheduleRepository.findById(scheduleId).orElse(null);
-			dto.setBrandName(schedule.getShuttle().getRoute().getBrand().getBrandName());
-			dto.setRouteName(schedule.getShuttle().getRoute().getStartPoint()+'-'+schedule.getShuttle().getRoute().getEndPoint());
-			dto.setStartTime(schedule.getShuttle().getStartTime());
-			dto.setTravelDate(schedule.getDateStart());
+			else {
+				dto.setDeposit(order.getDeposit());
+				dto.setOrderCode(orderCode);
+				dto.setOrderDate(order.getOrderDate());
+				dto.setOrderStatus(order.getStatus().getStatus());
+				dto.setTotalPrice(order.getTotalPrice());
+				if(!order.getIsPaid()) {
+					if(order.getDeposit() == 0) {
+						dto.setPaymentStatus(ConstraintMSG.NO_PAYMENT_STATUS);
+					}
+					else {
+						dto.setPaymentStatus(ConstraintMSG.DEPOSIT_PAYMENT_STATUS);
+					}
+				}
+				else {
+					dto.setPaymentStatus(ConstraintMSG.PAYMENT_STATUS);
+				}
+				List<String> seatNames = new ArrayList<>();
+				String seatName = null;
+				List<Ticket> tickets = order.getTickets();
+				for(Ticket ticket:tickets) {
+					quantityTicket= quantityTicket + 1;
+					seatName  = new String();
+					seatName = ticket.getSeat().getName();
+					seatNames.add(seatName);
+				}
+				dto.setListSeat(seatNames);
+				Integer scheduleId = orderRepository.findScheduleIdByOrder(order.getId());
+				Schedule schedule = scheduleRepository.findById(scheduleId).orElse(null);
+				Seat seat = seatRepository.findSeatByScheduleId(scheduleId);
+				dto.setEatingFee(seat.getEatingFee());
+				dto.setPrice(seat.getPrice());
+				dto.setQuantityEating(order.getQuantityEating());
+				dto.setQuantityTicket(quantityTicket);
+				dto.setGiftMoney(order.getQuantityEating()*seat.getEatingFee() + quantityTicket*seat.getPrice() - order.getTotalPrice());
+				dto.setRestMoney(order.getTotalPrice() - order.getDeposit());
+				dto.setBrandName(schedule.getShuttle().getRoute().getBrand().getBrandName());
+				dto.setBrandPhone(schedule.getShuttle().getRoute().getBrand().getPhoneBrand());
+				dto.setRouteName(schedule.getShuttle().getRoute().getStartPoint()+' '+'-'+' ' +schedule.getShuttle().getRoute().getEndPoint());
+				dto.setStartTime(schedule.getShuttle().getStartTime());
+				dto.setTravelDate(schedule.getDateStart());
+				response.setData(dto);
+				response.setMessage(ConstraintMSG.GET_DATA_MSG);
+				response.setSuccess(true);
+			}
 		}
 		catch(Exception e) {
 			e.printStackTrace();
 		}
-		return dto;
+		return response;
 	}
 
 	@Override

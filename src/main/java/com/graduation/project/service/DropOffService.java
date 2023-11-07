@@ -8,7 +8,7 @@ import com.graduation.project.payload.response.APIResponse;
 public interface DropOffService {
 
 	public APIResponse updateDropOff(DropOffRequest dropOffRequest);
-	public APIResponse removeDropOff(Integer id, Integer shuttleId);
+	public APIResponse removeDropOff(Integer shuttleId);
 	public APIResponse getAllDropOff(Integer shuttleId);
 	public APIResponse addDropOffs(Integer shuttleId, List<DropOffRequest> requests);
 }

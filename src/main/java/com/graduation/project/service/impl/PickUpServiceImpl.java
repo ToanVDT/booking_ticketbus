@@ -6,10 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.graduation.project.common.ConstraintMSG;
-import com.graduation.project.entity.DropOff;
 import com.graduation.project.entity.PickUp;
 import com.graduation.project.entity.Shuttle;
-import com.graduation.project.payload.request.DropOffRequest;
 import com.graduation.project.payload.request.PickUpRequest;
 import com.graduation.project.payload.response.APIResponse;
 import com.graduation.project.payload.response.PickUpResponse;
@@ -29,7 +27,7 @@ public class PickUpServiceImpl implements PickUpService{
 	@Override
 	public APIResponse updatePickUp(PickUpRequest pickUpRequest) {
 		APIResponse response = new APIResponse();
-		PickUp pickUp =pickUpRepository.findById(pickUpRequest.getId()).orElse(null);
+		PickUp pickUp =pickUpRepository.findById(pickUpRequest.getPickUpId()).orElse(null);
 		pickUp.setPickUpPoint(pickUpRequest.getPickUpPoint());
 		pickUp.setPickUpTime(pickUpRequest.getPickUpTime());
 		pickUpRepository.save(pickUp);
@@ -40,10 +38,9 @@ public class PickUpServiceImpl implements PickUpService{
 	}
 
 	@Override
-	public APIResponse removePickUp(Integer id, Integer shuttleId) {
+	public APIResponse removePickUp(Integer shuttleId) {
 		APIResponse response = new APIResponse();
-		pickUpRepository.deleteById(id);
-		getAllPickUp(shuttleId);
+		pickUpRepository.deletePickUp(shuttleId);
 		response.setMessage(ConstraintMSG.DELETE_DATA_MSG);
 		response.setSuccess(true);
 		return response;

@@ -1,8 +1,11 @@
 package com.graduation.project.controller;
 
+import java.time.LocalDate;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -12,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.graduation.project.payload.request.ParkingRequest;
-import com.graduation.project.payload.request.SearchShuttleRequest;
 import com.graduation.project.payload.request.ShuttleRequest;
 import com.graduation.project.payload.request.ShuttleRequestUpdate;
 import com.graduation.project.payload.response.APIResponse;
@@ -32,8 +34,8 @@ public class ShuttleController {
 	}
 	
 	@PostMapping("/shuttles/search")
-	private ResponseEntity<APIResponse> getShuttleAvailable(@RequestBody SearchShuttleRequest request){
-		final APIResponse response = shuttleService.searchShuttle(request);
+	private ResponseEntity<APIResponse> getShuttleAvailable(@RequestParam String startPoint, @RequestParam String endPoint, @RequestParam LocalDate travelDate){
+		final APIResponse response = shuttleService.searchShuttle(startPoint,endPoint,travelDate);
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 	
@@ -56,6 +58,12 @@ public class ShuttleController {
 	@PostMapping("/shuttle/parking")
 	private ResponseEntity<APIResponse> createParking(@RequestBody ParkingRequest request){
 		final APIResponse response = shuttleService.createParkings(request);
+		return ResponseEntity.status(HttpStatus.OK).body(response);
+	}
+	
+	@DeleteMapping("/shuttle")
+	private ResponseEntity<APIResponse> removeShuttle(@RequestParam Integer shuttleId){
+		final APIResponse response = shuttleService.removeShuttle(shuttleId);
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 }
