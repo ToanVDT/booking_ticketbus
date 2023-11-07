@@ -66,6 +66,11 @@ public class UserController {
 		final Boolean response = userService.checkExistIdentityCode(identityCode);
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
+	@GetMapping("/existPhoneRegisterCustomer")
+	private ResponseEntity<Boolean>  checkExistPhoneRegisterCustomer(@RequestParam String phone ) {
+		final Boolean response = userService.checkUsernameAndPhone(phone);
+		return ResponseEntity.status(HttpStatus.OK).body(response);
+	}
 	@PutMapping("/changepassword")
 	private ResponseEntity<APIResponse> changePassword(@RequestBody ChangePasswordRequest request) {
 		final APIResponse response = userService.changePassword(request);

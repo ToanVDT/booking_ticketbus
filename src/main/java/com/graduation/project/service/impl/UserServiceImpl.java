@@ -197,6 +197,7 @@ public class UserServiceImpl implements UserService{
 		}
 		return true;
 	}
+	
 
 	@Override
 	public Boolean checkExistIdentityCode(String identityCode) {
@@ -211,6 +212,18 @@ public class UserServiceImpl implements UserService{
 	public Boolean checkExistUsername(String username) {
 		User user = userRepository.findUserByUsername(username).orElse(null);
 		if(user == null) {
+			return false;
+		}
+		return true;
+	}
+
+	@Override
+	public Boolean checkUsernameAndPhone(String phone) {
+		User user = userRepository.findUserByNumberPhone(phone);
+		if(user == null) {
+			return false;
+		}
+		else if (user != null && user.getAnonymous()) {
 			return false;
 		}
 		return true;

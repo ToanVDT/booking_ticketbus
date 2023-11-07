@@ -23,4 +23,5 @@ public interface UserService {
 	public Boolean checkExistPhone(String phone);
 	public Boolean checkExistIdentityCode(String identityCode);
 	public Boolean checkExistUsername(String username);
+	public Boolean checkUsernameAndPhone(String phone);
 }
