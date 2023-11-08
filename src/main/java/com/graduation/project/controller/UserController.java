@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.graduation.project.payload.request.ChangePasswordRequest;
 import com.graduation.project.payload.request.CustomerRequest;
+import com.graduation.project.payload.request.UpdateProfileCustomerRequest;
 import com.graduation.project.payload.request.UpdateProfileRequest;
 import com.graduation.project.payload.request.UserRequest;
 import com.graduation.project.payload.response.APIResponse;
@@ -66,6 +67,16 @@ public class UserController {
 		final Boolean response = userService.checkExistIdentityCode(identityCode);
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
+	@PutMapping("/profile-customer")
+	private ResponseEntity<APIResponse>  updateProfileCustomer(@RequestBody UpdateProfileCustomerRequest request ) {
+		final APIResponse response = userService.updateProfileCustomer(request);
+		return ResponseEntity.status(HttpStatus.OK).body(response);
+	}
+	@GetMapping("/profile-customer")
+	private ResponseEntity<APIResponse>  getProfileCustomer(@RequestParam Integer userId ) {
+		final APIResponse response = userService.getProfileCustomer(userId);
+		return ResponseEntity.status(HttpStatus.OK).body(response);
+	}
 	@GetMapping("/existPhoneRegisterCustomer")
 	private ResponseEntity<Boolean>  checkExistPhoneRegisterCustomer(@RequestParam String phone ) {
 		final Boolean response = userService.checkUsernameAndPhone(phone);
@@ -79,6 +90,11 @@ public class UserController {
 	@PutMapping("/update")
 	private ResponseEntity<APIResponse> updateProfile(@RequestBody UpdateProfileRequest request) {
 		final APIResponse response = userService.updateProfile(request);
+		return ResponseEntity.status(HttpStatus.OK).body(response);
+	}
+	@GetMapping("/rank")
+	private ResponseEntity<String> getRankAccount(@RequestParam Integer userId){
+		final String response = userService.getRankAccount(userId);
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 }

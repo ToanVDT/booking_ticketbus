@@ -28,5 +28,17 @@ public interface OrderRepository extends JpaRepository<Order, Integer>{
 	
 	@Query(nativeQuery = true, value = "SELECT distinct shuttle.start_time as time, schedule.date_start as date FROM orders, ticket, seat, schedule, shuttle where orders.id =:orderId and orders.id = ticket.order_id and seat.id  = ticket.seat_id and seat.schedule_id =  schedule.id and schedule.shuttle_id = shuttle.id")
 	DateAndTimeResponse findDateAndTimeByOrderId(Integer orderId);
+	
+	@Query(nativeQuery = true, value = "SELECT orders.* FROM orders, user, ticket, schedule, shuttle, seat WHERE ticket.order_id = orders.id AND ticket.seat_id = seat.id AND seat.schedule_id = schedule.id AND schedule.shuttle_id = shuttle.id AND schedule.id NOT IN (SELECT schedule.id FROM schedule, shuttle WHERE schedule.shuttle_id = shuttle.id AND schedule.date_start < date(now()) OR (schedule.date_start = date(now()) AND time(now()) > shuttle.start_time)) AND orders.status_id NOT IN (2) AND orders.user_id = user.id AND user.id =:userId")
+	List<Order> findOrderByUserId(Integer userId);
+	
+	@Query(nativeQuery = true, value = "SELECT orders.* FROM orders, user, ticket, schedule, shuttle, seat WHERE ticket.order_id = orders.id AND ticket.seat_id = seat.id AND seat.schedule_id = schedule.id AND schedule.shuttle_id = shuttle.id  AND orders.status_id IN (2) AND orders.user_id = user.id AND user.id =:userId")
+	List<Order> findOrderCanceledByUserId(Integer userId);
+	
+	@Query(nativeQuery = true, value = "SELECT orders.* FROM orders, user, ticket, schedule, shuttle, seat WHERE ticket.order_id = orders.id AND ticket.seat_id = seat.id AND seat.schedule_id = schedule.id AND schedule.shuttle_id = shuttle.id AND schedule.id NOT IN (SELECT schedule.id FROM schedule, shuttle WHERE schedule.shuttle_id = shuttle.id AND schedule.date_start > date(now()) OR (schedule.date_start = date(now()) AND time(now()) < shuttle.start_time)) AND orders.status_id NOT IN (2) AND orders.user_id = user.id AND user.id =:userId")
+	List<Order> findPastOrderByUserId(Integer userId);
+	
+	@Query(nativeQuery = true, value = "SELECT orders.* FROM schedule, orders, seat, ticket WHERE orders.id = ticket.order_id AND ticket.seat_id = seat.id AND ticket.is_canceled = FALSE AND seat.schedule_id = schedule.id AND schedule.date_start = date(now())")
+	List<Order> findAllOrderSchedule();
 
 }

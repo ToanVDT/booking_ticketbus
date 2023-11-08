@@ -1,11 +1,14 @@
 package com.graduation.project.service.impl;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.graduation.project.common.ConstraintMSG;
+import com.graduation.project.dto.GiftCodeDTO;
 import com.graduation.project.entity.GiftCode;
 import com.graduation.project.entity.Ranking;
 import com.graduation.project.payload.response.APIResponse;
@@ -22,14 +25,15 @@ public class GiftCodeServiceImpl implements GiftCodeService{
 	private RankingRepository rankingRepository;
 
 	@Override
-	public APIResponse saveGiftCode(Integer rankId) {
+	public APIResponse saveGiftCode(Integer rankId, Integer userId) {
 		APIResponse response = new APIResponse();
 		GiftCode giftCode = new GiftCode();
-		LocalDateTime now = LocalDateTime.now();
+		LocalDate now = LocalDate.now();
 		giftCode.setExpireDate(now.plusDays(10));
 		Ranking ranking = rankingRepository.findById(rankId).orElse(null);
 		giftCode.setRank(ranking);
 		giftCode.setGiftCode(generateGiftCode(rankId));
+		giftCode.setUserId(userId);
 		giftCode.setIsUsed(false);
 		giftCodeRepository.save(giftCode);
 		response.setData(giftCode);
@@ -49,6 +53,21 @@ public class GiftCodeServiceImpl implements GiftCodeService{
 			s.append(AlphaNumericString.charAt(index));
 		}
 		return PREFIX + s.toString();
-
+	}
+	@Override
+	public List<GiftCodeDTO> getGiftCodeInUser(Integer userId) {
+		List<GiftCode> giftCodes = giftCodeRepository.findByUserId(userId);
+		GiftCodeDTO dto = null;
+		List<GiftCodeDTO> dtos = new ArrayList<>();
+		for(GiftCode giftCode:giftCodes) {
+			dto = new GiftCodeDTO();
+			Ranking ranking = giftCode.getRank();
+			dto.setPromotion(ranking.getMoneyReduced());
+			dto.setExpireDate(giftCode.getExpireDate());
+			dto.setGiftCode(giftCode.getGiftCode());
+			dto.setIsUsed(giftCode.getIsUsed());
+			dtos.add(dto);
+		}
+		return dtos;
 	}
 }

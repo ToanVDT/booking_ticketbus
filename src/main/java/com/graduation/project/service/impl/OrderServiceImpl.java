@@ -1,5 +1,6 @@
 package com.graduation.project.service.impl;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.graduation.project.common.ConstraintMSG;
 import com.graduation.project.common.Utility;
+import com.graduation.project.dto.CurrentOrderDTO;
 import com.graduation.project.dto.OrderDTO;
 import com.graduation.project.dto.OrderDTOForCustomerSearch;
 import com.graduation.project.entity.GiftCode;
@@ -82,6 +84,7 @@ public class OrderServiceImpl implements OrderService{
 			order.setPayment(payment);
 			
 			LocalDateTime now = LocalDateTime.now();
+			LocalDate dateNow = now.toLocalDate();
 			order.setDropoffPoint(request.getDropOff());
 			order.setPickupPoint(request.getPickUp());
 			order.setOrderCode(Utility.RandomOrderCode());
@@ -97,7 +100,7 @@ public class OrderServiceImpl implements OrderService{
 				request.setGiftCode(ConstraintMSG.NO_GIFT_CODE);
 			}
 			GiftCode giftCode = giftCodeRepository.findByGiftCode(request.getGiftCode());
-			if (giftCode != null && giftCode.getExpireDate().isAfter(now) && !giftCode.getIsUsed()) {
+			if (giftCode != null && giftCode.getExpireDate().isAfter(dateNow) && !giftCode.getIsUsed()) {
 				giftPrice = giftCode.getRank().getMoneyReduced();
 				giftCode.setIsUsed(true);
 			} else {
@@ -383,5 +386,174 @@ public class OrderServiceImpl implements OrderService{
 			e.printStackTrace();
 		}
 		return response;
+	}
+	@Override
+	public APIResponse getCurrentOrder(Integer userId) {
+		APIResponse response = new APIResponse();
+		List<CurrentOrderDTO> dtos = new ArrayList<>();
+		try {
+			List<Order> orders = orderRepository.findOrderByUserId(userId);
+			CurrentOrderDTO dto = null;
+			for(Order order : orders) {
+				dto = new CurrentOrderDTO();
+				dto.setId(order.getId());
+				dto.setOrderDate(order.getOrderDate());
+				dto.setOrderStatus(order.getStatus().getStatus());
+				dto.setDeposit(order.getDeposit());
+				dto.setTotalPrice(order.getTotalPrice());
+				dto.setOrderCode(order.getOrderCode());
+				Integer scheduleId = orderRepository.findScheduleIdByOrder(order.getId());
+				Schedule schedule = scheduleRepository.findById(scheduleId).orElse(null);
+				dto.setBrandName(schedule.getShuttle().getRoute().getBrand().getBrandName());
+				dto.setTravelDate(schedule.getDateStart());
+				dto.setTravelTime(schedule.getShuttle().getStartTime());
+				if(!order.getIsPaid()) {
+					if(order.getDeposit() == 0) {
+						dto.setPaymentStatus(ConstraintMSG.NO_PAYMENT_STATUS);
+					}
+					else {
+						dto.setPaymentStatus(ConstraintMSG.DEPOSIT_PAYMENT_STATUS);
+					}
+				}
+				else {
+					dto.setPaymentStatus(ConstraintMSG.PAYMENT_STATUS);
+				}
+				List<String> seatNames = new ArrayList<>();
+				String seatName = null;
+				
+					List<Ticket> tickets = order.getTickets();
+					for(Ticket ticket:tickets) {
+						seatName  = new String();
+						seatName = ticket.getSeat().getName();
+						seatNames.add(seatName);
+					}
+				dto.setListSeat(seatNames);
+				dtos.add(dto);
+			}
+			response.setData(dtos);
+			response.setMessage(ConstraintMSG.GET_DATA_MSG);
+			response.setSuccess(true);
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		return response;
+	}
+
+	@Override
+	public APIResponse getPastOrder(Integer userId) {
+		APIResponse response = new APIResponse();
+		List<CurrentOrderDTO> dtos = new ArrayList<>();
+		try {
+			List<Order> orders = orderRepository.findPastOrderByUserId(userId);
+			CurrentOrderDTO dto = null;
+			for(Order order : orders) {
+				dto = new CurrentOrderDTO();
+				dto.setId(order.getId());
+				dto.setOrderDate(order.getOrderDate());
+				dto.setOrderStatus(order.getStatus().getStatus());
+				dto.setDeposit(order.getDeposit());
+				dto.setTotalPrice(order.getTotalPrice());
+				dto.setOrderCode(order.getOrderCode());
+				Integer scheduleId = orderRepository.findScheduleIdByOrder(order.getId());
+				Schedule schedule = scheduleRepository.findById(scheduleId).orElse(null);
+				dto.setBrandName(schedule.getShuttle().getRoute().getBrand().getBrandName());
+				dto.setTravelDate(schedule.getDateStart());
+				dto.setTravelTime(schedule.getShuttle().getStartTime());
+				if(!order.getIsPaid()) {
+					if(order.getDeposit() == 0) {
+						dto.setPaymentStatus(ConstraintMSG.NO_PAYMENT_STATUS);
+					}
+					else {
+						dto.setPaymentStatus(ConstraintMSG.DEPOSIT_PAYMENT_STATUS);
+					}
+				}
+				else {
+					dto.setPaymentStatus(ConstraintMSG.PAYMENT_STATUS);
+				}
+				List<String> seatNames = new ArrayList<>();
+				String seatName = null;
+				
+					List<Ticket> tickets = order.getTickets();
+					for(Ticket ticket:tickets) {
+						seatName  = new String();
+						seatName = ticket.getSeat().getName();
+						seatNames.add(seatName);
+					}
+				dto.setListSeat(seatNames);
+				dtos.add(dto);
+			}
+			response.setData(dtos);
+			response.setMessage(ConstraintMSG.GET_DATA_MSG);
+			response.setSuccess(true);
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		return response;
+	}
+
+	@Override
+	public APIResponse getCanceledOrder(Integer userId) {
+		APIResponse response = new APIResponse();
+		List<CurrentOrderDTO> dtos = new ArrayList<>();
+		try {
+			List<Order> orders = orderRepository.findOrderCanceledByUserId(userId);
+			CurrentOrderDTO dto = null;
+			for(Order order : orders) {
+				dto = new CurrentOrderDTO();
+				dto.setId(order.getId());
+				dto.setOrderDate(order.getOrderDate());
+				dto.setOrderStatus(order.getStatus().getStatus());
+				dto.setDeposit(order.getDeposit());
+				dto.setTotalPrice(order.getTotalPrice());
+				dto.setOrderCode(order.getOrderCode());
+				Integer scheduleId = orderRepository.findScheduleIdByOrder(order.getId());
+				Schedule schedule = scheduleRepository.findById(scheduleId).orElse(null);
+				dto.setBrandName(schedule.getShuttle().getRoute().getBrand().getBrandName());
+				dto.setTravelDate(schedule.getDateStart());
+				dto.setTravelTime(schedule.getShuttle().getStartTime());
+				if(!order.getIsPaid()) {
+					if(order.getDeposit() == 0) {
+						dto.setPaymentStatus(ConstraintMSG.NO_PAYMENT_STATUS);
+					}
+					else {
+						dto.setPaymentStatus(ConstraintMSG.DEPOSIT_PAYMENT_STATUS);
+					}
+				}
+				else {
+					dto.setPaymentStatus(ConstraintMSG.PAYMENT_STATUS);
+				}
+				List<String> seatNames = new ArrayList<>();
+				String seatName = null;
+				
+					List<Ticket> tickets = order.getTickets();
+					for(Ticket ticket:tickets) {
+						seatName  = new String();
+						seatName = ticket.getSeat().getName();
+						seatNames.add(seatName);
+					}
+				dto.setListSeat(seatNames);
+				dtos.add(dto);
+			}
+			response.setData(dtos);
+			response.setMessage(ConstraintMSG.GET_DATA_MSG);
+			response.setSuccess(true);
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		return response;
+	}
+
+	@Override
+	public List<Order> updateStatusOrder() {
+		List<Order> orders = orderRepository.findAllOrderSchedule();
+		Status status = statusRepository.findById(ConstraintMSG.STATUS_COMPLETED).orElse(null);
+		for(Order order:orders) {
+			order.setStatus(status);
+			orderRepository.save(order);
+		}
+		return orders;
 	}
 }

@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+    <title>Notifications Email Template</title>
+    <meta name="description" content="Notifications Email Template" />
+    <style type="text/css">
+      a:hover {
+        text-decoration: none !important;
+      }
+      :focus {
+        outline: none;
+        border: 0;
+      }
+    </style>
+  </head>
+
+  <body
+    marginheight="0"
+    topmargin="0"
+    marginwidth="0"
+    style="margin: 0px; background-color: #f2f3f8;"
+    bgcolor="#eaeeef"
+    leftmargin="0"
+  >
+    <!--100% body table-->
+    <table
+      cellspacing="0"
+      border="0"
+      cellpadding="0"
+      width="100%"
+      bgcolor="#f2f3f8"
+      style="
+        @import url(
+          https://fonts.googleapis.com/css?family=Rubik:300,
+          400,
+          500,
+          700|Open + Sans:300,
+          400,
+          600,
+          700
+        );
+        font-family: 'Open Sans', sans-serif;
+      "
+    >
+      <tr>
+        <td>
+          <table
+            style="background-color: #f2f3f8; max-width: 670px; margin: 0 auto;"
+            width="100%"
+            border="0"
+            align="center"
+            cellpadding="0"
+            cellspacing="0"
+          >
+            <tr>
+              <td style="height: 80px;">&nbsp;</td>
+            </tr>
+            <tr>
+              <td>
+                <table
+                  width="95%"
+                  border="0"
+                  align="center"
+                  cellpadding="0"
+                  cellspacing="0"
+                  style="
+                    max-width: 600px;
+                    background: #fff;
+                    border-radius: 3px;
+                    text-align: left;
+                    -webkit-box-shadow: 0 6px 18px 0 rgba(0, 0, 0, 0.06);
+                    -moz-box-shadow: 0 6px 18px 0 rgba(0, 0, 0, 0.06);
+                    box-shadow: 0 6px 18px 0 rgba(0, 0, 0, 0.06);
+                  "
+                >
+                  <tr>
+                    <td style="padding: 40px; background: azure;">
+                      <table
+                        width="100%"
+                        border="0"
+                        align="center"
+                        cellpadding="0"
+                        cellspacing="0"
+                      >
+                        <tr>
+                          <td>
+                            <div style="background: #2474e5;">
+                              <img
+                                style="margin: 3%;"
+                                src="https://storage.googleapis.com/fe-production/svgIcon/icon_vxr_full_2.svg"
+                                alt="logo"
+                              />
+                            </div>
+                            <h1
+                              style="
+                                text-align: center;
+                                color: #2424b5;
+                                font-weight: 500;
+                                margin: 15px;
+                                font-size: 32px;
+                                font-family: system-ui;
+                              "
+                            >
+                              THÔNG BÁO ĐƠN ĐẶT VÉ TỪ KHÁCH HÀNG
+                            </h1>
+                            <p
+                              style="
+                                font-size: 15px;
+                                color: #455056;
+                                line-height: 24px;
+                                margin: 8px 0 30px;
+                              "
+                            >
+                              Gửi nhà xe
+                              <span
+                                style="
+                                  font-style: italic;
+                                  color: #0e385e;
+                                  font-weight: 300;
+                                "
+                                th:text="${brandName}"
+                                >brandName</span
+                              >
+                              ,bạn vừa nhận được đặt vé xe, thông tin chi tiết
+                              dưới đây.
+                            </p>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>
+                            <table
+                              width="100%"
+                              border="0"
+                              align="center"
+                              cellpadding="0"
+                              cellspacing="0"
+                            >
+                              <tr
+                                style="
+                                  border-bottom: 1px solid #ebebeb;
+                                  margin-bottom: 26px;
+                                  padding-bottom: 29px;
+                                  display: block;
+                                "
+                              >
+                                <td style="vertical-align: top;">
+                                  <h3
+                                    style="
+                                      color: #4d4d4d;
+                                      font-size: 20px;
+                                      font-weight: 400;
+                                      line-height: 30px;
+                                      margin-bottom: 3px;
+                                      margin-top: 0;
+                                    "
+                                  >
+                                    <strong>Thông tin khách hàng</strong>
+                                    <h4>
+                                      Tên khách hàng:<span
+                                        style="
+                                          font-style: italic;
+                                          color: #0e385e;
+                                          font-weight: 300;
+                                        "
+                                        th:text="${customer}"
+                                        >customer</span
+                                      >
+                                    </h4>
+                                    <h4>
+                                      Số điện thoại:
+                                      <span
+                                        style="
+                                          font-style: italic;
+                                          color: #0e385e;
+                                          font-weight: 300;
+                                        "
+                                        th:text="${customerPhone}"
+                                        >customerPhone</span
+                                      >
+                                    </h4>
+
+                                    <h4>
+                                      Email:
+                                      <span
+                                        style="
+                                          font-style: italic;
+                                          color: #0e385e;
+                                          font-weight: 300;
+                                        "
+                                        th:text="${customerEmail}"
+                                        >customerEmail</span
+                                      >
+                                    </h4>
+                                  </h3>
+                                </td>
+                              </tr>
+                              <tr
+                                style="
+                                  border-bottom: 1px solid #ebebeb;
+                                  margin-bottom: 26px;
+                                  padding-bottom: 29px;
+                                  display: block;
+                                "
+                              >
+                                <td style="vertical-align: top;">
+                                  <h3
+                                    style="
+                                      color: #4d4d4d;
+                                      font-size: 20px;
+                                      font-weight: 400;
+                                      line-height: 30px;
+                                      margin-bottom: 3px;
+                                      margin-top: 0;
+                                    "
+                                  >
+                                    <strong>Thông tin chuyến đi: </strong>
+                                    <h4>
+                                      Tuyến đi:
+                                      <span
+                                        style="
+                                          font-style: italic;
+                                          color: #0e385e;
+                                          font-weight: 300;
+                                        "
+                                        th:text="${ticket}"
+                                        >ticket</span
+                                      >
+                                      <h5>
+                                        Điểm đón:
+                                        <span
+                                          style="
+                                            font-style: italic;
+                                            color: #0e385e;
+                                            font-weight: 300;
+                                          "
+                                          th:text="${startPoint}"
+                                          >startPoint</span
+                                        >
+                                      </h5>
+                                      <h5>
+                                        Điểm trả:
+                                        <span
+                                          style="
+                                            font-style: italic;
+                                            color: #0e385e;
+                                            font-weight: 300;
+                                          "
+                                          th:text="${endPoint}"
+                                          >endPoint</span
+                                        >
+                                      </h5>
+                                    </h4>
+                                    <h4>
+                                      Ghế đã đặt:
+                                      <span
+                                        style="
+                                          font-style: italic;
+                                          color: #0e385e;
+                                          font-weight: 300;
+                                        "
+                                        th:text="${ticket}"
+                                        >ticket</span
+                                      >
+                                    </h4>
+                                  </h3>
+                                </td>
+                              </tr>
+
+                              <tr
+                                style="
+                                  border-bottom: 1px solid #ebebeb;
+                                  margin-bottom: 26px;
+                                  padding-bottom: 29px;
+                                  display: block;
+                                "
+                              >
+                                <td style="vertical-align: top;">
+                                  <h3
+                                    style="
+                                      color: #4d4d4d;
+                                      font-size: 20px;
+                                      font-weight: 400;
+                                      line-height: 30px;
+                                      margin-bottom: 3px;
+                                      margin-top: 0;
+                                    "
+                                  >
+                                    <strong>Đơn đặt: </strong>
+                                    <h4>
+                                      Tổng tiền:
+                                      <span
+                                        style="
+                                          font-style: italic;
+                                          color: #0e385e;
+                                          font-weight: 300;
+                                        "
+                                        th:text="${customerEmail}"
+                                        >totalPrice</span
+                                      >
+                                    </h4>
+                                    <h4>
+                                      Trạng thái đơn đặt:
+                                      <span
+                                        style="
+                                          font-style: italic;
+                                          color: #0e385e;
+                                          font-weight: 300;
+                                        "
+                                        th:text="${customerEmail}"
+                                        >totalPrice</span
+                                      >
+                                    </h4>
+                                    <h4>
+                                      Thanh toán:
+                                      <span
+                                        style="
+                                          font-style: italic;
+                                          color: #0e385e;
+                                          font-weight: 300;
+                                        "
+                                        th:text="${customerEmail}"
+                                        >totalPrice</span
+                                      >
+                                    </h4>
+                                    <h4>
+                                      Ngày đặt:
+                                      <span
+                                        style="
+                                          font-style: italic;
+                                          color: #0e385e;
+                                          font-weight: 300;
+                                        "
+                                        th:text="${bookingDate}"
+                                        >bookingDate</span
+                                      >
+                                    </h4>
+                                  </h3>
+                                  <!-- <div style="background: #2474e5;">
+                                    <h5>Để tìm hiểu thêm các thông tin khác, Quý khách vui lòng liên hệ
+                                     Phòng Chăm Sóc và Dịch Vụ Khách Hàng - Contact Center: (028) 11 111 111</h5>
+                                   </div> -->
+                                </td>
+                              </tr>
+                            </table>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td style="height: 25px;">&nbsp;</td>
+            </tr>
+            <tr>
+              <td style="height: 80px;">&nbsp;</td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+    <!--/100% body table-->
+  </body>
+</html>

@@ -74,6 +74,21 @@ public class OrderController {
 		final DateAndTimeResponse response = orderService.getDateAndTimeByOrderId(orderId);
 		return ResponseEntity.status(HttpStatus.OK).body(new APIResponse(ConstraintMSG.GET_DATA_MSG,response,true));
 	}
+	@GetMapping("/order/current")
+	private ResponseEntity<APIResponse> getCurrentOrderForCustomer(@RequestParam Integer userId){
+		final APIResponse response = orderService.getCurrentOrder(userId);
+		return ResponseEntity.status(HttpStatus.OK).body(response);
+	}
+	@GetMapping("/order/canceled")
+	private ResponseEntity<APIResponse> getCanceledOrderForCustomer(@RequestParam Integer userId){
+		final APIResponse response = orderService.getCanceledOrder(userId);
+		return ResponseEntity.status(HttpStatus.OK).body(response);
+	}
+	@GetMapping("/order/past")
+	private ResponseEntity<APIResponse> getPastOrderForCustomer(@RequestParam Integer userId){
+		final APIResponse response = orderService.getPastOrder(userId);
+		return ResponseEntity.status(HttpStatus.OK).body(response);
+	}
 	@PutMapping("/order/deposit")
 	private ResponseEntity<APIResponse> enterDeposit(@RequestParam Integer orderId, @RequestParam Double deposit){
 		final APIResponse response = orderService.EnterDeposit(orderId, deposit);

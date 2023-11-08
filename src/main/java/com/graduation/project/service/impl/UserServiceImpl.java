@@ -7,12 +7,14 @@ import org.springframework.stereotype.Service;
 import com.graduation.project.common.ConstraintMSG;
 import com.graduation.project.config.AnonymousMapper;
 import com.graduation.project.dto.AnonymousDTO;
+import com.graduation.project.dto.ProfileCustomerDTO;
 import com.graduation.project.entity.Ranking;
 import com.graduation.project.entity.Role;
 import com.graduation.project.entity.User;
 import com.graduation.project.payload.request.ChangePasswordRequest;
 import com.graduation.project.payload.request.CustomerBookingRequest;
 import com.graduation.project.payload.request.CustomerRequest;
+import com.graduation.project.payload.request.UpdateProfileCustomerRequest;
 import com.graduation.project.payload.request.UpdateProfileRequest;
 import com.graduation.project.payload.request.UserRequest;
 import com.graduation.project.payload.response.APIResponse;
@@ -227,5 +229,45 @@ public class UserServiceImpl implements UserService{
 			return false;
 		}
 		return true;
+	}
+
+	@Override
+	public String getRankAccount(Integer userId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public APIResponse getProfileCustomer(Integer userId) {
+		APIResponse response = new APIResponse();
+		try {
+			User user  = userRepository.findById(userId).orElse(null);
+			ProfileCustomerDTO dto = new ProfileCustomerDTO();
+			dto.setUserId(user.getId());
+			dto.setEmail(user.getEmail());
+			dto.setPhone(user.getPhoneNumber());
+			dto.setFullName(user.getLastName()+' '+user.getFirstName());
+			response.setData(dto);
+			response.setMessage(ConstraintMSG.GET_DATA_MSG);
+			response.setSuccess(true);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return response;
+	}
+
+	@Override
+	public APIResponse updateProfileCustomer(UpdateProfileCustomerRequest request) {
+		APIResponse response = new APIResponse();
+		try {
+			User user  = userRepository.findById(request.getUserId()).orElse(null);
+			user.setEmail(request.getEmail());
+			user.setFirstName(request.getFirstName());
+			user.setLastName(request.getLastName());
+			userRepository.save(user);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return response;
 	}
 }
