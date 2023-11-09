@@ -12,5 +12,5 @@ public interface ScheduleService {
 	public APIResponse createSchedule(ScheduleRequest request);
 	public APIResponse updateSchedule(ScheduleRequest request);
 	public APIResponse getSchedules(Integer routeId);
-	public List<ScheduleResponseForDropDown> getScheduleByTravelDate(LocalDate dateStart);
+	public List<ScheduleResponseForDropDown> getScheduleByTravelDate(LocalDate dateStart,Integer userId);
 }

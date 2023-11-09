@@ -2,6 +2,8 @@ package com.graduation.project.entity;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -37,9 +39,11 @@ public class Brand {
 	@Column(name ="userId")
 	private Integer userId;
 	
+	@JsonIgnore
 	@OneToMany(mappedBy = "brand", fetch = FetchType.LAZY)
 	private List<Bus> bus;
 	
+	@JsonIgnore
 	@OneToMany(mappedBy = "brand", fetch = FetchType.LAZY)
 	private List<Route> routes;
 	

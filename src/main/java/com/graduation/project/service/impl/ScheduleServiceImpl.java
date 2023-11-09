@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.graduation.project.common.ConstraintMSG;
+import com.graduation.project.entity.Brand;
 import com.graduation.project.entity.Bus;
 import com.graduation.project.entity.Schedule;
 import com.graduation.project.entity.Seat;
@@ -16,6 +17,7 @@ import com.graduation.project.payload.request.ScheduleRequest;
 import com.graduation.project.payload.response.APIResponse;
 import com.graduation.project.payload.response.ScheduleResponse;
 import com.graduation.project.payload.response.ScheduleResponseForDropDown;
+import com.graduation.project.repository.BrandRepository;
 import com.graduation.project.repository.BusRepository;
 import com.graduation.project.repository.ScheduleRepository;
 import com.graduation.project.repository.SeatRepository;
@@ -37,6 +39,9 @@ public class ScheduleServiceImpl implements ScheduleService{
 	
 	@Autowired
 	private SeatRepository seatRepository;
+	
+	@Autowired
+	private BrandRepository brandRepository;
 	
 	@Autowired
 	private StatusRepository statusRepository;
@@ -126,8 +131,9 @@ public class ScheduleServiceImpl implements ScheduleService{
 	}
 
 	@Override
-	public List<ScheduleResponseForDropDown> getScheduleByTravelDate(LocalDate dateStart) {
-		List<ScheduleResponseForDropDown> list  = scheduleRepository.findScheduleByTravelDate(dateStart);
+	public List<ScheduleResponseForDropDown> getScheduleByTravelDate(LocalDate dateStart, Integer userId) {
+		Brand brand = brandRepository.findByUserId(userId);
+		List<ScheduleResponseForDropDown> list  = scheduleRepository.findScheduleByTravelDate(dateStart, brand.getId());
 		return list;
 	}
 

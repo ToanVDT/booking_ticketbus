@@ -38,8 +38,8 @@ public class ScheduleController {
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 	@GetMapping("/schedulebytraveldate")
-	private ResponseEntity<List<ScheduleResponseForDropDown>> getScheduleByTravelDate(@RequestParam LocalDate dateStart){
-		final List<ScheduleResponseForDropDown> response = scheduleService.getScheduleByTravelDate(dateStart);
+	private ResponseEntity<List<ScheduleResponseForDropDown>> getScheduleByTravelDate(@RequestParam LocalDate dateStart, @RequestParam Integer userId){
+		final List<ScheduleResponseForDropDown> response = scheduleService.getScheduleByTravelDate(dateStart,userId);
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 	@PutMapping("/schedule")
