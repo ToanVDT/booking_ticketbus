@@ -8,6 +8,7 @@ import com.graduation.project.common.ConstraintMSG;
 import com.graduation.project.config.AnonymousMapper;
 import com.graduation.project.dto.AnonymousDTO;
 import com.graduation.project.dto.ProfileCustomerDTO;
+import com.graduation.project.entity.GiftCode;
 import com.graduation.project.entity.Ranking;
 import com.graduation.project.entity.Role;
 import com.graduation.project.entity.User;
@@ -22,6 +23,8 @@ import com.graduation.project.payload.response.ProfileResponse;
 import com.graduation.project.repository.RankingRepository;
 import com.graduation.project.repository.RoleRepository;
 import com.graduation.project.repository.UserRepository;
+import com.graduation.project.service.EmailService;
+import com.graduation.project.service.GiftCodeService;
 import com.graduation.project.service.UserService;
 
 @Service
@@ -38,6 +41,12 @@ public class UserServiceImpl implements UserService{
 	
 	@Autowired
 	private RankingRepository rankingRepository;
+	
+	@Autowired
+	private EmailService emailService;
+	
+	@Autowired
+	private GiftCodeService giftCodeService;
 	
 	@Override
 	public APIResponse createUser(UserRequest userRequest) {
@@ -90,6 +99,8 @@ public class UserServiceImpl implements UserService{
 			Ranking ranking = rankingRepository.findById(ConstraintMSG.RANK_NEW_MEMBER).orElse(null);
 			user.setRank(ranking);
 			userRepository.save(user);
+			GiftCode codeGenerated = (GiftCode) giftCodeService.saveGiftCode(ranking.getId(), user.getId()).getData();
+			emailService.sendMailWelcomNewJoiner(ranking, user, codeGenerated);
 			response.setData(user);
 			response.setMessage(ConstraintMSG.CREATE_DATA_MSG);
 			response.setSuccess(true);

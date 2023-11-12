@@ -4,9 +4,10 @@ import java.util.Date;
 
 public interface SearchShuttleResponse {
 
-	public Integer getEmptyseats();
+	public Integer getEmptySeats();
 	public Integer getShuttleId();
 	public Double getPrice();
+	public Double getEatingFee();
 	public Integer getSeats();
 	public String getImage();
 	public String getBrandName();
@@ -17,4 +18,5 @@ public interface SearchShuttleResponse {
 	public Integer getRouteId();
 	public String getStartPoint();
 	public String getEndPoint();
+	public Integer getScheduleId();
 }

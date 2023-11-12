@@ -21,6 +21,8 @@ import com.graduation.project.entity.Seat;
 import com.graduation.project.entity.Status;
 import com.graduation.project.entity.Ticket;
 import com.graduation.project.entity.User;
+import com.graduation.project.payload.request.MailOrderStatusRequest;
+import com.graduation.project.payload.request.MailSendInformOrderToBrandOwnerRequest;
 import com.graduation.project.payload.request.OrderRequest;
 import com.graduation.project.payload.response.APIResponse;
 import com.graduation.project.payload.response.DateAndTimeResponse;
@@ -35,12 +37,14 @@ import com.graduation.project.repository.SeatRepository;
 import com.graduation.project.repository.StatusRepository;
 import com.graduation.project.repository.TicketRepository;
 import com.graduation.project.repository.UserRepository;
+import com.graduation.project.service.EmailService;
+import com.graduation.project.service.GiftCodeService;
 import com.graduation.project.service.OrderService;
 import com.graduation.project.service.UserService;
 
 @Service
-public class OrderServiceImpl implements OrderService{
-	
+public class OrderServiceImpl implements OrderService {
+
 	private PaymentRepository paymentRepository;
 	private OrderRepository orderRepository;
 	private SeatRepository seatRepository;
@@ -51,11 +55,14 @@ public class OrderServiceImpl implements OrderService{
 	private RankingRepository rankingRepository;
 	private TicketRepository ticketRepository;
 	private ScheduleRepository scheduleRepository;
+	private GiftCodeService giftCodeService;
+	private EmailService emailService;
 
 	public OrderServiceImpl(PaymentRepository paymentRepository, OrderRepository orderRepository,
-			SeatRepository seatRepository, StatusRepository statusRepository,
-			TicketRepository ticketRepository, RankingRepository rankingRepository, UserRepository userRepository,
-			UserService userService, GiftCodeRepository giftCodeRepository, ScheduleRepository scheduleRepository) {
+			EmailService emailService, SeatRepository seatRepository, StatusRepository statusRepository,
+			GiftCodeService giftCodeService, TicketRepository ticketRepository, RankingRepository rankingRepository,
+			UserRepository userRepository, UserService userService, GiftCodeRepository giftCodeRepository,
+			ScheduleRepository scheduleRepository) {
 		this.paymentRepository = paymentRepository;
 		this.orderRepository = orderRepository;
 		this.seatRepository = seatRepository;
@@ -66,6 +73,8 @@ public class OrderServiceImpl implements OrderService{
 		this.rankingRepository = rankingRepository;
 		this.ticketRepository = ticketRepository;
 		this.scheduleRepository = scheduleRepository;
+		this.giftCodeService = giftCodeService;
+		this.emailService = emailService;
 	}
 
 	@Override
@@ -73,26 +82,26 @@ public class OrderServiceImpl implements OrderService{
 		APIResponse response = new APIResponse();
 		try {
 			Double paidAmount;
+			String orderStatus;
 			Double giftPrice;
 			Double deposit;
 			Double eatingFee;
 			Integer quantityEating;
+			String paymentStatus = "Chưa thanh toán";
 			Status status = null;
 			Order order = new Order();
 			Seat seat = seatRepository.findSeatByScheduleId(request.getScheduleId());
 			Payment payment = paymentRepository.findById(request.getPaymentId()).orElse(null);
 			order.setPayment(payment);
-			
 			LocalDateTime now = LocalDateTime.now();
 			LocalDate dateNow = now.toLocalDate();
 			order.setDropoffPoint(request.getDropOff());
 			order.setPickupPoint(request.getPickUp());
 			order.setOrderCode(Utility.RandomOrderCode());
 			order.setOrderDate(now);
-			if(request.getQuantityEating() == null) {
+			if (request.getQuantityEating() == null) {
 				quantityEating = 0;
-			}
-			else {
+			} else {
 				quantityEating = request.getQuantityEating();
 			}
 			order.setQuantityEating(quantityEating);
@@ -106,7 +115,7 @@ public class OrderServiceImpl implements OrderService{
 			} else {
 				giftPrice = 0.0;
 			}
-			
+
 			if (payment.getPaymentType().equals(ConstraintMSG.METHOD_PAYMENT_CREDIT)) {
 				paidAmount = request.getPaidAmount();
 				status = statusRepository.findById(ConstraintMSG.STATUS_ORDERD).get();
@@ -114,45 +123,61 @@ public class OrderServiceImpl implements OrderService{
 				paidAmount = 0.0;
 				status = statusRepository.findById(ConstraintMSG.STATUS_PENDING).get();
 			}
-			if(request.getQuantityEating() == null || request.getQuantityEating() == 0) {
+			if (request.getQuantityEating() == null || request.getQuantityEating() == 0) {
 				eatingFee = 0.0;
-			}
-			else {
-				eatingFee = request.getQuantityEating()*seat.getEatingFee();
+			} else {
+				eatingFee = request.getQuantityEating() * seat.getEatingFee();
 			}
 			order.setStatus(status);
 			double totalPrice = request.getSeatId().size() * seat.getPrice() + eatingFee - giftPrice;
 			int value = (int) totalPrice;
 			order.setTotalPrice(totalPrice);
-			if(totalPrice == paidAmount) {
+			if (totalPrice == paidAmount) {
 				order.setIsPaid(true);
 				deposit = 0.0;
-			}
-			else {
+				paymentStatus = "Đã thanh toán";
+			} else {
 				order.setIsPaid(false);
 				deposit = paidAmount;
+				if(deposit>0.0) {
+					paymentStatus = "Đã cọc";
+				}
 			}
 			order.setDeposit(deposit);
-			
+
 			User user = userRepository.findUserByNumberPhone(request.getCustomer().getPhoneNumber());
 			if (user == null) {
 				user = userService.createAnonymous(request.getCustomer());
 			} else if (user != null && user.getAnonymous() == false) {
 				Ranking ranking = null;
-				Integer point = user.getPoint() + value / 10;
-				user.setPoint(point);
-				if (point > 100 && point < 500) {
+				Integer point = user.getPoint() + value / 10000;
+				if (point >= 100 && point < 1000) {
 					ranking = rankingRepository.findById(ConstraintMSG.RANK_MEMBER).get();
-					
-				} else if (point > 500) {
+					if (user.getPoint() < 100) {
+						GiftCode codeGenerated = (GiftCode) giftCodeService.saveGiftCode(ranking.getId(), user.getId())
+								.getData();
+						emailService.sendMailUPpgradeRank(ranking, user, codeGenerated);
+					}
+				} else if (point >= 1000) {
 					ranking = rankingRepository.findById(ConstraintMSG.RANK_VIPPER).get();
-					
+					if (user.getPoint() < 1000) {
+						GiftCode codeGenerated = (GiftCode) giftCodeService.saveGiftCode(ranking.getId(), user.getId())
+								.getData();
+						emailService.sendMailUPpgradeRank(ranking, user, codeGenerated);
+					}
 				} else {
 					ranking = rankingRepository.findById(ConstraintMSG.RANK_NEW_MEMBER).get();
-					
+
 				}
+				user.setPoint(point);
 				user.setRank(ranking);
-				
+				userRepository.save(user);
+			}
+			else if(user != null && user.getAnonymous() == true) {
+				user.setEmail(request.getCustomer().getEmail());
+				user.setLastName(request.getCustomer().getLastName());
+				user.setFirstName(request.getCustomer().getFirstName());
+				user.setPhoneNumber(request.getCustomer().getPhoneNumber());
 				userRepository.save(user);
 			}
 			order.setUser(user);
@@ -167,11 +192,41 @@ public class OrderServiceImpl implements OrderService{
 				ticket.setOrder(order);
 				ticketRepository.save(ticket);
 			}
+			Integer scheduleId = orderRepository.findScheduleIdByOrder(order.getId());
+			Schedule schedule = scheduleRepository.findById(scheduleId).orElse(null);
+			User brandOwner = userRepository.findById(schedule.getShuttle().getRoute().getBrand().getUserId())
+					.orElse(null);
+			orderStatus = status.getStatus().equals("PENDING") ? "Chờ duyệt" : "Đã đặt";
+			String routeName = schedule.getShuttle().getRoute().getStartPoint() + " - "
+					+ schedule.getShuttle().getRoute().getEndPoint();
+			String brandName = schedule.getShuttle().getRoute().getBrand().getBrandName();
+			String datetimeTravel = schedule.getShuttle().getStartTime().toString() + ' '
+					+ schedule.getDateStart().toString();
+			String dropOffPoint = order.getDropoffPoint();
+			Double totalPrices = order.getTotalPrice();
+			String pickUpPoint = order.getPickupPoint();
+
+			List<String> seatNames = new ArrayList<>();
+			String seatName = null;
+			List<Ticket> tickets = ticketRepository.findByOrderId(order.getId());
+			for (Ticket ticket : tickets) {
+				seatName = new String();
+				seatName = ticket.getSeat().getName();
+				seatNames.add(seatName);
+			}
+			String email = user.getEmail();
+			String phone = user.getPhoneNumber();
+			String fullName = user.getFirstName() + ' ' + user.getLastName();
+			String lastName =user.getLastName();
+			String orderCode = order.getOrderCode();
+			sendMailOrderStatus(dateNow, brandName, datetimeTravel, dropOffPoint,lastName, seatNames, totalPrices, paymentStatus,
+					pickUpPoint, routeName, orderStatus,orderCode, user);
+			sendMailForBrandOwner(dateNow, brandName, email, fullName, phone, datetimeTravel, dropOffPoint, seatNames,
+					totalPrices, paymentStatus, pickUpPoint, routeName, orderStatus, brandOwner);
 			response.setData(order);
 			response.setMessage(ConstraintMSG.BOOKING_SUCCESS_MSG);
 			response.setSuccess(true);
-		}
-		catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return response;
@@ -182,24 +237,55 @@ public class OrderServiceImpl implements OrderService{
 		APIResponse response = new APIResponse();
 		try {
 			Order order = orderRepository.findById(orderId).get();
+			User user = order.getUser();
 			Status status = null;
 			status = statusRepository.findById(ConstraintMSG.STATUS_CANCELED).get();
 			order.setStatus(status);
+			String paymentStatus;
 			orderRepository.save(order);
+			if (order.getIsPaid() == true) {
+				paymentStatus = "Đã thanh toán";
+			} else {
+				if (order.getDeposit() > 0) {
+					paymentStatus = "Đã cọc";
+				} else {
+					paymentStatus = "Chưa thanh toán";
+				}
+			}
+			List<String> seatNames = new ArrayList<>();
+			String seatName = null;
 			List<Ticket> tickets = order.getTickets();
-			for(Ticket ticket:tickets) {
+			for (Ticket ticket : tickets) {
 				Seat seat = seatRepository.findByTicket(ticket.getId());
 				ticket.setIsCanceled(true);
 				status = statusRepository.findById(ConstraintMSG.STATUS_INITIALIZED).orElse(null);
 				seat.setStatus(status);
 				seatRepository.save(seat);
 				ticketRepository.save(ticket);
+				seatName = new String();
+				seatName = ticket.getSeat().getName();
+				seatNames.add(seatName);
 			}
+			Integer scheduleId = orderRepository.findScheduleIdByOrder(order.getId());
+			Schedule schedule = scheduleRepository.findById(scheduleId).orElse(null);
+			String orderStatus = "Đã hủy";
+			String routeName = schedule.getShuttle().getRoute().getStartPoint() + " - "
+					+ schedule.getShuttle().getRoute().getEndPoint();
+			String brandName = schedule.getShuttle().getRoute().getBrand().getBrandName();
+			String datetimeTravel = schedule.getShuttle().getStartTime().toString() + ' '
+					+ schedule.getDateStart().toString();
+			String dropOffPoint = order.getDropoffPoint();
+			Double totalPrices = order.getTotalPrice();
+			String pickUpPoint = order.getPickupPoint();
+			LocalDate dateNow = order.getOrderDate().toLocalDate();
+			String lastName = user.getLastName();
+			String orderCode = order.getOrderCode();
+			sendMailOrderStatus(dateNow, brandName, datetimeTravel, dropOffPoint,lastName, seatNames, totalPrices, paymentStatus,
+					pickUpPoint, routeName, orderStatus,orderCode, user);
 			response.setData(order);
 			response.setMessage(ConstraintMSG.CANCEL_ORDER_MSG);
 			response.setSuccess(true);
-		}
-		catch(Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return response;
@@ -210,20 +296,55 @@ public class OrderServiceImpl implements OrderService{
 		APIResponse response = new APIResponse();
 		try {
 			Order order = orderRepository.findById(orderId).get();
-			Status status = statusRepository.findById(ConstraintMSG.STATUS_ORDERD).get();
+			User user = order.getUser();
+			Status status = null;
+			status = statusRepository.findById(ConstraintMSG.STATUS_ORDERD).get();
 			order.setStatus(status);
+			String paymentStatus;
 			orderRepository.save(order);
+			if (order.getIsPaid() == true) {
+				paymentStatus = "Đã thanh toán";
+			} else {
+				if (order.getDeposit() > 0) {
+					paymentStatus = "Đã cọc";
+				} else {
+					paymentStatus = "Chưa thanh toán";
+				}
+			}
+			List<String> seatNames = new ArrayList<>();
+			String seatName = null;
 			List<Ticket> tickets = order.getTickets();
-			for(Ticket ticket:tickets) {
+			for (Ticket ticket : tickets) {
 				Seat seat = seatRepository.findByTicket(ticket.getId());
+				ticket.setIsCanceled(false);
+				status = statusRepository.findById(ConstraintMSG.STATUS_ORDERD).orElse(null);
 				seat.setStatus(status);
 				seatRepository.save(seat);
+				ticketRepository.save(ticket);
+				seatName = new String();
+				seatName = ticket.getSeat().getName();
+				seatNames.add(seatName);
 			}
+			Integer scheduleId = orderRepository.findScheduleIdByOrder(order.getId());
+			Schedule schedule = scheduleRepository.findById(scheduleId).orElse(null);
+			String orderStatus = "Đã đặt";
+			String routeName = schedule.getShuttle().getRoute().getStartPoint() + " - "
+					+ schedule.getShuttle().getRoute().getEndPoint();
+			String brandName = schedule.getShuttle().getRoute().getBrand().getBrandName();
+			String datetimeTravel = schedule.getShuttle().getStartTime().toString() + ' '
+					+ schedule.getDateStart().toString();
+			String dropOffPoint = order.getDropoffPoint();
+			Double totalPrices = order.getTotalPrice();
+			String pickUpPoint = order.getPickupPoint();
+			LocalDate dateNow = order.getOrderDate().toLocalDate();
+			String lastName = user.getLastName();
+			String orderCode = order.getOrderCode();
+			sendMailOrderStatus(dateNow, brandName, datetimeTravel, dropOffPoint,lastName, seatNames, totalPrices, paymentStatus,
+					pickUpPoint, routeName, orderStatus,orderCode, user);
 			response.setData(order);
 			response.setMessage(ConstraintMSG.APPROVAL_ORDER_MSG);
 			response.setSuccess(true);
-		}
-		catch(Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return response;
@@ -235,7 +356,7 @@ public class OrderServiceImpl implements OrderService{
 		try {
 			List<Order> orders = orderRepository.findOrderByShcedule(scheduleId);
 			OrderDTO dto = null;
-			for(Order order : orders) {
+			for (Order order : orders) {
 				dto = new OrderDTO();
 				dto.setId(order.getId());
 				dto.setOrderDate(order.getOrderDate());
@@ -243,31 +364,28 @@ public class OrderServiceImpl implements OrderService{
 				dto.setOrderStatus(order.getStatus().getStatus());
 				dto.setDeposit(order.getDeposit());
 				dto.setTotalPrice(order.getTotalPrice());
-				if(!order.getIsPaid()) {
-					if(order.getDeposit() == 0) {
+				if (!order.getIsPaid()) {
+					if (order.getDeposit() == 0) {
 						dto.setPaymentStatus(ConstraintMSG.NO_PAYMENT_STATUS);
-					}
-					else {
+					} else {
 						dto.setPaymentStatus(ConstraintMSG.DEPOSIT_PAYMENT_STATUS);
 					}
-				}
-				else {
+				} else {
 					dto.setPaymentStatus(ConstraintMSG.PAYMENT_STATUS);
 				}
 				List<String> seatNames = new ArrayList<>();
 				String seatName = null;
-				
-					List<Ticket> tickets = order.getTickets();
-					for(Ticket ticket:tickets) {
-						seatName  = new String();
-						seatName = ticket.getSeat().getName();
-						seatNames.add(seatName);
-					}
+
+				List<Ticket> tickets = order.getTickets();
+				for (Ticket ticket : tickets) {
+					seatName = new String();
+					seatName = ticket.getSeat().getName();
+					seatNames.add(seatName);
+				}
 				dto.setListSeat(seatNames);
 				dtos.add(dto);
 			}
-		}
-		catch(Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return dtos;
@@ -280,33 +398,30 @@ public class OrderServiceImpl implements OrderService{
 		Integer quantityTicket = 0;
 		try {
 			Order order = orderRepository.findByOrderCode(orderCode);
-			if(order == null) {
+			if (order == null) {
 				response.setMessage(ConstraintMSG.GET_DATA_MSG);
 				response.setSuccess(false);
-			}
-			else {
+			} else {
 				dto.setDeposit(order.getDeposit());
 				dto.setOrderCode(orderCode);
 				dto.setOrderDate(order.getOrderDate());
 				dto.setOrderStatus(order.getStatus().getStatus());
 				dto.setTotalPrice(order.getTotalPrice());
-				if(!order.getIsPaid()) {
-					if(order.getDeposit() == 0) {
+				if (!order.getIsPaid()) {
+					if (order.getDeposit() == 0) {
 						dto.setPaymentStatus(ConstraintMSG.NO_PAYMENT_STATUS);
-					}
-					else {
+					} else {
 						dto.setPaymentStatus(ConstraintMSG.DEPOSIT_PAYMENT_STATUS);
 					}
-				}
-				else {
+				} else {
 					dto.setPaymentStatus(ConstraintMSG.PAYMENT_STATUS);
 				}
 				List<String> seatNames = new ArrayList<>();
 				String seatName = null;
 				List<Ticket> tickets = order.getTickets();
-				for(Ticket ticket:tickets) {
-					quantityTicket= quantityTicket + 1;
-					seatName  = new String();
+				for (Ticket ticket : tickets) {
+					quantityTicket = quantityTicket + 1;
+					seatName = new String();
 					seatName = ticket.getSeat().getName();
 					seatNames.add(seatName);
 				}
@@ -318,19 +433,20 @@ public class OrderServiceImpl implements OrderService{
 				dto.setPrice(seat.getPrice());
 				dto.setQuantityEating(order.getQuantityEating());
 				dto.setQuantityTicket(quantityTicket);
-				dto.setGiftMoney(order.getQuantityEating()*seat.getEatingFee() + quantityTicket*seat.getPrice() - order.getTotalPrice());
+				dto.setGiftMoney(order.getQuantityEating() * seat.getEatingFee() + quantityTicket * seat.getPrice()
+						- order.getTotalPrice());
 				dto.setRestMoney(order.getTotalPrice() - order.getDeposit());
 				dto.setBrandName(schedule.getShuttle().getRoute().getBrand().getBrandName());
 				dto.setBrandPhone(schedule.getShuttle().getRoute().getBrand().getPhoneBrand());
-				dto.setRouteName(schedule.getShuttle().getRoute().getStartPoint()+' '+'-'+' ' +schedule.getShuttle().getRoute().getEndPoint());
+				dto.setRouteName(schedule.getShuttle().getRoute().getStartPoint() + ' ' + '-' + ' '
+						+ schedule.getShuttle().getRoute().getEndPoint());
 				dto.setStartTime(schedule.getShuttle().getStartTime());
 				dto.setTravelDate(schedule.getDateStart());
 				response.setData(dto);
 				response.setMessage(ConstraintMSG.GET_DATA_MSG);
 				response.setSuccess(true);
 			}
-		}
-		catch(Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return response;
@@ -346,8 +462,7 @@ public class OrderServiceImpl implements OrderService{
 			response.setData(order);
 			response.setMessage(ConstraintMSG.GET_DATA_MSG);
 			response.setSuccess(true);
-		}
-		catch(Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return response;
@@ -372,7 +487,7 @@ public class OrderServiceImpl implements OrderService{
 	}
 
 	@Override
-	public APIResponse EnterDeposit(Integer orderId,Double deposit) {
+	public APIResponse EnterDeposit(Integer orderId, Double deposit) {
 		APIResponse response = new APIResponse();
 		try {
 			Order order = orderRepository.findById(orderId).orElse(null);
@@ -381,12 +496,12 @@ public class OrderServiceImpl implements OrderService{
 			response.setData(order);
 			response.setMessage(ConstraintMSG.UPDATE_DATA_MSG);
 			response.setSuccess(true);
-		}
-		catch(Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return response;
 	}
+
 	@Override
 	public APIResponse getCurrentOrder(Integer userId) {
 		APIResponse response = new APIResponse();
@@ -394,7 +509,7 @@ public class OrderServiceImpl implements OrderService{
 		try {
 			List<Order> orders = orderRepository.findOrderByUserId(userId);
 			CurrentOrderDTO dto = null;
-			for(Order order : orders) {
+			for (Order order : orders) {
 				dto = new CurrentOrderDTO();
 				dto.setId(order.getId());
 				dto.setOrderDate(order.getOrderDate());
@@ -407,34 +522,31 @@ public class OrderServiceImpl implements OrderService{
 				dto.setBrandName(schedule.getShuttle().getRoute().getBrand().getBrandName());
 				dto.setTravelDate(schedule.getDateStart());
 				dto.setTravelTime(schedule.getShuttle().getStartTime());
-				if(!order.getIsPaid()) {
-					if(order.getDeposit() == 0) {
+				if (!order.getIsPaid()) {
+					if (order.getDeposit() == 0) {
 						dto.setPaymentStatus(ConstraintMSG.NO_PAYMENT_STATUS);
-					}
-					else {
+					} else {
 						dto.setPaymentStatus(ConstraintMSG.DEPOSIT_PAYMENT_STATUS);
 					}
-				}
-				else {
+				} else {
 					dto.setPaymentStatus(ConstraintMSG.PAYMENT_STATUS);
 				}
 				List<String> seatNames = new ArrayList<>();
 				String seatName = null;
-				
-					List<Ticket> tickets = order.getTickets();
-					for(Ticket ticket:tickets) {
-						seatName  = new String();
-						seatName = ticket.getSeat().getName();
-						seatNames.add(seatName);
-					}
+
+				List<Ticket> tickets = order.getTickets();
+				for (Ticket ticket : tickets) {
+					seatName = new String();
+					seatName = ticket.getSeat().getName();
+					seatNames.add(seatName);
+				}
 				dto.setListSeat(seatNames);
 				dtos.add(dto);
 			}
 			response.setData(dtos);
 			response.setMessage(ConstraintMSG.GET_DATA_MSG);
 			response.setSuccess(true);
-		}
-		catch(Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return response;
@@ -447,7 +559,7 @@ public class OrderServiceImpl implements OrderService{
 		try {
 			List<Order> orders = orderRepository.findPastOrderByUserId(userId);
 			CurrentOrderDTO dto = null;
-			for(Order order : orders) {
+			for (Order order : orders) {
 				dto = new CurrentOrderDTO();
 				dto.setId(order.getId());
 				dto.setOrderDate(order.getOrderDate());
@@ -460,34 +572,31 @@ public class OrderServiceImpl implements OrderService{
 				dto.setBrandName(schedule.getShuttle().getRoute().getBrand().getBrandName());
 				dto.setTravelDate(schedule.getDateStart());
 				dto.setTravelTime(schedule.getShuttle().getStartTime());
-				if(!order.getIsPaid()) {
-					if(order.getDeposit() == 0) {
+				if (!order.getIsPaid()) {
+					if (order.getDeposit() == 0) {
 						dto.setPaymentStatus(ConstraintMSG.NO_PAYMENT_STATUS);
-					}
-					else {
+					} else {
 						dto.setPaymentStatus(ConstraintMSG.DEPOSIT_PAYMENT_STATUS);
 					}
-				}
-				else {
+				} else {
 					dto.setPaymentStatus(ConstraintMSG.PAYMENT_STATUS);
 				}
 				List<String> seatNames = new ArrayList<>();
 				String seatName = null;
-				
-					List<Ticket> tickets = order.getTickets();
-					for(Ticket ticket:tickets) {
-						seatName  = new String();
-						seatName = ticket.getSeat().getName();
-						seatNames.add(seatName);
-					}
+
+				List<Ticket> tickets = order.getTickets();
+				for (Ticket ticket : tickets) {
+					seatName = new String();
+					seatName = ticket.getSeat().getName();
+					seatNames.add(seatName);
+				}
 				dto.setListSeat(seatNames);
 				dtos.add(dto);
 			}
 			response.setData(dtos);
 			response.setMessage(ConstraintMSG.GET_DATA_MSG);
 			response.setSuccess(true);
-		}
-		catch(Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return response;
@@ -500,7 +609,7 @@ public class OrderServiceImpl implements OrderService{
 		try {
 			List<Order> orders = orderRepository.findOrderCanceledByUserId(userId);
 			CurrentOrderDTO dto = null;
-			for(Order order : orders) {
+			for (Order order : orders) {
 				dto = new CurrentOrderDTO();
 				dto.setId(order.getId());
 				dto.setOrderDate(order.getOrderDate());
@@ -513,34 +622,31 @@ public class OrderServiceImpl implements OrderService{
 				dto.setBrandName(schedule.getShuttle().getRoute().getBrand().getBrandName());
 				dto.setTravelDate(schedule.getDateStart());
 				dto.setTravelTime(schedule.getShuttle().getStartTime());
-				if(!order.getIsPaid()) {
-					if(order.getDeposit() == 0) {
+				if (!order.getIsPaid()) {
+					if (order.getDeposit() == 0) {
 						dto.setPaymentStatus(ConstraintMSG.NO_PAYMENT_STATUS);
-					}
-					else {
+					} else {
 						dto.setPaymentStatus(ConstraintMSG.DEPOSIT_PAYMENT_STATUS);
 					}
-				}
-				else {
+				} else {
 					dto.setPaymentStatus(ConstraintMSG.PAYMENT_STATUS);
 				}
 				List<String> seatNames = new ArrayList<>();
 				String seatName = null;
-				
-					List<Ticket> tickets = order.getTickets();
-					for(Ticket ticket:tickets) {
-						seatName  = new String();
-						seatName = ticket.getSeat().getName();
-						seatNames.add(seatName);
-					}
+
+				List<Ticket> tickets = order.getTickets();
+				for (Ticket ticket : tickets) {
+					seatName = new String();
+					seatName = ticket.getSeat().getName();
+					seatNames.add(seatName);
+				}
 				dto.setListSeat(seatNames);
 				dtos.add(dto);
 			}
 			response.setData(dtos);
 			response.setMessage(ConstraintMSG.GET_DATA_MSG);
 			response.setSuccess(true);
-		}
-		catch(Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return response;
@@ -550,10 +656,49 @@ public class OrderServiceImpl implements OrderService{
 	public List<Order> updateStatusOrder() {
 		List<Order> orders = orderRepository.findAllOrderSchedule();
 		Status status = statusRepository.findById(ConstraintMSG.STATUS_COMPLETED).orElse(null);
-		for(Order order:orders) {
+		for (Order order : orders) {
 			order.setStatus(status);
 			orderRepository.save(order);
 		}
 		return orders;
+	}
+
+	public void sendMailForBrandOwner(LocalDate dateNow, String brandName, String email, String customerName,
+			String phone, String datetimeTravel, String dropOffPoint, List<String> seatNames, Double totalPrices,
+			String paymentStatus, String pickUpPoint, String routeName, String orderStatus, User user) {
+		MailSendInformOrderToBrandOwnerRequest requestMail = new MailSendInformOrderToBrandOwnerRequest();
+		requestMail.setBookingDate(dateNow);
+		requestMail.setBrandName(brandName);
+		requestMail.setCustomerEmail(email);
+		requestMail.setCustomerName(customerName);
+		requestMail.setCustomerPhone(phone);
+		requestMail.setDateTimeTravel(datetimeTravel);
+		requestMail.setDropOffPoint(dropOffPoint);
+		requestMail.setListSeatOrderd(seatNames);
+		requestMail.setTotalPrice(totalPrices);
+		requestMail.setPaymentStatus(paymentStatus);
+		requestMail.setPickUpPoint(pickUpPoint);
+		requestMail.setRouteName(routeName);
+		requestMail.setOrderStatus(orderStatus);
+		emailService.sendMailInformOrderToBrandOwner(requestMail, user);
+	}
+
+	public void sendMailOrderStatus(LocalDate dateNow, String brandName, String datetimeTravel, String dropOffPoint,String customerName,
+			List<String> seatNames, Double totalPrices, String paymentStatus, String pickUpPoint, String routeName,
+			String orderStatus,String orderCode, User user) {
+		MailOrderStatusRequest requestMail = new MailOrderStatusRequest();
+		requestMail.setBookingDate(dateNow);
+		requestMail.setBrandName(brandName);
+		requestMail.setCustomerName(customerName);
+		requestMail.setDateTimeTravel(datetimeTravel);
+		requestMail.setDropOffPoint(dropOffPoint);
+		requestMail.setListSeatOrderd(seatNames);
+		requestMail.setTotalPrice(totalPrices);
+		requestMail.setPaymentStatus(paymentStatus);
+		requestMail.setPickUpPoint(pickUpPoint);
+		requestMail.setRouteName(routeName);
+		requestMail.setOrderStatus(orderStatus);
+		requestMail.setOrderCode(orderCode);
+		emailService.sendMailOrderStatus(requestMail, user);
 	}
 }

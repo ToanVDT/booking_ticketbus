@@ -33,7 +33,7 @@ public class ShuttleController {
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 	
-	@PostMapping("/shuttles/search")
+	@GetMapping("/shuttles/search")
 	private ResponseEntity<APIResponse> getShuttleAvailable(@RequestParam String startPoint, @RequestParam String endPoint, @RequestParam LocalDate travelDate){
 		final APIResponse response = shuttleService.searchShuttle(startPoint,endPoint,travelDate);
 		return ResponseEntity.status(HttpStatus.OK).body(response);

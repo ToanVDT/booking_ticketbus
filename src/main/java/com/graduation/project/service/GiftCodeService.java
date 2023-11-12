@@ -10,4 +10,6 @@ public interface GiftCodeService {
 	public APIResponse saveGiftCode(Integer rankId, Integer userId);
 
 	List<GiftCodeDTO> getGiftCodeInUser(Integer userId);
+	
+	APIResponse checkGiftCodeValid(String giftCode);
 }

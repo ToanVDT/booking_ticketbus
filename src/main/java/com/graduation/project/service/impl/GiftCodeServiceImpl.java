@@ -70,4 +70,35 @@ public class GiftCodeServiceImpl implements GiftCodeService{
 		}
 		return dtos;
 	}
+
+	@Override
+	public APIResponse checkGiftCodeValid(String giftCode) {
+		APIResponse response = new APIResponse();
+		LocalDate dateNow = LocalDate.now();
+		GiftCode code = giftCodeRepository.findByGiftCode(giftCode);
+		if(code == null) {
+			response.setSuccess(false);
+			response.setMessage(ConstraintMSG.CODE_NOT_EXISTS);
+			return response;
+		}
+		else {
+			if(code.getIsUsed() == true) {
+				response.setMessage(ConstraintMSG.CODE_USED);
+				response.setSuccess(false);
+				return response;
+			}
+			else if(code.getExpireDate().isBefore(dateNow)) {
+				response.setMessage(ConstraintMSG.CODE_EXPIRED);
+				response.setSuccess(false);
+				return response;
+			}
+			else {
+				Ranking ranking = code.getRank();
+				response.setData(ranking.getMoneyReduced());
+				response.setMessage(ConstraintMSG.USE_CODE_SUCCESS);
+				response.setSuccess(true);
+				return response;
+			}
+		}
+	}
 }
