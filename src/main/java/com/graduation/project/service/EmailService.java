@@ -15,4 +15,5 @@ public interface EmailService {
 	public void sendMailWelcomNewJoiner(Ranking ranking, User user, GiftCode giftCode);
 	public void sendMailOrderStatus(MailOrderStatusRequest request,User user);
 	public void sendMailInformOrderToBrandOwner(MailSendInformOrderToBrandOwnerRequest request,User user);
+	public void sendMailThanksLeter(String customerName, String brandName,User user);
 }

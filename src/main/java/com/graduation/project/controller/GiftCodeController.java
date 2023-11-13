@@ -34,4 +34,11 @@ public class GiftCodeController {
 		final List<GiftCodeDTO> response = giftCodeService.getGiftCodeInUser(userId);
 		return ResponseEntity.status(HttpStatus.OK).body(new APIResponse(ConstraintMSG.GET_DATA_MSG, response, true));
 	}
+	
+	@GetMapping("/valid")
+	private ResponseEntity<APIResponse> checkGiftCodeValid(@RequestParam String giftCode) {
+		final APIResponse response = giftCodeService.checkGiftCodeValid(giftCode);
+		return ResponseEntity.status(HttpStatus.OK).body(response);
+	}
+	
 }

@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.springframework.stereotype.Service;
 
@@ -21,6 +23,7 @@ import com.graduation.project.entity.Seat;
 import com.graduation.project.entity.Status;
 import com.graduation.project.entity.Ticket;
 import com.graduation.project.entity.User;
+import com.graduation.project.payload.EmailDetails;
 import com.graduation.project.payload.request.MailOrderStatusRequest;
 import com.graduation.project.payload.request.MailSendInformOrderToBrandOwnerRequest;
 import com.graduation.project.payload.request.OrderRequest;
@@ -656,10 +659,20 @@ public class OrderServiceImpl implements OrderService {
 	public List<Order> updateStatusOrder() {
 		List<Order> orders = orderRepository.findAllOrderSchedule();
 		Status status = statusRepository.findById(ConstraintMSG.STATUS_COMPLETED).orElse(null);
+		String customerName = null;
+		String brandName = null;
+		User user = null;
 		for (Order order : orders) {
 			order.setStatus(status);
 			orderRepository.save(order);
+			Integer scheduleId = orderRepository.findScheduleIdByOrder(order.getId());
+			Schedule schedule = scheduleRepository.findById(scheduleId).orElse(null);
+			user = order.getUser();
+			customerName = user.getLastName();
+			brandName = schedule.getBus().getBrand().getBrandName();
+			sendMailThanksLeter(customerName, brandName, user);
 		}
+		
 		return orders;
 	}
 
@@ -700,5 +713,8 @@ public class OrderServiceImpl implements OrderService {
 		requestMail.setOrderStatus(orderStatus);
 		requestMail.setOrderCode(orderCode);
 		emailService.sendMailOrderStatus(requestMail, user);
+	}
+	public void sendMailThanksLeter(String customerName,String brandName,User user) {
+		emailService.sendMailThanksLeter(customerName, brandName, user);
 	}
 }

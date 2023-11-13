@@ -182,4 +182,29 @@ public class EmailServiceImpl implements EmailService {
 			e.printStackTrace();
 		}
 	}
+
+	@Override
+	public void sendMailThanksLeter(String customerName, String brandName,User user) {
+		EmailDetails email = new EmailDetails();
+		try {
+			Map<String, Object> properties = new HashMap<>();
+			email.setSubject("[VEXERE: Thư cảm ơn]");
+			properties.put("customerName", customerName);
+			properties.put("brandName", brandName);
+			email.setFrom("fromemail@gmail.com");
+			email.setTemplate("MailThanks.html");
+			email.setProperties(properties);
+
+			String regex = "^(.+)@(.+)$";
+			Pattern pattern = Pattern.compile(regex);
+
+			Matcher matcher = pattern.matcher(user.getEmail());
+			if (matcher.matches()) {
+				email.setTo(user.getEmail());
+				sendSimpleMail(email);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }

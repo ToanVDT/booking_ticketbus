@@ -29,6 +29,7 @@ public class ConstraintMSG {
 	public static String CODE_USED = "Mã quà tặng đã được sử dụng";
 	public static String CODE_EXPIRED = "Mã quà tặng hết hạn sử dụng";
 	public static String USE_CODE_SUCCESS = "Áp dụng mã quà tặng thành công";
+	public static String PAYMENT_SUCCESS = "Thanh toán";
 	public static Integer RANK_NEW_MEMBER = 1;
 	public static Integer RANK_MEMBER = 2;
 	public static Integer RANK_VIPPER = 3;
