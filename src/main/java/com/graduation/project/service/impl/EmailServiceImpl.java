@@ -207,4 +207,28 @@ public class EmailServiceImpl implements EmailService {
 			e.printStackTrace();
 		}
 	}
+
+	@Override
+	public void sendMailForgotPassword(User user, String validateCode) {
+		EmailDetails email = new EmailDetails();
+		try {
+			Map<String, Object> properties = new HashMap<>();
+			email.setSubject("[VEXERE: Mã xác thực]");
+			properties.put("customerFirstName", user.getFirstName());
+			properties.put("validateCode", validateCode);
+			email.setFrom("fromemail@gmail.com");
+			email.setTemplate("MailForGotPassword.html");
+			email.setProperties(properties);
+			String regex = "^(.+)@(.+)$";
+			Pattern pattern = Pattern.compile(regex);
+
+			Matcher matcher = pattern.matcher(user.getEmail());
+			if (matcher.matches()) {
+				email.setTo(user.getEmail());
+				sendSimpleMail(email);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }

@@ -4,8 +4,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.springframework.stereotype.Service;
 
@@ -23,7 +21,6 @@ import com.graduation.project.entity.Seat;
 import com.graduation.project.entity.Status;
 import com.graduation.project.entity.Ticket;
 import com.graduation.project.entity.User;
-import com.graduation.project.payload.EmailDetails;
 import com.graduation.project.payload.request.MailOrderStatusRequest;
 import com.graduation.project.payload.request.MailSendInformOrderToBrandOwnerRequest;
 import com.graduation.project.payload.request.OrderRequest;
@@ -407,6 +404,7 @@ public class OrderServiceImpl implements OrderService {
 			} else {
 				dto.setDeposit(order.getDeposit());
 				dto.setOrderCode(orderCode);
+				dto.setOrderId(order.getId());
 				dto.setOrderDate(order.getOrderDate());
 				dto.setOrderStatus(order.getStatus().getStatus());
 				dto.setTotalPrice(order.getTotalPrice());
@@ -667,9 +665,10 @@ public class OrderServiceImpl implements OrderService {
 			orderRepository.save(order);
 			Integer scheduleId = orderRepository.findScheduleIdByOrder(order.getId());
 			Schedule schedule = scheduleRepository.findById(scheduleId).orElse(null);
-			user = order.getUser();
+			user = userRepository.findUserByOrderId(order.getId());
 			customerName = user.getLastName();
 			brandName = schedule.getBus().getBrand().getBrandName();
+			System.out.println(customerName+'-'+ brandName);
 			sendMailThanksLeter(customerName, brandName, user);
 		}
 		

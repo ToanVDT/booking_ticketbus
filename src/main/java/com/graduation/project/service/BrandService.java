@@ -7,10 +7,15 @@ import com.graduation.project.payload.response.APIResponse;
 
 public interface BrandService {
 
-	public APIResponse saveBrand(BrandRequest brandRequest,MultipartFile[] files);
-	public APIResponse getBrand(Integer id);
-	public APIResponse getAllBrand();
-	public APIResponse getBrandByUserId(Integer userId);
-	public Boolean getBrandByBrandName(String name,Integer userId);
-	public Boolean getBrandByPhone(String phoneBrand,Integer userId);
+	APIResponse saveBrand(BrandRequest brandRequest, MultipartFile[] files);
+
+	APIResponse getBrand(Integer id);
+
+	APIResponse getAllBrand();
+
+	APIResponse getBrandByUserId(Integer userId);
+
+	Boolean getBrandByBrandName(String name, Integer userId);
+
+	Boolean getBrandByPhone(String phoneBrand, Integer userId);
 }

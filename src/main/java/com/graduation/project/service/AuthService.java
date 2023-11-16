@@ -7,11 +7,11 @@ import com.graduation.project.payload.response.TokenRefreshResponse;
 
 public interface AuthService {
 
-	public APIResponse signIn(LoginRequest loginRequest);
+	 APIResponse signIn(LoginRequest loginRequest);
 
-	public TokenRefreshResponse getRefreshtoken(TokenRefreshRequest tokenRefreshRequest);
+	 TokenRefreshResponse getRefreshtoken(TokenRefreshRequest tokenRefreshRequest);
 	
-	public Boolean CompareUsernameAndPassword(String username, String password);
+	 Boolean CompareUsernameAndPassword(String username, String password);
 	
-	public Boolean getUserByUsername(String username);
+	 Boolean getUserByUsername(String username);
 }

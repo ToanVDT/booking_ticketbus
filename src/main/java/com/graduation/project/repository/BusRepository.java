@@ -15,7 +15,7 @@ public interface BusRepository extends JpaRepository<Bus, Integer>{
 	@Query(nativeQuery = true, value = "SELECT b.id as id, b.seats as seats,b.name as name, b.identity_code as identityCode, b.description as description, t.type as busType FROM bus b, bus_type t WHERE t.id = b.type_id and b.brand_id=:brandId")
 	List<BusResponse> findAllBus(Integer brandId);
 	
-	@Query(nativeQuery = true, value = "SELECT bus.id, bus.name FROM bus WHERE bus.brand_id =:brandId and bus.id  NOT in  ( SELECT bus.id FROM bus, shuttle, schedule where bus.id = schedule.bus_id and shuttle.id = schedule.shuttle_id and now() < DATE_ADD(schedule.date_start, INTERVAL 1 DAY) )")
+	@Query(nativeQuery = true, value = "SELECT bus.id, bus.name FROM bus WHERE bus.brand_id =:brandId")
 	List<BusResponseForDropDown> findBusDropDown(Integer brandId);
 	
 	@Query(nativeQuery = true, value = "SELECT bus.id, bus.name FROM bus WHERE bus.brand_id =:brandId and bus.id NOT in ( SELECT bus.id FROM bus, shuttle, schedule where bus.id = schedule.bus_id and shuttle.id = schedule.shuttle_id and schedule.date_start =:travelDate)")

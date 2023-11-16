@@ -1,13 +1,20 @@
 package com.graduation.project.service.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.graduation.project.common.ConstraintMSG;
+import com.graduation.project.common.Utility;
 import com.graduation.project.config.AnonymousMapper;
 import com.graduation.project.dto.AnonymousDTO;
+import com.graduation.project.dto.CustomerDTO;
+import com.graduation.project.dto.ListBrandDTO;
 import com.graduation.project.dto.ProfileCustomerDTO;
+import com.graduation.project.entity.Brand;
 import com.graduation.project.entity.GiftCode;
 import com.graduation.project.entity.Ranking;
 import com.graduation.project.entity.Role;
@@ -20,6 +27,7 @@ import com.graduation.project.payload.request.UpdateProfileRequest;
 import com.graduation.project.payload.request.UserRequest;
 import com.graduation.project.payload.response.APIResponse;
 import com.graduation.project.payload.response.ProfileResponse;
+import com.graduation.project.repository.BrandRepository;
 import com.graduation.project.repository.RankingRepository;
 import com.graduation.project.repository.RoleRepository;
 import com.graduation.project.repository.UserRepository;
@@ -28,26 +36,29 @@ import com.graduation.project.service.GiftCodeService;
 import com.graduation.project.service.UserService;
 
 @Service
-public class UserServiceImpl implements UserService{
+public class UserServiceImpl implements UserService {
 
 	@Autowired
 	private UserRepository userRepository;
 
 	@Autowired
 	private PasswordEncoder encoder;
-	
+
 	@Autowired
 	private RoleRepository roleRepository;
-	
+
 	@Autowired
 	private RankingRepository rankingRepository;
-	
+
 	@Autowired
 	private EmailService emailService;
-	
+
 	@Autowired
 	private GiftCodeService giftCodeService;
 	
+	@Autowired
+	private BrandRepository brandRepository;
+
 	@Override
 	public APIResponse createUser(UserRequest userRequest) {
 		APIResponse respone = new APIResponse();
@@ -79,10 +90,9 @@ public class UserServiceImpl implements UserService{
 		APIResponse response = new APIResponse();
 		User user = null;
 		try {
-			if(userRepository.findUserByNumberPhone(customerRequest.getPhoneNumber()) !=  null) {
+			if (userRepository.findUserByNumberPhone(customerRequest.getPhoneNumber()) != null) {
 				user = userRepository.findUserByNumberPhone(customerRequest.getPhoneNumber());
-			}
-			else {
+			} else {
 				user = new User();
 			}
 			user.setUsername(customerRequest.getPhoneNumber());
@@ -107,14 +117,15 @@ public class UserServiceImpl implements UserService{
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		return response;
 	}
 
 	@Override
-	public APIResponse removeUser() {
-		// TODO Auto-generated method stub
-		return null;
+	public void removeCustomer(Integer customerId) {
+		User user = userRepository.findById(customerId).orElse(null);
+		user.setActive(false);
+		userRepository.save(user);
 	}
 
 	@Override
@@ -153,12 +164,12 @@ public class UserServiceImpl implements UserService{
 
 	@Override
 	public Boolean checkOldPassWordValid(Integer userId, String oldPassword) {
-			User user =  userRepository.findById(userId).orElse(null);
-			if(user !=null) {
-				if (encoder.matches(oldPassword, user.getPassword())) {
-					return true;
-				}
+		User user = userRepository.findById(userId).orElse(null);
+		if (user != null) {
+			if (encoder.matches(oldPassword, user.getPassword())) {
+				return true;
 			}
+		}
 		return false;
 	}
 
@@ -196,7 +207,7 @@ public class UserServiceImpl implements UserService{
 	@Override
 	public Boolean checkExistEmail(String email) {
 		User user = userRepository.findUserByEmail(email);
-		if(user == null) {
+		if (user == null) {
 			return false;
 		}
 		return true;
@@ -205,17 +216,16 @@ public class UserServiceImpl implements UserService{
 	@Override
 	public Boolean checkExistPhone(String phone) {
 		User user = userRepository.findUserByNumberPhone(phone);
-		if(user == null) {
+		if (user == null) {
 			return false;
 		}
 		return true;
 	}
-	
 
 	@Override
 	public Boolean checkExistIdentityCode(String identityCode) {
 		User user = userRepository.findUserByIdentityCode(identityCode);
-		if(user == null) {
+		if (user == null) {
 			return false;
 		}
 		return true;
@@ -224,7 +234,7 @@ public class UserServiceImpl implements UserService{
 	@Override
 	public Boolean checkExistUsername(String username) {
 		User user = userRepository.findUserByUsername(username).orElse(null);
-		if(user == null) {
+		if (user == null) {
 			return false;
 		}
 		return true;
@@ -233,31 +243,24 @@ public class UserServiceImpl implements UserService{
 	@Override
 	public Boolean checkUsernameAndPhone(String phone) {
 		User user = userRepository.findUserByNumberPhone(phone);
-		if(user == null) {
+		if (user == null) {
 			return false;
-		}
-		else if (user != null && user.getAnonymous()) {
+		} else if (user != null && user.getAnonymous()) {
 			return false;
 		}
 		return true;
 	}
 
 	@Override
-	public String getRankAccount(Integer userId) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public APIResponse getProfileCustomer(Integer userId) {
 		APIResponse response = new APIResponse();
 		try {
-			User user  = userRepository.findById(userId).orElse(null);
+			User user = userRepository.findById(userId).orElse(null);
 			ProfileCustomerDTO dto = new ProfileCustomerDTO();
 			dto.setUserId(user.getId());
 			dto.setEmail(user.getEmail());
 			dto.setPhone(user.getPhoneNumber());
-			dto.setFullName(user.getLastName()+' '+user.getFirstName());
+			dto.setFullName(user.getLastName() + ' ' + user.getFirstName());
 			response.setData(dto);
 			response.setMessage(ConstraintMSG.GET_DATA_MSG);
 			response.setSuccess(true);
@@ -271,7 +274,7 @@ public class UserServiceImpl implements UserService{
 	public APIResponse updateProfileCustomer(UpdateProfileCustomerRequest request) {
 		APIResponse response = new APIResponse();
 		try {
-			User user  = userRepository.findById(request.getUserId()).orElse(null);
+			User user = userRepository.findById(request.getUserId()).orElse(null);
 			user.setEmail(request.getEmail());
 			user.setFirstName(request.getFirstName());
 			user.setLastName(request.getLastName());
@@ -280,5 +283,85 @@ public class UserServiceImpl implements UserService{
 			e.printStackTrace();
 		}
 		return response;
+	}
+
+	@Override
+	public String generateValidateCode(String email) {
+		User user = userRepository.findUserByEmail(email);
+		String validateCode = null;
+		if (user != null) {
+			validateCode = Utility.RandomValidateCode();
+			emailService.sendMailForgotPassword(user, validateCode);
+		}
+		return validateCode;
+	}
+
+	@Override
+	public void resetPassword(String email) {
+		User user = userRepository.findUserByEmail(email);
+		user.setPassword(encoder.encode("123456"));
+		userRepository.save(user);
+	}
+
+	@Override
+	public List<ListBrandDTO> getAllCurrentBrand() {
+		List<User> users = userRepository.findAllBrandOwner();
+		List<ListBrandDTO> result = new ArrayList<>();
+		Brand brand = null;
+		ListBrandDTO dto = null;
+		for(User user:users) {
+			brand = brandRepository.findByUserId(user.getId());
+			dto = new ListBrandDTO();
+			dto.setUserId(user.getId());
+			dto.setAccountStatus(user.getActive()==true?ConstraintMSG.ACCOUNT_ACTIVE:ConstraintMSG.ACCOUNT_INACTIVE);
+			dto.setEmail(user.getEmail());
+			dto.setFullName(user.getLastName()+" "+ user.getFirstName());
+			dto.setIdentityCode(user.getIdentityCode());
+			dto.setPhone(user.getPhoneNumber());
+			dto.setUsername(user.getUsername());
+			if(brand == null) {
+				dto.setAddress(ConstraintMSG.BRAND_OWNER_UPDATEDATA_YET);
+				dto.setNameBrand(ConstraintMSG.BRAND_OWNER_UPDATEDATA_YET);
+				dto.setPhoneBrand(ConstraintMSG.BRAND_OWNER_UPDATEDATA_YET);
+			}
+			else {
+				dto.setAddress(brand.getAddress());
+				dto.setNameBrand(brand.getBrandName());
+				dto.setPhoneBrand(brand.getPhoneBrand());
+			}
+			result.add(dto);
+		}
+		return result;
+	}
+
+	@Override
+	public void activeAccount(Integer userId) {
+		User user = userRepository.findById(userId).orElse(null);
+		user.setActive(true);
+		userRepository.save(user);
+	}
+
+	@Override
+	public void inactiveAccount(Integer userId) {
+		User user = userRepository.findById(userId).orElse(null);
+		user.setActive(false);
+		userRepository.save(user);
+	}
+
+	@Override
+	public List<CustomerDTO> getAllCustomer() {
+		List<User> list = userRepository.findAllCustomer();
+		List<CustomerDTO> dtos = new ArrayList<>();
+		CustomerDTO dto = null;
+		for(User user:list) {
+			dto = new CustomerDTO();
+			dto.setCustomerId(user.getId());
+			dto.setEmail(user.getEmail());
+			dto.setFullName(user.getLastName()+" "+user.getFirstName());
+			dto.setPhone(user.getPhoneNumber());
+			dto.setRank(user.getRank().getRankName().equals(ConstraintMSG.RANKNAME_NEWMEMBER) ? ConstraintMSG.RANKNAME_NEWMEMBER_CONVERT :user.getRank().getRankName().equals(ConstraintMSG.RANKNAME_MEMBER)  ? ConstraintMSG.RANKNAME_MEMBER_CONVERT:ConstraintMSG.RANKNAME_VIPPER_CONVERT);
+			dtos.add(dto);
+		}
+		return dtos;
 	}
 }

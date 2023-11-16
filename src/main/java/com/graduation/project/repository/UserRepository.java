@@ -1,5 +1,6 @@
 package com.graduation.project.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -24,4 +25,13 @@ public interface UserRepository extends JpaRepository<User, Integer>{
 	
 	@Query(nativeQuery = true, value = "SELECT concat(user.last_name,' ',user.first_name) as fullName, user.username,user.address, user.email,user.phone_number as phone, user.identity_code as identityCode FROM user where user.id=:userId")
 	ProfileResponse findProfileByUserId(Integer userId);
+	
+	@Query(nativeQuery = true, value = "SELECT user.* FROM user, orders where user.id = orders.user_id and orders.id =:orderId")
+	User findUserByOrderId(Integer orderId);
+	
+	@Query(nativeQuery = true, value = "SELECT * FROM user where user.role_id = 2")
+	List<User> findAllBrandOwner();
+	
+	@Query(nativeQuery = true, value = "SELECT * FROM user WHERE user.role_id = 3 AND user.anonymous = FALSE AND user.active = TRUE")
+	List<User> findAllCustomer();
 }

@@ -12,18 +12,31 @@ import com.graduation.project.payload.response.DetailMoneyOrder;
 
 public interface OrderService {
 
-	public APIResponse BookingTicket(OrderRequest request);
-	public APIResponse CancelBooking(Integer orderId);
-	public APIResponse ApprovalOrder(Integer orderId);
-	public List<OrderDTO> getOrderInSchedule(Integer scheduleId);
-	public APIResponse getCurrentOrder(Integer userId);
-	public APIResponse getOrderByOrderCode(String orderCode);
-	public APIResponse ConfirmPaid(Integer orderId);
-	public DetailMoneyOrder getDetailPriceOrder(Integer orderId);
-	public DetailInFoCustomer getInfoCusomerInOrder(Integer orderId);
-	public DateAndTimeResponse getDateAndTimeByOrderId(Integer orderId);
-	public APIResponse EnterDeposit(Integer orderId, Double deposit);
+	APIResponse BookingTicket(OrderRequest request);
+
+	APIResponse CancelBooking(Integer orderId);
+
+	APIResponse ApprovalOrder(Integer orderId);
+
+	List<OrderDTO> getOrderInSchedule(Integer scheduleId);
+
+	APIResponse getCurrentOrder(Integer userId);
+
+	APIResponse getOrderByOrderCode(String orderCode);
+
+	APIResponse ConfirmPaid(Integer orderId);
+
+	DetailMoneyOrder getDetailPriceOrder(Integer orderId);
+
+	DetailInFoCustomer getInfoCusomerInOrder(Integer orderId);
+
+	DateAndTimeResponse getDateAndTimeByOrderId(Integer orderId);
+
+	APIResponse EnterDeposit(Integer orderId, Double deposit);
+
 	APIResponse getCanceledOrder(Integer userId);
+
 	APIResponse getPastOrder(Integer userId);
-	public List<Order> updateStatusOrder();
+
+	List<Order> updateStatusOrder();
 }

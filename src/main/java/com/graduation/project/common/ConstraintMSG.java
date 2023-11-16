@@ -15,10 +15,13 @@ public class ConstraintMSG {
 	public static String LOGIN_SUCCESS_MSG = "Đăng nhập";
 	public static String BOOKING_SUCCESS_MSG = "Đặt vé";
 	public static String METHOD_PAYMENT_CREDIT = "CREDIT";
+	public static String BRAND_OWNER_UPDATEDATA_YET = "Chưa cập nhập";
 	public static String METHOD_PAYMENT_CASH = "CASH";
 	public static String LOGIN_FAIL_MSG = "Tài khoản hoặc mật khẩu không đúng";
 	public static String PREFIX_ORDER_CODE = "ORDER";
 	public static String APPROVAL_ORDER_MSG = "Duyệt đơn đặt vé";
+	public static String ACCOUNT_ACTIVE = "Kích hoạt";
+	public static String ACCOUNT_INACTIVE = "Vô hiệu hóa";
 	public static String CANCEL_ORDER_MSG = "Hủy đơn đặt vé";
 	public static String NO_GIFT_CODE = "NO_GIFT_CODE";
 	public static String NO_PAYMENT_STATUS = "Chưa thanh toán";
@@ -30,6 +33,12 @@ public class ConstraintMSG {
 	public static String CODE_EXPIRED = "Mã quà tặng hết hạn sử dụng";
 	public static String USE_CODE_SUCCESS = "Áp dụng mã quà tặng thành công";
 	public static String PAYMENT_SUCCESS = "Thanh toán";
+	public static String RANKNAME_NEWMEMBER = "NEWMEMBER";
+	public static String RANKNAME_MEMBER = "MEMBER";
+	public static String RANKNAME_VIPPER = "VIPPER";
+	public static String RANKNAME_NEWMEMBER_CONVERT = "Thành viên mới";
+	public static String RANKNAME_MEMBER_CONVERT = "Thành viên thường";
+	public static String RANKNAME_VIPPER_CONVERT = "Thành viên vip";
 	public static Integer RANK_NEW_MEMBER = 1;
 	public static Integer RANK_MEMBER = 2;
 	public static Integer RANK_VIPPER = 3;

@@ -9,8 +9,11 @@ import com.graduation.project.payload.response.ScheduleResponseForDropDown;
 
 public interface ScheduleService {
 
-	public APIResponse createSchedule(ScheduleRequest request);
-	public APIResponse updateSchedule(ScheduleRequest request);
-	public APIResponse getSchedules(Integer routeId);
-	public List<ScheduleResponseForDropDown> getScheduleByTravelDate(LocalDate dateStart,Integer userId);
+	APIResponse createSchedule(ScheduleRequest request);
+
+	APIResponse updateSchedule(ScheduleRequest request);
+
+	APIResponse getSchedules(Integer routeId);
+
+	 List<ScheduleResponseForDropDown> getScheduleByTravelDate(LocalDate dateStart,Integer userId);
 }

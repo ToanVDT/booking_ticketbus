@@ -1,6 +1,6 @@
 package com.graduation.project.entity;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -30,8 +30,9 @@ public class Image {
 	
 	@Column(name = "file_type")
 	private String fileType;
+	
 	@Column(name ="create_at")
-	private LocalDateTime createAt;
+	private Date createAt;
 	
 	@JsonIgnore
 	@ManyToOne(fetch = FetchType.LAZY)

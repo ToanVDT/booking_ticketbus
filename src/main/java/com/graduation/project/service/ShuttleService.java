@@ -9,11 +9,17 @@ import com.graduation.project.payload.response.APIResponse;
 
 public interface ShuttleService {
 
-	public APIResponse createShuttle(ShuttleRequest shuttleRequest);
-	public APIResponse updateShuttle(ShuttleRequestUpdate shuttleRequest);
-	public APIResponse getAllShuttle(Integer userId);
-	public APIResponse getShuttleByRoute(Integer routeId);
-	public APIResponse removeShuttle(Integer id);
-	public APIResponse searchShuttle(String startPoint,String endPoint, LocalDate travelDate);
-	public APIResponse createParkings(ParkingRequest requests);
+	APIResponse createShuttle(ShuttleRequest shuttleRequest);
+
+	APIResponse updateShuttle(ShuttleRequestUpdate shuttleRequest);
+
+	APIResponse getAllShuttle(Integer userId);
+
+	APIResponse getShuttleByRoute(Integer routeId);
+
+	APIResponse removeShuttle(Integer id);
+
+	APIResponse searchShuttle(String startPoint, String endPoint, LocalDate travelDate);
+
+	APIResponse createParkings(ParkingRequest requests);
 }

@@ -1,5 +1,7 @@
 package com.graduation.project.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +13,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.graduation.project.common.ConstraintMSG;
+import com.graduation.project.dto.CustomerDTO;
+import com.graduation.project.dto.ListBrandDTO;
 import com.graduation.project.payload.request.ChangePasswordRequest;
 import com.graduation.project.payload.request.CustomerRequest;
 import com.graduation.project.payload.request.UpdateProfileCustomerRequest;
@@ -27,7 +32,7 @@ public class UserController {
 	@Autowired
 	private UserService userService;
 	
-	@PostMapping
+	@PostMapping()
 	private ResponseEntity<APIResponse> createUser(@RequestBody UserRequest userRequest){
 		final APIResponse response = userService.createUser(userRequest);
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -92,9 +97,35 @@ public class UserController {
 		final APIResponse response = userService.updateProfile(request);
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
-	@GetMapping("/rank")
-	private ResponseEntity<String> getRankAccount(@RequestParam Integer userId){
-		final String response = userService.getRankAccount(userId);
-		return ResponseEntity.status(HttpStatus.OK).body(response);
+	@GetMapping("/sendValidateCode")
+	private ResponseEntity<APIResponse> sendValidateCode(@RequestParam String email){
+		final String response = userService.generateValidateCode(email);
+		return ResponseEntity.status(HttpStatus.OK).body(new APIResponse(ConstraintMSG.GET_DATA_MSG,response,true));
+	}
+	@PutMapping("/resetPassword")
+	private void resetPassword(@RequestParam String email){
+		userService.resetPassword(email);
+	}
+	@GetMapping("/allBrand")
+	private ResponseEntity<APIResponse> getAllCurrentBrand(){
+		final List<ListBrandDTO> response = userService.getAllCurrentBrand();
+		return ResponseEntity.status(HttpStatus.OK).body(new APIResponse(ConstraintMSG.GET_DATA_MSG,response,true));
+	}
+	@PutMapping("/active")
+	private void activeAccount(@RequestParam Integer userId){
+		userService.activeAccount(userId);
+	}
+	@PutMapping("/inactive")
+	private void inactiveAccount(@RequestParam Integer userId){
+		userService.inactiveAccount(userId);
+	}
+	@GetMapping("/customer") 
+	private ResponseEntity<APIResponse> getAllCustomer(){
+		final List<CustomerDTO> response = userService.getAllCustomer();
+		return ResponseEntity.status(HttpStatus.OK).body(new APIResponse(ConstraintMSG.GET_DATA_MSG,response,true));
+	}
+	@PutMapping("/remove-customer")
+	private void removeCustomer(@RequestParam Integer customerId) {
+		userService.removeCustomer(customerId);
 	}
 }

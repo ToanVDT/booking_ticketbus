@@ -19,6 +19,7 @@ public class OrderDTOForCustomerSearch {
 	private String orderCode;
 	private String orderStatus;
 	private Double totalPrice;
+	private Integer orderId;
 	private Double deposit;
 	private String routeName;
 	private String brandName;

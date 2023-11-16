@@ -45,4 +45,15 @@ public class Utility {
 		numberFormat.setCurrency(currency);
 		return numberFormat.format(price);
 	}
+	
+	public static String RandomValidateCode() {
+		int length = 9;
+		String DigitString = "0123456789zxcvbnmasdfghjklqwertyuiopQWERTYUIOPASDFGHJKLZXCVBNM";
+		StringBuilder s = new StringBuilder();
+		for(int i = 0; i < length ; i++) {
+			int index = (int)(DigitString.length()*Math.random());
+			s.append(DigitString.charAt(index));
+		}
+		return s.toString();
+	}
 }

@@ -111,6 +111,7 @@ public class BusServiceImpl implements BusService{
 	public List<BusResponseForDropDown> getBusForDropDown(Integer userId) {
 		Brand brand = brandRepository.findByUserId(userId);
 		List<BusResponseForDropDown> list = busRepository.findBusDropDown(brand.getId());
+		System.out.println(list);
 		return list;
 	}
 

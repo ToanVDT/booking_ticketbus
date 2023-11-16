@@ -1,5 +1,9 @@
 package com.graduation.project.service;
 
+import java.util.List;
+
+import com.graduation.project.dto.CustomerDTO;
+import com.graduation.project.dto.ListBrandDTO;
 import com.graduation.project.entity.User;
 import com.graduation.project.payload.request.ChangePasswordRequest;
 import com.graduation.project.payload.request.CustomerBookingRequest;
@@ -12,20 +16,45 @@ import com.graduation.project.payload.response.ProfileResponse;
 
 public interface UserService {
 
-	public APIResponse createUser(UserRequest userRequest);
-	public APIResponse createCustomer(CustomerRequest customerRequest);
-	public APIResponse removeUser();
-	public User createAnonymous(CustomerBookingRequest request);
-	public ProfileResponse getProfileByUserId(Integer userId);
-	public Boolean checkOldPassWordValid(Integer userId, String oldPassword);
-	public APIResponse changePassword(ChangePasswordRequest request);
-	public APIResponse updateProfile(UpdateProfileRequest request);
-	public Boolean checkExistEmail(String email);
-	public Boolean checkExistPhone(String phone);
-	public Boolean checkExistIdentityCode(String identityCode);
-	public Boolean checkExistUsername(String username);
-	public Boolean checkUsernameAndPhone(String phone);
-	public String getRankAccount(Integer userId);
-	public APIResponse getProfileCustomer(Integer userId);
-	public APIResponse updateProfileCustomer(UpdateProfileCustomerRequest request);
+	APIResponse createUser(UserRequest userRequest);
+
+	APIResponse createCustomer(CustomerRequest customerRequest);
+
+	void removeCustomer(Integer customerId);
+
+	User createAnonymous(CustomerBookingRequest request);
+
+	ProfileResponse getProfileByUserId(Integer userId);
+
+	Boolean checkOldPassWordValid(Integer userId, String oldPassword);
+
+	APIResponse changePassword(ChangePasswordRequest request);
+
+	APIResponse updateProfile(UpdateProfileRequest request);
+
+	Boolean checkExistEmail(String email);
+
+	Boolean checkExistPhone(String phone);
+
+	Boolean checkExistIdentityCode(String identityCode);
+
+	Boolean checkExistUsername(String username);
+
+	Boolean checkUsernameAndPhone(String phone);
+
+	APIResponse getProfileCustomer(Integer userId);
+
+	APIResponse updateProfileCustomer(UpdateProfileCustomerRequest request);
+	
+	String generateValidateCode(String email);
+	
+	void resetPassword(String email);
+	
+	List<ListBrandDTO> getAllCurrentBrand();
+	
+	void activeAccount(Integer userId);
+	
+	void inactiveAccount(Integer userId);
+	
+	List<CustomerDTO> getAllCustomer();
 }

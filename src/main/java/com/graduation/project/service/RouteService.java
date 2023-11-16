@@ -9,9 +9,13 @@ import com.graduation.project.payload.response.RouteResponseForDropDown;
 
 public interface RouteService {
 
-	public APIResponse saveRoute(RouteRequest routeRequest);
-	public APIResponse getRoute(Integer id);
-	public List<RouteResponse> getAllRoute(Integer userId);
-	public APIResponse removeRoute(Integer id, Integer userId);
-	public List<RouteResponseForDropDown> getListRouteDropDown(Integer userId);
+	APIResponse saveRoute(RouteRequest routeRequest);
+
+	APIResponse getRoute(Integer id);
+
+	List<RouteResponse> getAllRoute(Integer userId);
+
+	APIResponse removeRoute(Integer id, Integer userId);
+
+	 List<RouteResponseForDropDown> getListRouteDropDown(Integer userId);
 }

@@ -9,12 +9,19 @@ import com.graduation.project.payload.response.BusResponseForDropDown;
 
 public interface BusService {
 
-	public APIResponse saveBus(BusRequest busRequest);
-	public List<BusResponse> getAllBusInBrand(Integer brandId);
-	public APIResponse removeBus(Integer id);
-	public APIResponse getBus(Integer id);
-	public List<BusResponseForDropDown> getBusForDropDown(Integer userId);
-	public List<BusResponseForDropDown> getBusAvailableByTravelDate(Integer userId, java.time.LocalDate travelDate);
-	public Boolean checkDuplicateBusName(String name);
-	public Boolean checkDuplicateIdentityCode(String identityCode);
+	APIResponse saveBus(BusRequest busRequest);
+
+	List<BusResponse> getAllBusInBrand(Integer brandId);
+
+	APIResponse removeBus(Integer id);
+
+	APIResponse getBus(Integer id);
+
+	List<BusResponseForDropDown> getBusForDropDown(Integer userId);
+
+	List<BusResponseForDropDown> getBusAvailableByTravelDate(Integer userId, java.time.LocalDate travelDate);
+
+	Boolean checkDuplicateBusName(String name);
+
+	Boolean checkDuplicateIdentityCode(String identityCode);
 }

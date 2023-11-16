@@ -9,19 +9,15 @@ class ScheduleTasks {
 	@Autowired
 	private OrderService orderService;
 
-	@Autowired
-	private EmailService emailService;
-
-	@Scheduled(cron = "0 59 23 * * *")
+	@Scheduled(cron = "0 48 22 * * *")
 	public void scheduleTaskUsingCronExpression() {
 
 		try {
 			long now = System.currentTimeMillis() / 1000;
 			System.out.println("schedule tasks using cron jobs - " + now);
 			orderService.updateStatusOrder();
-			
+
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
