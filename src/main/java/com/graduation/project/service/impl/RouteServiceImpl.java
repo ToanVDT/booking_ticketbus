@@ -1,11 +1,15 @@
 package com.graduation.project.service.impl;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.graduation.project.common.ConstraintMSG;
+import com.graduation.project.dto.RoutePopularDTO;
 import com.graduation.project.entity.Brand;
 import com.graduation.project.entity.Route;
 import com.graduation.project.payload.request.RouteRequest;
@@ -87,5 +91,64 @@ public class RouteServiceImpl implements RouteService{
 		List<RouteResponseForDropDown> list = routeRepository.findRouteCustomName(brand.getId());
 		return list;
 	}
-	
+	@Override
+	public List<String> getAllStartPoint() {
+		List<Route> list = routeRepository.findAll();
+		List<String> listStartPoint = new ArrayList<>();
+		String startPoint = null;
+		for (Route route : list) {
+			startPoint = new String();
+			startPoint = route.getStartPoint();
+			if (!listStartPoint.contains(startPoint)) {
+				listStartPoint.add(startPoint);
+			}
+		}
+		return listStartPoint;
+	}
+
+	@Override
+	public List<String> getAllEndPoint() {
+		List<Route> list = routeRepository.findAll();
+		List<String> listEndPoint = new ArrayList<>();
+		String endPoint = null;
+		for (Route route : list) {
+			endPoint = new String();
+			endPoint = route.getEndPoint();
+			if (!listEndPoint.contains(endPoint)) {
+				listEndPoint.add(endPoint);
+			}
+		}
+		return listEndPoint;
+	}
+
+	@Override
+	public Set<String> getRouteToSearch() {
+		List<String> listStartPoint = getAllStartPoint();
+		List<String> listEndPoint = getAllEndPoint();
+		Set<String> unionSet = new HashSet<String>(listStartPoint);
+		unionSet.addAll(listEndPoint);
+		return unionSet;
+	}
+
+	@Override
+	public Set<RoutePopularDTO> getAllRouteToShow() {
+		Set<RoutePopularDTO> set = new HashSet<>();
+		Set<String> setTemp = new HashSet<>();
+		List<Route> list = routeRepository.findAll();
+		RoutePopularDTO dto = null;
+		String route = null;
+		String routeReverse = null;
+		for(Route routes:list) {
+			dto = new RoutePopularDTO();
+			route = routes.getStartPoint()+" - "+ routes.getEndPoint();
+			routeReverse = routes.getEndPoint()+" - "+ routes.getStartPoint();
+			if(!setTemp.contains(routeReverse) && !setTemp.contains(route)) {
+				dto.setRouteName(route);
+				dto.setUrlImage(routes.getBrand().getImage());
+				set.add(dto);
+				setTemp.add(route);
+			}
+		}
+		return set;
+	}
 }

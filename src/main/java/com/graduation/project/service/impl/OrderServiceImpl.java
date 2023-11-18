@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import com.graduation.project.common.ConstraintMSG;
@@ -21,8 +22,6 @@ import com.graduation.project.entity.Seat;
 import com.graduation.project.entity.Status;
 import com.graduation.project.entity.Ticket;
 import com.graduation.project.entity.User;
-import com.graduation.project.payload.request.MailOrderStatusRequest;
-import com.graduation.project.payload.request.MailSendInformOrderToBrandOwnerRequest;
 import com.graduation.project.payload.request.OrderRequest;
 import com.graduation.project.payload.response.APIResponse;
 import com.graduation.project.payload.response.DateAndTimeResponse;
@@ -37,10 +36,13 @@ import com.graduation.project.repository.SeatRepository;
 import com.graduation.project.repository.StatusRepository;
 import com.graduation.project.repository.TicketRepository;
 import com.graduation.project.repository.UserRepository;
-import com.graduation.project.service.EmailService;
 import com.graduation.project.service.GiftCodeService;
 import com.graduation.project.service.OrderService;
 import com.graduation.project.service.UserService;
+import com.graduation.project.thread.MailOrderStatusThread;
+import com.graduation.project.thread.MailThanksLeterThread;
+import com.graduation.project.thread.MailToBrandOwnerThread;
+import com.graduation.project.thread.MailUpgradeRankThread;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -56,13 +58,18 @@ public class OrderServiceImpl implements OrderService {
 	private TicketRepository ticketRepository;
 	private ScheduleRepository scheduleRepository;
 	private GiftCodeService giftCodeService;
-	private EmailService emailService;
+	private ThreadPoolTaskExecutor taskExecutor;
+	private MailOrderStatusThread mailOrderStatusThread;
+	private MailToBrandOwnerThread mailToBrandOwnerThread; 
+	private MailUpgradeRankThread mailUpgradeRankThread;
+	private MailThanksLeterThread mailThanksLeterThread;
 
-	public OrderServiceImpl(PaymentRepository paymentRepository, OrderRepository orderRepository,
-			EmailService emailService, SeatRepository seatRepository, StatusRepository statusRepository,
+	public OrderServiceImpl(PaymentRepository paymentRepository, OrderRepository orderRepository,ThreadPoolTaskExecutor taskExecutor,
+			SeatRepository seatRepository, StatusRepository statusRepository,MailOrderStatusThread mailOrderStatusThread,
 			GiftCodeService giftCodeService, TicketRepository ticketRepository, RankingRepository rankingRepository,
 			UserRepository userRepository, UserService userService, GiftCodeRepository giftCodeRepository,
-			ScheduleRepository scheduleRepository) {
+			MailToBrandOwnerThread mailToBrandOwnerThread,MailUpgradeRankThread mailUpgradeRankThread,
+			ScheduleRepository scheduleRepository,MailThanksLeterThread mailThanksLeterThread) {
 		this.paymentRepository = paymentRepository;
 		this.orderRepository = orderRepository;
 		this.seatRepository = seatRepository;
@@ -74,7 +81,11 @@ public class OrderServiceImpl implements OrderService {
 		this.ticketRepository = ticketRepository;
 		this.scheduleRepository = scheduleRepository;
 		this.giftCodeService = giftCodeService;
-		this.emailService = emailService;
+		this.mailUpgradeRankThread = mailUpgradeRankThread;
+		this.taskExecutor = taskExecutor;
+		this.mailOrderStatusThread = mailOrderStatusThread;
+		this.mailToBrandOwnerThread = mailToBrandOwnerThread;
+		this.mailThanksLeterThread = mailThanksLeterThread;
 	}
 
 	@Override
@@ -154,16 +165,14 @@ public class OrderServiceImpl implements OrderService {
 				if (point >= 100 && point < 1000) {
 					ranking = rankingRepository.findById(ConstraintMSG.RANK_MEMBER).get();
 					if (user.getPoint() < 100) {
-						GiftCode codeGenerated = (GiftCode) giftCodeService.saveGiftCode(ranking.getId(), user.getId())
-								.getData();
-						emailService.sendMailUPpgradeRank(ranking, user, codeGenerated);
+						GiftCode codeGenerated = (GiftCode) giftCodeService.saveGiftCode(ranking.getId(), user.getId()).getData();
+						SenderUpgradeRank(ranking, user, codeGenerated);
 					}
 				} else if (point >= 1000) {
 					ranking = rankingRepository.findById(ConstraintMSG.RANK_VIPPER).get();
 					if (user.getPoint() < 1000) {
-						GiftCode codeGenerated = (GiftCode) giftCodeService.saveGiftCode(ranking.getId(), user.getId())
-								.getData();
-						emailService.sendMailUPpgradeRank(ranking, user, codeGenerated);
+						GiftCode codeGenerated = (GiftCode) giftCodeService.saveGiftCode(ranking.getId(), user.getId()).getData();
+						SenderUpgradeRank(ranking, user, codeGenerated);
 					}
 				} else {
 					ranking = rankingRepository.findById(ConstraintMSG.RANK_NEW_MEMBER).get();
@@ -219,9 +228,9 @@ public class OrderServiceImpl implements OrderService {
 			String fullName = user.getFirstName() + ' ' + user.getLastName();
 			String lastName =user.getLastName();
 			String orderCode = order.getOrderCode();
-			sendMailOrderStatus(dateNow, brandName, datetimeTravel, dropOffPoint,lastName, seatNames, totalPrices, paymentStatus,
+			SenderOrderStatusThread(dateNow, brandName, datetimeTravel, dropOffPoint,lastName, seatNames, totalPrices, paymentStatus,
 					pickUpPoint, routeName, orderStatus,orderCode, user);
-			sendMailForBrandOwner(dateNow, brandName, email, fullName, phone, datetimeTravel, dropOffPoint, seatNames,
+			SenderBrandOwnerThread(dateNow, brandName, email, fullName, phone, datetimeTravel, dropOffPoint, seatNames,
 					totalPrices, paymentStatus, pickUpPoint, routeName, orderStatus, brandOwner);
 			response.setData(order);
 			response.setMessage(ConstraintMSG.BOOKING_SUCCESS_MSG);
@@ -280,7 +289,7 @@ public class OrderServiceImpl implements OrderService {
 			LocalDate dateNow = order.getOrderDate().toLocalDate();
 			String lastName = user.getLastName();
 			String orderCode = order.getOrderCode();
-			sendMailOrderStatus(dateNow, brandName, datetimeTravel, dropOffPoint,lastName, seatNames, totalPrices, paymentStatus,
+			SenderOrderStatusThread(dateNow, brandName, datetimeTravel, dropOffPoint,lastName, seatNames, totalPrices, paymentStatus,
 					pickUpPoint, routeName, orderStatus,orderCode, user);
 			response.setData(order);
 			response.setMessage(ConstraintMSG.CANCEL_ORDER_MSG);
@@ -296,7 +305,7 @@ public class OrderServiceImpl implements OrderService {
 		APIResponse response = new APIResponse();
 		try {
 			Order order = orderRepository.findById(orderId).get();
-			User user = order.getUser();
+			User user = userRepository.findByOrderId(orderId);
 			Status status = null;
 			status = statusRepository.findById(ConstraintMSG.STATUS_ORDERD).get();
 			order.setStatus(status);
@@ -339,7 +348,7 @@ public class OrderServiceImpl implements OrderService {
 			LocalDate dateNow = order.getOrderDate().toLocalDate();
 			String lastName = user.getLastName();
 			String orderCode = order.getOrderCode();
-			sendMailOrderStatus(dateNow, brandName, datetimeTravel, dropOffPoint,lastName, seatNames, totalPrices, paymentStatus,
+			SenderOrderStatusThread(dateNow, brandName, datetimeTravel, dropOffPoint,lastName, seatNames, totalPrices, paymentStatus,
 					pickUpPoint, routeName, orderStatus,orderCode, user);
 			response.setData(order);
 			response.setMessage(ConstraintMSG.APPROVAL_ORDER_MSG);
@@ -668,52 +677,61 @@ public class OrderServiceImpl implements OrderService {
 			user = userRepository.findUserByOrderId(order.getId());
 			customerName = user.getLastName();
 			brandName = schedule.getBus().getBrand().getBrandName();
-			System.out.println(customerName+'-'+ brandName);
-			sendMailThanksLeter(customerName, brandName, user);
+			mailThanksLeterThread.setBrandName(brandName);
+			mailThanksLeterThread.setCustomerName(customerName);
+			mailThanksLeterThread.setUser(user);
+			taskExecutor.execute(mailThanksLeterThread);
 		}
-		
 		return orders;
 	}
-
-	public void sendMailForBrandOwner(LocalDate dateNow, String brandName, String email, String customerName,
-			String phone, String datetimeTravel, String dropOffPoint, List<String> seatNames, Double totalPrices,
-			String paymentStatus, String pickUpPoint, String routeName, String orderStatus, User user) {
-		MailSendInformOrderToBrandOwnerRequest requestMail = new MailSendInformOrderToBrandOwnerRequest();
-		requestMail.setBookingDate(dateNow);
-		requestMail.setBrandName(brandName);
-		requestMail.setCustomerEmail(email);
-		requestMail.setCustomerName(customerName);
-		requestMail.setCustomerPhone(phone);
-		requestMail.setDateTimeTravel(datetimeTravel);
-		requestMail.setDropOffPoint(dropOffPoint);
-		requestMail.setListSeatOrderd(seatNames);
-		requestMail.setTotalPrice(totalPrices);
-		requestMail.setPaymentStatus(paymentStatus);
-		requestMail.setPickUpPoint(pickUpPoint);
-		requestMail.setRouteName(routeName);
-		requestMail.setOrderStatus(orderStatus);
-		emailService.sendMailInformOrderToBrandOwner(requestMail, user);
-	}
-
-	public void sendMailOrderStatus(LocalDate dateNow, String brandName, String datetimeTravel, String dropOffPoint,String customerName,
+	
+	public void SenderOrderStatusThread(LocalDate dateNow, String brandName, String datetimeTravel, String dropOffPoint,String customerName,
 			List<String> seatNames, Double totalPrices, String paymentStatus, String pickUpPoint, String routeName,
 			String orderStatus,String orderCode, User user) {
-		MailOrderStatusRequest requestMail = new MailOrderStatusRequest();
-		requestMail.setBookingDate(dateNow);
-		requestMail.setBrandName(brandName);
-		requestMail.setCustomerName(customerName);
-		requestMail.setDateTimeTravel(datetimeTravel);
-		requestMail.setDropOffPoint(dropOffPoint);
-		requestMail.setListSeatOrderd(seatNames);
-		requestMail.setTotalPrice(totalPrices);
-		requestMail.setPaymentStatus(paymentStatus);
-		requestMail.setPickUpPoint(pickUpPoint);
-		requestMail.setRouteName(routeName);
-		requestMail.setOrderStatus(orderStatus);
-		requestMail.setOrderCode(orderCode);
-		emailService.sendMailOrderStatus(requestMail, user);
+		mailOrderStatusThread.setBrandName(brandName);
+		mailOrderStatusThread.setDateNow(dateNow);
+		mailOrderStatusThread.setDatetimeTravel(datetimeTravel);
+		mailOrderStatusThread.setDropOffPoint(dropOffPoint);
+		mailOrderStatusThread.setCustomerName(customerName);
+		mailOrderStatusThread.setSeatNames(seatNames);
+		mailOrderStatusThread.setTotalPrices(totalPrices);
+		mailOrderStatusThread.setPaymentStatus(paymentStatus);
+		mailOrderStatusThread.setPickUpPoint(pickUpPoint);
+		mailOrderStatusThread.setRouteName(routeName);
+		mailOrderStatusThread.setOrderStatus(orderStatus);
+		mailOrderStatusThread.setOrderCode(orderCode);
+		mailOrderStatusThread.setUser(user);
+		taskExecutor.execute(mailOrderStatusThread);
 	}
-	public void sendMailThanksLeter(String customerName,String brandName,User user) {
-		emailService.sendMailThanksLeter(customerName, brandName, user);
+	
+	public void SenderBrandOwnerThread(LocalDate dateNow, String brandName, String email, String customerName,
+			String phone, String datetimeTravel, String dropOffPoint, List<String> seatNames, Double totalPrices,
+			String paymentStatus, String pickUpPoint, String routeName, String orderStatus, User user) {
+		mailToBrandOwnerThread.setDateNow(dateNow);
+		mailToBrandOwnerThread.setBrandName(brandName);
+		mailToBrandOwnerThread.setEmail(email);
+		mailToBrandOwnerThread.setFullName(customerName);
+		mailToBrandOwnerThread.setPhone(phone);
+		mailToBrandOwnerThread.setDatetimeTravel(datetimeTravel);
+		mailOrderStatusThread.setDropOffPoint(dropOffPoint);
+		mailToBrandOwnerThread.setSeatNames(seatNames);
+		mailToBrandOwnerThread.setTotalPrices(totalPrices);
+		mailToBrandOwnerThread.setPaymentStatus(paymentStatus);
+		mailToBrandOwnerThread.setPickUpPoint(pickUpPoint);
+		mailToBrandOwnerThread.setRouteName(routeName);
+		mailToBrandOwnerThread.setOrderStatus(orderStatus);
+		mailToBrandOwnerThread.setBrandOwner(user);
+		taskExecutor.execute(mailToBrandOwnerThread);
 	}
+	public void SenderUpgradeRank(Ranking rank, User user, GiftCode codeGenerated) {
+		mailUpgradeRankThread.setCodeGenerated(codeGenerated);
+		mailUpgradeRankThread.setRanking(rank);
+		mailUpgradeRankThread.setUser(user);
+		taskExecutor.execute(mailUpgradeRankThread);
+	}
+	
+	public void SenderThanksLeter() {
+		
+	}
+
 }

@@ -55,8 +55,8 @@ public class Order {
 	@JoinColumn(name = "paymentId", nullable = false)
 	private Payment payment;
 	
-	@JsonIgnore
-	@ManyToOne(fetch = FetchType.LAZY)
+//	@JsonIgnore
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "userId", nullable = false)
 	private User user;
 	

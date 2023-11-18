@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -34,6 +35,7 @@ import com.graduation.project.repository.UserRepository;
 import com.graduation.project.service.EmailService;
 import com.graduation.project.service.GiftCodeService;
 import com.graduation.project.service.UserService;
+import com.graduation.project.thread.MailWelcomeNewJoinerThread;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -58,6 +60,12 @@ public class UserServiceImpl implements UserService {
 	
 	@Autowired
 	private BrandRepository brandRepository;
+	
+	@Autowired
+	private ThreadPoolTaskExecutor taskExecutor;
+	
+	@Autowired
+	private MailWelcomeNewJoinerThread mailWelcomeNewJoinerThread;
 
 	@Override
 	public APIResponse createUser(UserRequest userRequest) {
@@ -110,7 +118,10 @@ public class UserServiceImpl implements UserService {
 			user.setRank(ranking);
 			userRepository.save(user);
 			GiftCode codeGenerated = (GiftCode) giftCodeService.saveGiftCode(ranking.getId(), user.getId()).getData();
-			emailService.sendMailWelcomNewJoiner(ranking, user, codeGenerated);
+			mailWelcomeNewJoinerThread.setCodeGenerated(codeGenerated);
+			mailWelcomeNewJoinerThread.setRanking(ranking);
+			mailWelcomeNewJoinerThread.setUser(user);
+			taskExecutor.execute(mailWelcomeNewJoinerThread);
 			response.setData(user);
 			response.setMessage(ConstraintMSG.CREATE_DATA_MSG);
 			response.setSuccess(true);

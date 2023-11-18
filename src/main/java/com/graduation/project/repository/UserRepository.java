@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.graduation.project.entity.User;
 import com.graduation.project.payload.response.ProfileResponse;
@@ -34,4 +35,7 @@ public interface UserRepository extends JpaRepository<User, Integer>{
 	
 	@Query(nativeQuery = true, value = "SELECT * FROM user WHERE user.role_id = 3 AND user.anonymous = FALSE AND user.active = TRUE")
 	List<User> findAllCustomer();
+	
+	@Query(nativeQuery = true,value = "select user.* from user,orders where user.id = orders.user_id and orders.id =:orderId")
+	User findByOrderId(@Param("orderId") Integer orderId);
 }

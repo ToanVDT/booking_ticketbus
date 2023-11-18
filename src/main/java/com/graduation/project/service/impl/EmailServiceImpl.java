@@ -172,7 +172,6 @@ public class EmailServiceImpl implements EmailService {
 			email.setProperties(properties);
 			String regex = "^(.+)@(.+)$";
 			Pattern pattern = Pattern.compile(regex);
-
 			Matcher matcher = pattern.matcher(user.getEmail());
 			if (matcher.matches()) {
 				email.setTo(user.getEmail());
