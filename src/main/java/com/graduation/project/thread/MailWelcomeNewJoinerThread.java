@@ -24,7 +24,6 @@ public class MailWelcomeNewJoinerThread implements Runnable{
 	private User user;
 	
 	public MailWelcomeNewJoinerThread() {
-		System.out.println("init thread...");
 	}
 
 	@Override

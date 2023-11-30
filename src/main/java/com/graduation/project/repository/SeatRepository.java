@@ -16,6 +16,9 @@ public interface SeatRepository extends JpaRepository<Seat, Integer>{
 
 	List<Seat> findBySchedule(Schedule schedule);
 	
+	@Query(nativeQuery = true, value = "SELECT seat.* FROM seat, status where schedule_id=:scheduleId and status.id =  seat.status_id and status.status =:status")
+	List<Seat> findByScheduleAndStatus(Integer scheduleId,String status);
+	
 	@Query(nativeQuery = true, value = "SELECT * FROM seat WHERE seat.schedule_id=:scheduleId LIMIT 1")
 	Seat findSeatByScheduleId(Integer scheduleId);
 	

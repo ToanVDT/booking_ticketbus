@@ -38,4 +38,9 @@ public class SeatController {
 		final SeatEmptyResponse response = seatService.getSeatEmpty(dateStart,scheduleId);
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
+	@GetMapping("/seat/status")
+	private ResponseEntity<List<SeatDTO>> getSeatWithStatus(@RequestParam Integer scheduleId,@RequestParam String status){
+		final List<SeatDTO> response = seatService.getSeatWithStatus(scheduleId,status);
+		return ResponseEntity.status(HttpStatus.OK).body(response);
+	}
 }

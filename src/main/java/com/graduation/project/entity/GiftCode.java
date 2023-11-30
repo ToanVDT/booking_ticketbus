@@ -34,8 +34,10 @@ public class GiftCode {
 	@Column(name ="user_id")
 	private Integer userId;
 	
+	
 	@JsonIgnore
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name ="rankId", nullable = false)
 	private Ranking rank; 
+
 }

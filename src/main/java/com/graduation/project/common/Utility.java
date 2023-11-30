@@ -22,6 +22,17 @@ public class Utility {
 		}
 		return PREFIX+s.toString();
 	}
+	public static String RandomRankNone() {
+		int length = 2;
+		String DigitString = "0123456789";
+		StringBuilder s = new StringBuilder();
+		String PREFIX = "NONE";
+		for(int i = 0; i < length ; i++) {
+			int index = (int)(DigitString.length()*Math.random());
+			s.append(DigitString.charAt(index));
+		}
+		return PREFIX+s.toString();
+	}
 	public static List<List<SeatResponseForCustomer>> getSeatWithTypeBus(List<SeatResponseForCustomer> listSeat, int col, int row) {
 		int startIndex = 0;
 		List<List<SeatResponseForCustomer>> resultList = new ArrayList<>();

@@ -58,29 +58,42 @@ public class ShuttleServiceImpl implements ShuttleService{
 	@Override
 	public APIResponse createShuttle(ShuttleRequest shuttleRequest) {
 		APIResponse response = new APIResponse();
-		Shuttle shuttle = new Shuttle();
-		Route route = routeRepository.findById(shuttleRequest.getRouteId()).orElse(null);
-		shuttle.setRoute(route);
-		shuttle.setStartTime(shuttleRequest.getStartTime());
-		shuttle.setEndTime(shuttleRequest.getEndTime());
-		shuttleRepository.save(shuttle);
-		for(DropOffRequest request:shuttleRequest.getDropOffs()) {
-			DropOff dropOff = new DropOff();
-			dropOff.setDropOffPoint(request.getDropOffPoint());
-			dropOff.setDropOffTime(request.getDropOffTime());
-			dropOff.setShuttle(shuttle);
-			dropOffRepository.save(dropOff);
+		Shuttle shuttle = null;
+		try {
+			Route route = routeRepository.findById(shuttleRequest.getRouteId()).orElse(null);
+			shuttle  = shuttleRepository.findExistsShuttle(shuttleRequest.getStartTime(), route.getId());
+			if (shuttle !=null) {
+				response.setMessage(ConstraintMSG.DUPLICATE_DATA_MSG);
+				response.setSuccess(false);
+				return response;
+			}
+			else {
+				shuttle = new Shuttle();
+				shuttle.setRoute(route);
+				shuttle.setStartTime(shuttleRequest.getStartTime());
+				shuttle.setEndTime(shuttleRequest.getEndTime());
+				shuttleRepository.save(shuttle);
+				for(DropOffRequest request:shuttleRequest.getDropOffs()) {
+					DropOff dropOff = new DropOff();
+					dropOff.setDropOffPoint(request.getDropOffPoint());
+					dropOff.setDropOffTime(request.getDropOffTime());
+					dropOff.setShuttle(shuttle);
+					dropOffRepository.save(dropOff);
+				}
+				for(PickUpRequest request:shuttleRequest.getPickUps()) {
+					PickUp pickUp = new PickUp();
+					pickUp.setPickUpPoint(request.getPickUpPoint());
+					pickUp.setPickUpTime(request.getPickUpTime());
+					pickUp.setShuttle(shuttle);
+					pickUpRepository.save(pickUp);
+				}
+				response.setData(shuttle);
+				response.setSuccess(true);
+				response.setMessage(ConstraintMSG.CREATE_DATA_MSG);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		for(PickUpRequest request:shuttleRequest.getPickUps()) {
-			PickUp pickUp = new PickUp();
-			pickUp.setPickUpPoint(request.getPickUpPoint());
-			pickUp.setPickUpTime(request.getPickUpTime());
-			pickUp.setShuttle(shuttle);
-			pickUpRepository.save(pickUp);
-		}
-		response.setData(shuttle);
-		response.setSuccess(true);
-		response.setMessage(ConstraintMSG.CREATE_DATA_MSG);
 		return response;
 	}
 

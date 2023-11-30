@@ -78,6 +78,32 @@ public class SeatServiceImpl implements SeatService{
 		}
 		return dtos;
 	}
+	@Override
+	public List<SeatDTO> getSeatWithStatus(Integer scheduleId, String status) {
+		Ticket ticket = null;
+		List<Seat> seats = seatRepository.findByScheduleAndStatus(scheduleId,status);
+		List<SeatDTO> dtos = new ArrayList<>();
+		SeatDTO dto = null;
+		for(Seat seat : seats) {
+			dto = new SeatDTO();
+			dto.setPrice(seat.getPrice());
+			dto.setEatingFee(seat.getEatingFee());
+			dto.setId(seat.getId());
+			dto.setSeatName(seat.getName());
+			dto.setStatusTicket(seat.getStatus().getStatus());
+			ticket = ticketRepository.findBySeat(seat.getId());
+			if(ticket == null) {
+				dto.setCustomerName("");
+				dto.setCustomerPhone("");
+			}
+			else {
+				dto.setCustomerName(ticket.getOrder().getUser().getLastName()+' '+ticket.getOrder().getUser().getFirstName());
+				dto.setCustomerPhone(ticket.getOrder().getUser().getPhoneNumber());
+			}
+			dtos.add(dto);
+		}
+		return dtos;
+	}
 
 	@Override
 	public SeatEmptyResponse getSeatEmpty(LocalDate dateStart,Integer scheduleId) {

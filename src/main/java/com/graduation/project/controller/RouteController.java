@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.azure.core.http.rest.Response;
 import com.graduation.project.common.ConstraintMSG;
 import com.graduation.project.dto.RoutePopularDTO;
 import com.graduation.project.payload.request.RouteRequest;

@@ -37,7 +37,6 @@ public class MailToBrandOwnerThread implements Runnable{
 	private User brandOwner;
 	
 	public MailToBrandOwnerThread() {
-		System.out.println("init thread");
 	}
 	@Override
 	public synchronized void run() {

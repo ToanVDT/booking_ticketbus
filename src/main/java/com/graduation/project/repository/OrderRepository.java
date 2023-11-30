@@ -15,8 +15,20 @@ public interface OrderRepository extends JpaRepository<Order, Integer>{
 	@Query(nativeQuery = true, value = "SELECT DISTINCT seat.price AS price, seat.eating_fee AS eatingFee, quantityTicket, orderId, quantityEating, (seat.eating_fee * quantityEating + price * quantityTicket - totalPrice) AS giftCode, deposit, totalPrice, (totalPrice - (seat.eating_fee * quantityEating + price * quantityTicket - totalPrice) - deposit) AS restPrice FROM seat, ticket JOIN (SELECT COUNT(*) AS quantityTicket, orders.id AS orderId, orders.quantity_eating AS quantityEating, orders.deposit AS deposit, orders.total_price AS totalPrice FROM orders, ticket WHERE orders.id =:orderId AND ticket.order_id = orders.id) orders ON orders.orderId = ticket.order_id WHERE seat.id = ticket.seat_id")
 	DetailMoneyOrder findDetailMoney(Integer orderId);
 
-	@Query(nativeQuery = true, value = "SELECT DISTINCT orders.* FROM orders, seat, ticket, schedule WHERE seat.schedule_id =:scheduleId AND seat.schedule_id = schedule.id AND seat.id = ticket.seat_id AND orders.id = ticket.order_id")
+	@Query(nativeQuery = true, value = "SELECT DISTINCT orders.* FROM orders, seat, ticket, schedule WHERE seat.schedule_id =:scheduleId AND seat.schedule_id = schedule.id AND seat.id = ticket.seat_id AND orders.id = ticket.order_id ORDER BY orders.order_date DESC")
 	List<Order> findOrderByShcedule(Integer scheduleId);
+	
+	@Query(nativeQuery = true, value = "SELECT DISTINCT orders.* FROM orders, seat, ticket, schedule, status WHERE seat.schedule_id =:scheduleId AND seat.schedule_id = schedule.id AND seat.id = ticket.seat_id AND orders.id = ticket.order_id AND orders.status_id = status.id AND status=:status ORDER BY orders.order_date DESC")
+	List<Order> findOrderWithOrderStatus(Integer scheduleId,String status);
+	
+	@Query(nativeQuery = true, value = "SELECT DISTINCT orders.* FROM orders, seat, ticket, schedule WHERE seat.schedule_id =:scheduleId AND seat.schedule_id = schedule.id AND seat.id = ticket.seat_id AND orders.id = ticket.order_id AND orders.is_paid=:isPaid AND orders.deposit = 0 ORDER BY orders.order_date DESC")
+	List<Order> findOrderWithPaymentStatus(Integer scheduleId,Integer isPaid);
+	
+	@Query(nativeQuery = true, value = "SELECT DISTINCT orders.* FROM orders, seat, ticket, schedule WHERE seat.schedule_id =:scheduleId AND seat.schedule_id = schedule.id AND seat.id = ticket.seat_id AND orders.id = ticket.order_id AND orders.is_paid=:isPaid AND orders.deposit > 0 ORDER BY orders.order_date DESC")
+	List<Order> findOrderWithDeposit(Integer scheduleId,Integer isPaid);
+	
+	@Query(nativeQuery = true, value = "SELECT DISTINCT orders.* FROM orders, seat, ticket, schedule WHERE seat.schedule_id =:scheduleId AND orders.status_id NOT IN (2 , 3) AND seat.schedule_id = schedule.id AND seat.id = ticket.seat_id AND orders.id = ticket.order_id")
+	List<Order> findOrderMoneyByShcedule(Integer scheduleId);
 	
 	Order findByOrderCode(String orderCode);
 	

@@ -7,9 +7,10 @@ import com.graduation.project.payload.response.APIResponse;
 
 public interface GiftCodeService {
 
-	APIResponse saveGiftCode(Integer rankId, Integer userId);
+	APIResponse saveGiftCode1Time(Integer rankId, Integer userId);
 
 	List<GiftCodeDTO> getGiftCodeInUser(Integer userId);
 
 	APIResponse checkGiftCodeValid(String giftCode);
+	
 }

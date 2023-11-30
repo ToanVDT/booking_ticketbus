@@ -57,4 +57,6 @@ public interface UserService {
 	void inactiveAccount(Integer userId);
 	
 	List<CustomerDTO> getAllCustomer();
+	
+	
 }

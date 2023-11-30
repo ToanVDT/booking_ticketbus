@@ -117,7 +117,7 @@ public class UserServiceImpl implements UserService {
 			Ranking ranking = rankingRepository.findById(ConstraintMSG.RANK_NEW_MEMBER).orElse(null);
 			user.setRank(ranking);
 			userRepository.save(user);
-			GiftCode codeGenerated = (GiftCode) giftCodeService.saveGiftCode(ranking.getId(), user.getId()).getData();
+			GiftCode codeGenerated = (GiftCode) giftCodeService.saveGiftCode1Time(ranking.getId(), user.getId()).getData();
 			mailWelcomeNewJoinerThread.setCodeGenerated(codeGenerated);
 			mailWelcomeNewJoinerThread.setRanking(ranking);
 			mailWelcomeNewJoinerThread.setUser(user);

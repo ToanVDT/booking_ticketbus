@@ -36,7 +36,6 @@ public class MailOrderStatusThread implements Runnable{
 	private User user;
 	
 	public MailOrderStatusThread() {
-		System.out.println("init thread");
 	}
 	@Override
 	public synchronized void run() {

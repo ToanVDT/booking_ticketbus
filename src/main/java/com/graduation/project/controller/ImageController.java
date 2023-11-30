@@ -21,26 +21,26 @@ import com.graduation.project.payload.response.APIResponse;
 import com.graduation.project.service.ImageService;
 
 @RestController
-@RequestMapping("/image")
+@RequestMapping()
 public class ImageController {
 	
 	@Autowired
 	private ImageService imageService;
 
 	@PostMapping("/image/{busId}")
-	public ResponseEntity<APIResponse> savePostImage(@RequestParam("file") MultipartFile[] files, @PathVariable("busId") Integer busId) {
+	public ResponseEntity<APIResponse> saveImage(@RequestParam("file") MultipartFile[] files, @PathVariable("busId") Integer busId) {
 		final List<String> result = imageService.saveImage(files, busId);
 		return ResponseEntity.status(HttpStatus.OK).body(new APIResponse(ConstraintMSG.GET_DATA_MSG, result,true));
 	}
 	
 	@GetMapping("/image/{busId}")
-	public ResponseEntity<APIResponse> getImageByPost(@PathVariable("busId") Integer busId) {
+	public ResponseEntity<APIResponse> getImageByBus(@PathVariable("busId") Integer busId) {
 		final List<ImageDTO> result = imageService.getImageByBus(busId);
 		return ResponseEntity.status(HttpStatus.OK).body(new APIResponse(ConstraintMSG.GET_DATA_MSG, result,true));
 	}
 	
 	@PutMapping("/image/{imgId}")
-	public ResponseEntity<APIResponse> changeImageRoom(@RequestParam("file") MultipartFile[] files, @PathVariable("imgId") Integer imgId) {
+	public ResponseEntity<APIResponse> changeBusImage(@RequestParam("file") MultipartFile[] files, @PathVariable("imgId") Integer imgId) {
 		imageService.changeBusImage(files, imgId);
 		return ResponseEntity.status(HttpStatus.OK).body(new APIResponse(ConstraintMSG.UPDATE_DATA_MSG, null,true));
 	}

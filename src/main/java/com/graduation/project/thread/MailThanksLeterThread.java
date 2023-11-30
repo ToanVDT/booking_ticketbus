@@ -23,7 +23,6 @@ public class MailThanksLeterThread implements Runnable{
 	private User user;
 	
 	public MailThanksLeterThread() {
-		System.out.println("init thread");
 	}
 	@Override
 	public synchronized void run() {

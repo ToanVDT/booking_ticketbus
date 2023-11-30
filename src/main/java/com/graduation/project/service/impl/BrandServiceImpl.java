@@ -11,10 +11,12 @@ import com.graduation.project.config.BrandMapper;
 import com.graduation.project.dto.BrandDTO;
 import com.graduation.project.dto.FileUploadDto;
 import com.graduation.project.entity.Brand;
+import com.graduation.project.entity.User;
 import com.graduation.project.payload.request.BrandRequest;
 import com.graduation.project.payload.response.APIResponse;
 import com.graduation.project.payload.response.BrandResponse;
 import com.graduation.project.repository.BrandRepository;
+import com.graduation.project.repository.UserRepository;
 import com.graduation.project.service.BrandService;
 import com.graduation.project.service.FileService;
 
@@ -23,6 +25,9 @@ public class BrandServiceImpl implements BrandService{
 
 	@Autowired
 	private BrandRepository brandRepository;
+	
+	@Autowired
+	private UserRepository userRepository;
 	
 	@Autowired
 	private FileService storageService;
@@ -98,8 +103,8 @@ public class BrandServiceImpl implements BrandService{
 
 	@Override
 	public Boolean getBrandByBrandName(String name,Integer userId) {
-		Brand brand = brandRepository.findByUserId(userId);
-		if(brand == null || (brand!=null && brand.getBrandName().equals(name))) {
+		Brand brand = brandRepository.findByBrandName(name);
+		if(brand == null) {
 			return false;
 		}
 		return true;
@@ -107,8 +112,9 @@ public class BrandServiceImpl implements BrandService{
 
 	@Override
 	public Boolean getBrandByPhone(String phoneBrand,Integer userId) {
-		Brand brand = brandRepository.findByUserId(userId);
-		if(brand == null || (brand!=null && brand.getPhoneBrand().equals(phoneBrand))){
+		Brand brand = brandRepository.findByPhoneBrand(phoneBrand);
+		User user = userRepository.findUserByNumberPhone(phoneBrand);
+		if(brand == null && user == null){
 			return false;
 		}
 		return true;

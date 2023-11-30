@@ -33,22 +33,34 @@ public class RouteServiceImpl implements RouteService{
 	public APIResponse saveRoute(RouteRequest routeRequest) {
 		APIResponse response = new APIResponse();
 		Route route = null;
-		if(routeRequest.getId() == null) {
-			route = new Route();
-			response.setMessage(ConstraintMSG.CREATE_DATA_MSG);
+		try {
+			Brand brand = brandRepository.findByUserId(routeRequest.getUserId());
+			route = routeRepository.findExistsRoute(routeRequest.getStartPoint(), routeRequest.getEndPoint(), brand.getId());
+			if(route != null) {
+				response.setMessage(ConstraintMSG.DUPLICATE_DATA_MSG);
+				response.setSuccess(false);
+				return response;
+			}
+			else {
+				if(routeRequest.getId() == null) {
+					route = new Route();
+					response.setMessage(ConstraintMSG.CREATE_DATA_MSG);
+				}
+				else {
+					route = routeRepository.findById(routeRequest.getId()).orElse(null);
+					response.setMessage(ConstraintMSG.UPDATE_DATA_MSG);
+				}
+				route.setBrand(brand);
+				route.setStartPoint(routeRequest.getStartPoint());
+				route.setEndPoint(routeRequest.getEndPoint());
+				routeRepository.save(route);
+				List<RouteResponse>  responses=getAllRoute(routeRequest.getUserId());
+				response.setData(responses);
+				response.setSuccess(true);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		else {
-			route = routeRepository.findById(routeRequest.getId()).orElse(null);
-			response.setMessage(ConstraintMSG.UPDATE_DATA_MSG);
-		}
-		Brand brand = brandRepository.findByUserId(routeRequest.getUserId());
-		route.setBrand(brand);
-		route.setStartPoint(routeRequest.getStartPoint());
-		route.setEndPoint(routeRequest.getEndPoint());
-		routeRepository.save(route);
-		List<RouteResponse>  responses=getAllRoute(routeRequest.getUserId());
-		response.setData(responses);
-		response.setSuccess(true);
 		return response;
 	}
 

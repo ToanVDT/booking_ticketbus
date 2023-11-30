@@ -14,4 +14,6 @@ public interface SeatService {
 	SeatEmptyResponse getSeatEmpty(LocalDate dateStart, Integer scheduleId);
 
 	List<SeatDTO> getSeatWithScheduleId(Integer scheduleId);
+	
+	List<SeatDTO> getSeatWithStatus(Integer scheduleId, String status);
 }

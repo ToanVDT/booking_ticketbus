@@ -24,8 +24,8 @@ public class GiftCodeController {
 	private GiftCodeService giftCodeService;
 
 	@PostMapping()
-	private ResponseEntity<APIResponse> saveGiftCode(@RequestParam Integer rankId, @RequestParam Integer userId) {
-		final APIResponse response = giftCodeService.saveGiftCode(rankId, userId);
+	private ResponseEntity<APIResponse> saveGiftCode1Time(@RequestParam Integer rankId, @RequestParam Integer userId) {
+		final APIResponse response = giftCodeService.saveGiftCode1Time(rankId, userId);
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 

@@ -3,7 +3,9 @@ package com.graduation.project.service.impl;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
@@ -13,6 +15,7 @@ import com.graduation.project.common.Utility;
 import com.graduation.project.dto.CurrentOrderDTO;
 import com.graduation.project.dto.OrderDTO;
 import com.graduation.project.dto.OrderDTOForCustomerSearch;
+import com.graduation.project.dto.ReportScheduleDTO;
 import com.graduation.project.entity.GiftCode;
 import com.graduation.project.entity.Order;
 import com.graduation.project.entity.Payment;
@@ -22,6 +25,7 @@ import com.graduation.project.entity.Seat;
 import com.graduation.project.entity.Status;
 import com.graduation.project.entity.Ticket;
 import com.graduation.project.entity.User;
+import com.graduation.project.payload.request.FilterOrderRequest;
 import com.graduation.project.payload.request.OrderRequest;
 import com.graduation.project.payload.response.APIResponse;
 import com.graduation.project.payload.response.DateAndTimeResponse;
@@ -60,16 +64,17 @@ public class OrderServiceImpl implements OrderService {
 	private GiftCodeService giftCodeService;
 	private ThreadPoolTaskExecutor taskExecutor;
 	private MailOrderStatusThread mailOrderStatusThread;
-	private MailToBrandOwnerThread mailToBrandOwnerThread; 
+	private MailToBrandOwnerThread mailToBrandOwnerThread;
 	private MailUpgradeRankThread mailUpgradeRankThread;
 	private MailThanksLeterThread mailThanksLeterThread;
 
-	public OrderServiceImpl(PaymentRepository paymentRepository, OrderRepository orderRepository,ThreadPoolTaskExecutor taskExecutor,
-			SeatRepository seatRepository, StatusRepository statusRepository,MailOrderStatusThread mailOrderStatusThread,
-			GiftCodeService giftCodeService, TicketRepository ticketRepository, RankingRepository rankingRepository,
-			UserRepository userRepository, UserService userService, GiftCodeRepository giftCodeRepository,
-			MailToBrandOwnerThread mailToBrandOwnerThread,MailUpgradeRankThread mailUpgradeRankThread,
-			ScheduleRepository scheduleRepository,MailThanksLeterThread mailThanksLeterThread) {
+	public OrderServiceImpl(PaymentRepository paymentRepository, OrderRepository orderRepository,
+			ThreadPoolTaskExecutor taskExecutor, SeatRepository seatRepository, StatusRepository statusRepository,
+			MailOrderStatusThread mailOrderStatusThread, GiftCodeService giftCodeService,
+			TicketRepository ticketRepository, RankingRepository rankingRepository, UserRepository userRepository,
+			UserService userService, GiftCodeRepository giftCodeRepository,
+			MailToBrandOwnerThread mailToBrandOwnerThread, MailUpgradeRankThread mailUpgradeRankThread,
+			ScheduleRepository scheduleRepository, MailThanksLeterThread mailThanksLeterThread) {
 		this.paymentRepository = paymentRepository;
 		this.orderRepository = orderRepository;
 		this.seatRepository = seatRepository;
@@ -150,7 +155,7 @@ public class OrderServiceImpl implements OrderService {
 			} else {
 				order.setIsPaid(false);
 				deposit = paidAmount;
-				if(deposit>0.0) {
+				if (deposit > 0.0) {
 					paymentStatus = "Đã cọc";
 				}
 			}
@@ -165,13 +170,15 @@ public class OrderServiceImpl implements OrderService {
 				if (point >= 100 && point < 1000) {
 					ranking = rankingRepository.findById(ConstraintMSG.RANK_MEMBER).get();
 					if (user.getPoint() < 100) {
-						GiftCode codeGenerated = (GiftCode) giftCodeService.saveGiftCode(ranking.getId(), user.getId()).getData();
+						GiftCode codeGenerated = (GiftCode) giftCodeService
+								.saveGiftCode1Time(ranking.getId(), user.getId()).getData();
 						SenderUpgradeRank(ranking, user, codeGenerated);
 					}
 				} else if (point >= 1000) {
 					ranking = rankingRepository.findById(ConstraintMSG.RANK_VIPPER).get();
 					if (user.getPoint() < 1000) {
-						GiftCode codeGenerated = (GiftCode) giftCodeService.saveGiftCode(ranking.getId(), user.getId()).getData();
+						GiftCode codeGenerated = (GiftCode) giftCodeService
+								.saveGiftCode1Time(ranking.getId(), user.getId()).getData();
 						SenderUpgradeRank(ranking, user, codeGenerated);
 					}
 				} else {
@@ -181,8 +188,7 @@ public class OrderServiceImpl implements OrderService {
 				user.setPoint(point);
 				user.setRank(ranking);
 				userRepository.save(user);
-			}
-			else if(user != null && user.getAnonymous() == true) {
+			} else if (user != null && user.getAnonymous() == true) {
 				user.setEmail(request.getCustomer().getEmail());
 				user.setLastName(request.getCustomer().getLastName());
 				user.setFirstName(request.getCustomer().getFirstName());
@@ -226,10 +232,10 @@ public class OrderServiceImpl implements OrderService {
 			String email = user.getEmail();
 			String phone = user.getPhoneNumber();
 			String fullName = user.getFirstName() + ' ' + user.getLastName();
-			String lastName =user.getLastName();
+			String lastName = user.getLastName();
 			String orderCode = order.getOrderCode();
-			SenderOrderStatusThread(dateNow, brandName, datetimeTravel, dropOffPoint,lastName, seatNames, totalPrices, paymentStatus,
-					pickUpPoint, routeName, orderStatus,orderCode, user);
+			SenderOrderStatusThread(dateNow, brandName, datetimeTravel, dropOffPoint, lastName, seatNames, totalPrices,
+					paymentStatus, pickUpPoint, routeName, orderStatus, orderCode, user);
 			SenderBrandOwnerThread(dateNow, brandName, email, fullName, phone, datetimeTravel, dropOffPoint, seatNames,
 					totalPrices, paymentStatus, pickUpPoint, routeName, orderStatus, brandOwner);
 			response.setData(order);
@@ -289,8 +295,8 @@ public class OrderServiceImpl implements OrderService {
 			LocalDate dateNow = order.getOrderDate().toLocalDate();
 			String lastName = user.getLastName();
 			String orderCode = order.getOrderCode();
-			SenderOrderStatusThread(dateNow, brandName, datetimeTravel, dropOffPoint,lastName, seatNames, totalPrices, paymentStatus,
-					pickUpPoint, routeName, orderStatus,orderCode, user);
+			SenderOrderStatusThread(dateNow, brandName, datetimeTravel, dropOffPoint, lastName, seatNames, totalPrices,
+					paymentStatus, pickUpPoint, routeName, orderStatus, orderCode, user);
 			response.setData(order);
 			response.setMessage(ConstraintMSG.CANCEL_ORDER_MSG);
 			response.setSuccess(true);
@@ -348,8 +354,8 @@ public class OrderServiceImpl implements OrderService {
 			LocalDate dateNow = order.getOrderDate().toLocalDate();
 			String lastName = user.getLastName();
 			String orderCode = order.getOrderCode();
-			SenderOrderStatusThread(dateNow, brandName, datetimeTravel, dropOffPoint,lastName, seatNames, totalPrices, paymentStatus,
-					pickUpPoint, routeName, orderStatus,orderCode, user);
+			SenderOrderStatusThread(dateNow, brandName, datetimeTravel, dropOffPoint, lastName, seatNames, totalPrices,
+					paymentStatus, pickUpPoint, routeName, orderStatus, orderCode, user);
 			response.setData(order);
 			response.setMessage(ConstraintMSG.APPROVAL_ORDER_MSG);
 			response.setSuccess(true);
@@ -364,38 +370,92 @@ public class OrderServiceImpl implements OrderService {
 		List<OrderDTO> dtos = new ArrayList<>();
 		try {
 			List<Order> orders = orderRepository.findOrderByShcedule(scheduleId);
-			OrderDTO dto = null;
-			for (Order order : orders) {
-				dto = new OrderDTO();
-				dto.setId(order.getId());
-				dto.setOrderDate(order.getOrderDate());
-				dto.setOrderCode(order.getOrderCode());
-				dto.setOrderStatus(order.getStatus().getStatus());
-				dto.setDeposit(order.getDeposit());
-				dto.setTotalPrice(order.getTotalPrice());
-				if (!order.getIsPaid()) {
-					if (order.getDeposit() == 0) {
-						dto.setPaymentStatus(ConstraintMSG.NO_PAYMENT_STATUS);
-					} else {
-						dto.setPaymentStatus(ConstraintMSG.DEPOSIT_PAYMENT_STATUS);
-					}
-				} else {
-					dto.setPaymentStatus(ConstraintMSG.PAYMENT_STATUS);
-				}
-				List<String> seatNames = new ArrayList<>();
-				String seatName = null;
-
-				List<Ticket> tickets = order.getTickets();
-				for (Ticket ticket : tickets) {
-					seatName = new String();
-					seatName = ticket.getSeat().getName();
-					seatNames.add(seatName);
-				}
-				dto.setListSeat(seatNames);
-				dtos.add(dto);
-			}
+			dtos = getOrder(orders);
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+		return dtos;
+	}
+
+	@Override
+	public List<OrderDTO> getOrderFilter(FilterOrderRequest request) {
+		List<OrderDTO> dtos = new ArrayList<>();
+		if (request.getIsPaid() == null && request.getStatus() != null) {
+			dtos = getOrderWithOrderStatus(request.getScheduleId(), request.getStatus());
+		} else if (request.getStatus() == null && request.getIsPaid() != null) {
+			dtos = getOrderWithPaymentStatus(request.getScheduleId(), request.getIsPaid());
+		} else if (request.getIsPaid() != null && request.getStatus() != null) {
+			List<OrderDTO> listPayment = getOrderWithPaymentStatus(request.getScheduleId(), request.getIsPaid());
+			List<OrderDTO> listOrder = getOrderWithOrderStatus(request.getScheduleId(), request.getStatus());
+			Set<OrderDTO> setByPayment = new HashSet<OrderDTO>(listPayment);
+			Set<OrderDTO> setByOrder = new HashSet<OrderDTO>(listOrder);
+			Set<OrderDTO> result = new HashSet<>(setByPayment);
+			result.retainAll(setByOrder);
+			dtos.addAll(result);
+		} else {
+			dtos = getOrderInSchedule(request.getScheduleId());
+		}
+		return dtos;
+	}
+
+	public List<OrderDTO> getOrderWithPaymentStatus(Integer scheduleId, Integer isPaid) {
+		List<OrderDTO> dtos = new ArrayList<>();
+		List<Order> orders = new ArrayList<>();
+		try {
+			if (isPaid == 3) {
+				orders = orderRepository.findOrderWithDeposit(scheduleId, 0);
+			} else {
+				orders = orderRepository.findOrderWithPaymentStatus(scheduleId, isPaid);
+			}
+			dtos = getOrder(orders);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return dtos;
+	}
+
+	public List<OrderDTO> getOrderWithOrderStatus(Integer scheduleId, String status) {
+		List<OrderDTO> dtos = new ArrayList<>();
+		try {
+			List<Order> orders = orderRepository.findOrderWithOrderStatus(scheduleId, status);
+			dtos = getOrder(orders);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return dtos;
+	}
+
+	public List<OrderDTO> getOrder(List<Order> orders) {
+		List<OrderDTO> dtos = new ArrayList<>();
+		OrderDTO dto = null;
+		for (Order order : orders) {
+			dto = new OrderDTO();
+			dto.setId(order.getId());
+			dto.setOrderDate(order.getOrderDate());
+			dto.setOrderCode(order.getOrderCode());
+			dto.setOrderStatus(order.getStatus().getStatus());
+			dto.setDeposit(order.getDeposit());
+			dto.setTotalPrice(order.getTotalPrice());
+			if (!order.getIsPaid()) {
+				if (order.getDeposit() == 0) {
+					dto.setPaymentStatus(ConstraintMSG.NO_PAYMENT_STATUS);
+				} else {
+					dto.setPaymentStatus(ConstraintMSG.DEPOSIT_PAYMENT_STATUS);
+				}
+			} else {
+				dto.setPaymentStatus(ConstraintMSG.PAYMENT_STATUS);
+			}
+			List<String> seatNames = new ArrayList<>();
+			String seatName = null;
+
+			List<Ticket> tickets = order.getTickets();
+			for (Ticket ticket : tickets) {
+				seatName = new String();
+				seatName = ticket.getSeat().getName();
+				seatNames.add(seatName);
+			}
+			dto.setListSeat(seatNames);
+			dtos.add(dto);
 		}
 		return dtos;
 	}
@@ -663,6 +723,20 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	@Override
+	public Double totalMoneyOrderInSchedule(Integer scheduleId) {
+		List<Order> orders = orderRepository.findOrderMoneyByShcedule(scheduleId);
+		Double totalMoney = 0.0;
+		for (Order order : orders) {
+			if (order.getDeposit() == 0.0 || order.getDeposit() > 0.0 && order.getIsPaid()) {
+				totalMoney = totalMoney + order.getTotalPrice();
+			} else {
+				totalMoney = totalMoney + order.getDeposit();
+			}
+		}
+		return totalMoney;
+	}
+
+	@Override
 	public List<Order> updateStatusOrder() {
 		List<Order> orders = orderRepository.findAllOrderSchedule();
 		Status status = statusRepository.findById(ConstraintMSG.STATUS_COMPLETED).orElse(null);
@@ -684,10 +758,10 @@ public class OrderServiceImpl implements OrderService {
 		}
 		return orders;
 	}
-	
-	public void SenderOrderStatusThread(LocalDate dateNow, String brandName, String datetimeTravel, String dropOffPoint,String customerName,
-			List<String> seatNames, Double totalPrices, String paymentStatus, String pickUpPoint, String routeName,
-			String orderStatus,String orderCode, User user) {
+
+	public void SenderOrderStatusThread(LocalDate dateNow, String brandName, String datetimeTravel, String dropOffPoint,
+			String customerName, List<String> seatNames, Double totalPrices, String paymentStatus, String pickUpPoint,
+			String routeName, String orderStatus, String orderCode, User user) {
 		mailOrderStatusThread.setBrandName(brandName);
 		mailOrderStatusThread.setDateNow(dateNow);
 		mailOrderStatusThread.setDatetimeTravel(datetimeTravel);
@@ -703,7 +777,7 @@ public class OrderServiceImpl implements OrderService {
 		mailOrderStatusThread.setUser(user);
 		taskExecutor.execute(mailOrderStatusThread);
 	}
-	
+
 	public void SenderBrandOwnerThread(LocalDate dateNow, String brandName, String email, String customerName,
 			String phone, String datetimeTravel, String dropOffPoint, List<String> seatNames, Double totalPrices,
 			String paymentStatus, String pickUpPoint, String routeName, String orderStatus, User user) {
@@ -723,15 +797,32 @@ public class OrderServiceImpl implements OrderService {
 		mailToBrandOwnerThread.setBrandOwner(user);
 		taskExecutor.execute(mailToBrandOwnerThread);
 	}
+
 	public void SenderUpgradeRank(Ranking rank, User user, GiftCode codeGenerated) {
 		mailUpgradeRankThread.setCodeGenerated(codeGenerated);
 		mailUpgradeRankThread.setRanking(rank);
 		mailUpgradeRankThread.setUser(user);
 		taskExecutor.execute(mailUpgradeRankThread);
 	}
-	
-	public void SenderThanksLeter() {
-		
-	}
 
+	@Override
+	public List<ReportScheduleDTO> getReportSchedule(Integer scheduleId) {
+		List<Order> orders = orderRepository.findOrderMoneyByShcedule(scheduleId);
+		List<ReportScheduleDTO> dtos = new ArrayList<ReportScheduleDTO>();
+		ReportScheduleDTO dto = null;
+		for (Order order : orders) {
+			dto = new ReportScheduleDTO();
+			dto.setCustomerName(order.getUser().getLastName() + " " + order.getUser().getFirstName());
+			dto.setCustomerPhone(order.getUser().getPhoneNumber());
+			dto.setOrderCode(order.getOrderCode());
+			dto.setOrderDate(order.getOrderDate());
+			if (order.getDeposit() == 0.0 || order.getDeposit() > 0.0 && order.getIsPaid()) {
+				dto.setTotalPrice(order.getTotalPrice());
+			} else {
+				dto.setTotalPrice(order.getDeposit());
+			}
+			dtos.add(dto);
+		}
+		return dtos;
+	}
 }

@@ -15,5 +15,6 @@ public interface BrandRepository extends JpaRepository<Brand, Integer>{
 	
 	Brand findByUserId(Integer userId);
 	Brand findByBrandName(String brandName);
-	Brand findByPhoneBrand(String phoneBrand);
+	@Query(nativeQuery = true, value="SELECT * FROM brand where brand.phone_brand=:phoneNumber")
+	Brand findByPhoneBrand(String phoneNumber);
 }

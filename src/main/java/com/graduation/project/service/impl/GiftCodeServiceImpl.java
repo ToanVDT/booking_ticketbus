@@ -23,16 +23,17 @@ public class GiftCodeServiceImpl implements GiftCodeService{
 
 	@Autowired
 	private RankingRepository rankingRepository;
-
+	
 	@Override
-	public APIResponse saveGiftCode(Integer rankId, Integer userId) {
+	public APIResponse saveGiftCode1Time(Integer rankId, Integer userId) {
 		APIResponse response = new APIResponse();
 		GiftCode giftCode = new GiftCode();
 		LocalDate now = LocalDate.now();
 		giftCode.setExpireDate(now.plusDays(10));
 		Ranking ranking = rankingRepository.findById(rankId).orElse(null);
+		String PREFIX = ranking.getRankName();
 		giftCode.setRank(ranking);
-		giftCode.setGiftCode(generateGiftCode(rankId));
+		giftCode.setGiftCode(generateGiftCode(PREFIX));
 		giftCode.setUserId(userId);
 		giftCode.setIsUsed(false);
 		giftCodeRepository.save(giftCode);
@@ -42,9 +43,7 @@ public class GiftCodeServiceImpl implements GiftCodeService{
 		return response;
 	}
 
-	public String generateGiftCode(Integer rankId) {
-		Ranking ranking = rankingRepository.findById(rankId).orElse(null);
-		String PREFIX = ranking.getRankName();
+	public String generateGiftCode(String PREFIX) {
 		String AlphaNumericString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + "0123456789" + "abcdefghijklmnopqrstuvxyz";
 		StringBuilder s = new StringBuilder(9);
 		int y;
@@ -66,7 +65,7 @@ public class GiftCodeServiceImpl implements GiftCodeService{
 			dto.setExpireDate(giftCode.getExpireDate());
 			dto.setGiftCode(giftCode.getGiftCode());
 			dto.setIsUsed(giftCode.getIsUsed());
-			dtos.add(dto);
+				dtos.add(dto);
 		}
 		return dtos;
 	}

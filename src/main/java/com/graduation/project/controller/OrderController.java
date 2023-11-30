@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.graduation.project.common.ConstraintMSG;
 import com.graduation.project.dto.OrderDTO;
+import com.graduation.project.dto.ReportScheduleDTO;
+import com.graduation.project.payload.request.FilterOrderRequest;
 import com.graduation.project.payload.request.OrderRequest;
 import com.graduation.project.payload.response.APIResponse;
 import com.graduation.project.payload.response.DateAndTimeResponse;
@@ -93,5 +95,20 @@ public class OrderController {
 	private ResponseEntity<APIResponse> enterDeposit(@RequestParam Integer orderId, @RequestParam Double deposit){
 		final APIResponse response = orderService.EnterDeposit(orderId, deposit);
 		return ResponseEntity.status(HttpStatus.OK).body(response);
+	}
+	@GetMapping("/order/totalMoney")
+	private ResponseEntity<APIResponse> getTotalMoney(@RequestParam Integer scheduleId){
+		final Double result = orderService.totalMoneyOrderInSchedule(scheduleId);
+		return ResponseEntity.status(HttpStatus.OK).body(new APIResponse(ConstraintMSG.GET_DATA_MSG,result,true));
+	}
+	@GetMapping("/report")
+	private ResponseEntity<APIResponse> getReportSchedule(@RequestParam Integer scheduleId){
+		final List<ReportScheduleDTO> result = orderService.getReportSchedule(scheduleId);
+		return ResponseEntity.status(HttpStatus.OK).body(new APIResponse(ConstraintMSG.GET_DATA_MSG,result,true));
+	}
+	@PostMapping("/order/filter")
+	private ResponseEntity<APIResponse> getOrderFilter(@RequestBody FilterOrderRequest request){
+		final List<OrderDTO> result = orderService.getOrderFilter(request);
+		return ResponseEntity.status(HttpStatus.OK).body(new APIResponse(ConstraintMSG.GET_DATA_MSG,result,true));
 	}
 }
