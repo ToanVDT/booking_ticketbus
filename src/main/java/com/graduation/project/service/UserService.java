@@ -52,11 +52,14 @@ public interface UserService {
 	
 	List<ListBrandDTO> getAllCurrentBrand();
 	
+	List<ListBrandDTO> getCurrentBrandFilter(Integer activeCode);
+	
 	void activeAccount(Integer userId);
 	
 	void inactiveAccount(Integer userId);
 	
 	List<CustomerDTO> getAllCustomer();
 	
+	List<CustomerDTO> getCustomerByFilterRank(Integer rankId);
 	
 }

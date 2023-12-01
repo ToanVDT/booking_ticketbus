@@ -33,8 +33,14 @@ public interface UserRepository extends JpaRepository<User, Integer>{
 	@Query(nativeQuery = true, value = "SELECT * FROM user where user.role_id = 2")
 	List<User> findAllBrandOwner();
 	
+	@Query(nativeQuery = true, value = "SELECT * FROM user where user.role_id = 2 and user.active =:activeCode")
+	List<User> findBrandOwnerFilter(Integer activeCode);
+	
 	@Query(nativeQuery = true, value = "SELECT * FROM user WHERE user.role_id = 3 AND user.anonymous = FALSE AND user.active = TRUE")
 	List<User> findAllCustomer();
+	
+	@Query(nativeQuery = true, value = "SELECT * FROM user WHERE user.role_id = 3 AND user.anonymous = FALSE AND user.active = TRUE AND user.rank_id =:rankId")
+	List<User> findCustomerByFilterRank(Integer rankId);
 	
 	@Query(nativeQuery = true,value = "select user.* from user,orders where user.id = orders.user_id and orders.id =:orderId")
 	User findByOrderId(@Param("orderId") Integer orderId);

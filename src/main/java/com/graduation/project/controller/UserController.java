@@ -111,6 +111,11 @@ public class UserController {
 		final List<ListBrandDTO> response = userService.getAllCurrentBrand();
 		return ResponseEntity.status(HttpStatus.OK).body(new APIResponse(ConstraintMSG.GET_DATA_MSG,response,true));
 	}
+	@GetMapping("/brand-owner")
+	private ResponseEntity<APIResponse> getCurrentBrandFilter(@RequestParam Integer activeCode){
+		final List<ListBrandDTO> response = userService.getCurrentBrandFilter(activeCode);
+		return ResponseEntity.status(HttpStatus.OK).body(new APIResponse(ConstraintMSG.GET_DATA_MSG,response,true));
+	}
 	@PutMapping("/active")
 	private void activeAccount(@RequestParam Integer userId){
 		userService.activeAccount(userId);
@@ -122,6 +127,11 @@ public class UserController {
 	@GetMapping("/customer") 
 	private ResponseEntity<APIResponse> getAllCustomer(){
 		final List<CustomerDTO> response = userService.getAllCustomer();
+		return ResponseEntity.status(HttpStatus.OK).body(new APIResponse(ConstraintMSG.GET_DATA_MSG,response,true));
+	}
+	@GetMapping("/customer/filter") 
+	private ResponseEntity<APIResponse> getAllCustomer(@RequestParam Integer rankId){
+		final List<CustomerDTO> response = userService.getCustomerByFilterRank(rankId);
 		return ResponseEntity.status(HttpStatus.OK).body(new APIResponse(ConstraintMSG.GET_DATA_MSG,response,true));
 	}
 	@PutMapping("/remove-customer")

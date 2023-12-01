@@ -318,6 +318,18 @@ public class UserServiceImpl implements UserService {
 	public List<ListBrandDTO> getAllCurrentBrand() {
 		List<User> users = userRepository.findAllBrandOwner();
 		List<ListBrandDTO> result = new ArrayList<>();
+		result = getCurrentBrand(users);
+		return result;
+	}
+	@Override
+	public List<ListBrandDTO> getCurrentBrandFilter(Integer activeCode){
+		List<User> users = userRepository.findBrandOwnerFilter(activeCode);
+		List<ListBrandDTO> result = new ArrayList<>();
+		result = getCurrentBrand(users);
+		return result;
+	}
+	public List<ListBrandDTO> getCurrentBrand(List<User> users){
+		List<ListBrandDTO> result = new ArrayList<>();
 		Brand brand = null;
 		ListBrandDTO dto = null;
 		for(User user:users) {
@@ -361,10 +373,22 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public List<CustomerDTO> getAllCustomer() {
-		List<User> list = userRepository.findAllCustomer();
+		List<User> users = userRepository.findAllCustomer();
+		List<CustomerDTO> dtos = new ArrayList<>();
+		dtos = getCustomer(users);
+		return dtos;
+	}
+	@Override
+	public List<CustomerDTO> getCustomerByFilterRank(Integer rankId){
+		List<User> users = userRepository.findCustomerByFilterRank(rankId);
+		List<CustomerDTO> dtos = new ArrayList<>();
+		dtos = getCustomer(users);
+		return dtos;
+	}
+	public List<CustomerDTO> getCustomer(List<User> users){
 		List<CustomerDTO> dtos = new ArrayList<>();
 		CustomerDTO dto = null;
-		for(User user:list) {
+		for(User user:users) {
 			dto = new CustomerDTO();
 			dto.setCustomerId(user.getId());
 			dto.setEmail(user.getEmail());
