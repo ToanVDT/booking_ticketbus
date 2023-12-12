@@ -16,4 +16,5 @@ public class ReportScheduleDTO {
 	private String customerName;
 	private String customerPhone;
 	private Double totalPrice;
+	private String paymentMethod;
 }

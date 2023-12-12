@@ -1,6 +1,6 @@
 package com.graduation.project.payload.request;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
@@ -23,6 +23,6 @@ public class MailSendInformOrderToBrandOwnerRequest {
 	private Double totalPrice;
 	private String orderStatus;
 	private String paymentStatus;
-	private LocalDate bookingDate;
+	private LocalDateTime bookingDate;
 	private String dateTimeTravel;
 }

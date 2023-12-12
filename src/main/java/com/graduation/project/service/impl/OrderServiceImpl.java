@@ -231,12 +231,12 @@ public class OrderServiceImpl implements OrderService {
 			}
 			String email = user.getEmail();
 			String phone = user.getPhoneNumber();
-			String fullName = user.getFirstName() + ' ' + user.getLastName();
-			String lastName = user.getLastName();
+			String fullName = user.getLastName() + ' ' + user.getFirstName();
+			String lastName = user.getFirstName();
 			String orderCode = order.getOrderCode();
-			SenderOrderStatusThread(dateNow, brandName, datetimeTravel, dropOffPoint, lastName, seatNames, totalPrices,
+			SenderOrderStatusThread(now, brandName, datetimeTravel, dropOffPoint, lastName, seatNames, totalPrices,
 					paymentStatus, pickUpPoint, routeName, orderStatus, orderCode, user);
-			SenderBrandOwnerThread(dateNow, brandName, email, fullName, phone, datetimeTravel, dropOffPoint, seatNames,
+			SenderBrandOwnerThread(now, brandName, email, fullName, phone, datetimeTravel, dropOffPoint, seatNames,
 					totalPrices, paymentStatus, pickUpPoint, routeName, orderStatus, brandOwner);
 			response.setData(order);
 			response.setMessage(ConstraintMSG.BOOKING_SUCCESS_MSG);
@@ -292,8 +292,8 @@ public class OrderServiceImpl implements OrderService {
 			String dropOffPoint = order.getDropoffPoint();
 			Double totalPrices = order.getTotalPrice();
 			String pickUpPoint = order.getPickupPoint();
-			LocalDate dateNow = order.getOrderDate().toLocalDate();
-			String lastName = user.getLastName();
+			LocalDateTime dateNow = order.getOrderDate();
+			String lastName = user.getFirstName();
 			String orderCode = order.getOrderCode();
 			SenderOrderStatusThread(dateNow, brandName, datetimeTravel, dropOffPoint, lastName, seatNames, totalPrices,
 					paymentStatus, pickUpPoint, routeName, orderStatus, orderCode, user);
@@ -351,8 +351,8 @@ public class OrderServiceImpl implements OrderService {
 			String dropOffPoint = order.getDropoffPoint();
 			Double totalPrices = order.getTotalPrice();
 			String pickUpPoint = order.getPickupPoint();
-			LocalDate dateNow = order.getOrderDate().toLocalDate();
-			String lastName = user.getLastName();
+			LocalDateTime dateNow = order.getOrderDate();
+			String lastName = user.getFirstName();
 			String orderCode = order.getOrderCode();
 			SenderOrderStatusThread(dateNow, brandName, datetimeTravel, dropOffPoint, lastName, seatNames, totalPrices,
 					paymentStatus, pickUpPoint, routeName, orderStatus, orderCode, user);
@@ -526,8 +526,10 @@ public class OrderServiceImpl implements OrderService {
 	public APIResponse ConfirmPaid(Integer orderId) {
 		APIResponse response = new APIResponse();
 		try {
+			Payment payment = paymentRepository.findById(ConstraintMSG.METHOD_PAYMENT_CASH_ID).orElse(null);
 			Order order = orderRepository.findById(orderId).orElse(null);
 			order.setIsPaid(true);
+			order.setPayment(payment);
 			orderRepository.save(order);
 			response.setData(order);
 			response.setMessage(ConstraintMSG.GET_DATA_MSG);
@@ -749,17 +751,19 @@ public class OrderServiceImpl implements OrderService {
 			Integer scheduleId = orderRepository.findScheduleIdByOrder(order.getId());
 			Schedule schedule = scheduleRepository.findById(scheduleId).orElse(null);
 			user = userRepository.findUserByOrderId(order.getId());
-			customerName = user.getLastName();
+			customerName = user.getFirstName();
 			brandName = schedule.getBus().getBrand().getBrandName();
 			mailThanksLeterThread.setBrandName(brandName);
 			mailThanksLeterThread.setCustomerName(customerName);
 			mailThanksLeterThread.setUser(user);
-			taskExecutor.execute(mailThanksLeterThread);
+			if(user.getEmail()!= null) {
+				taskExecutor.execute(mailThanksLeterThread);
+			}
 		}
 		return orders;
 	}
 
-	public void SenderOrderStatusThread(LocalDate dateNow, String brandName, String datetimeTravel, String dropOffPoint,
+	public void SenderOrderStatusThread(LocalDateTime dateNow, String brandName, String datetimeTravel, String dropOffPoint,
 			String customerName, List<String> seatNames, Double totalPrices, String paymentStatus, String pickUpPoint,
 			String routeName, String orderStatus, String orderCode, User user) {
 		mailOrderStatusThread.setBrandName(brandName);
@@ -775,10 +779,12 @@ public class OrderServiceImpl implements OrderService {
 		mailOrderStatusThread.setOrderStatus(orderStatus);
 		mailOrderStatusThread.setOrderCode(orderCode);
 		mailOrderStatusThread.setUser(user);
-		taskExecutor.execute(mailOrderStatusThread);
+		if(user.getEmail()!= null) {
+			taskExecutor.execute(mailOrderStatusThread);
+		}
 	}
 
-	public void SenderBrandOwnerThread(LocalDate dateNow, String brandName, String email, String customerName,
+	public void SenderBrandOwnerThread(LocalDateTime dateNow, String brandName, String email, String customerName,
 			String phone, String datetimeTravel, String dropOffPoint, List<String> seatNames, Double totalPrices,
 			String paymentStatus, String pickUpPoint, String routeName, String orderStatus, User user) {
 		mailToBrandOwnerThread.setDateNow(dateNow);
@@ -787,7 +793,7 @@ public class OrderServiceImpl implements OrderService {
 		mailToBrandOwnerThread.setFullName(customerName);
 		mailToBrandOwnerThread.setPhone(phone);
 		mailToBrandOwnerThread.setDatetimeTravel(datetimeTravel);
-		mailOrderStatusThread.setDropOffPoint(dropOffPoint);
+		mailToBrandOwnerThread.setDropOffPoint(dropOffPoint);
 		mailToBrandOwnerThread.setSeatNames(seatNames);
 		mailToBrandOwnerThread.setTotalPrices(totalPrices);
 		mailToBrandOwnerThread.setPaymentStatus(paymentStatus);
@@ -810,12 +816,20 @@ public class OrderServiceImpl implements OrderService {
 		List<Order> orders = orderRepository.findOrderMoneyByShcedule(scheduleId);
 		List<ReportScheduleDTO> dtos = new ArrayList<ReportScheduleDTO>();
 		ReportScheduleDTO dto = null;
+		String paymentString = "";
 		for (Order order : orders) {
 			dto = new ReportScheduleDTO();
-			dto.setCustomerName(order.getUser().getLastName() + " " + order.getUser().getFirstName());
+			dto.setCustomerName(order.getUser().getFirstName());
 			dto.setCustomerPhone(order.getUser().getPhoneNumber());
 			dto.setOrderCode(order.getOrderCode());
 			dto.setOrderDate(order.getOrderDate());
+			if(order.getPayment().getPaymentType().equals(ConstraintMSG.METHOD_PAYMENT_CREDIT)) {
+				paymentString = ConstraintMSG.METHOD_PAYMENT_CREDIT_STRING;
+			}
+			else {
+				paymentString = ConstraintMSG.METHOD_PAYMENT_CASH_STRING;
+			}
+			dto.setPaymentMethod(paymentString);
 			if (order.getDeposit() == 0.0 || order.getDeposit() > 0.0 && order.getIsPaid()) {
 				dto.setTotalPrice(order.getTotalPrice());
 			} else {

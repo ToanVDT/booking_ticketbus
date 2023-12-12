@@ -1,6 +1,6 @@
 package com.graduation.project.thread;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ public class MailToBrandOwnerThread implements Runnable{
 	@Autowired
 	private SendMailService sendMailService;
 	
-	private LocalDate dateNow;
+	private LocalDateTime dateNow;
 	private String brandName;
 	private String datetimeTravel;
 	private String dropOffPoint;
@@ -37,6 +37,7 @@ public class MailToBrandOwnerThread implements Runnable{
 	private User brandOwner;
 	
 	public MailToBrandOwnerThread() {
+		
 	}
 	@Override
 	public synchronized void run() {

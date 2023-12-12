@@ -129,7 +129,8 @@ public class EmailServiceImpl implements EmailService {
 			properties.put("totalPrice", totalPrice);
 			properties.put("orderStatus", request.getOrderStatus());
 			properties.put("paymentStatus", request.getPaymentStatus());
-			properties.put("bookingDate", request.getBookingDate());
+			String formatDateTime = Utility.formatLocalDateTime(request.getBookingDate());
+			properties.put("bookingDate", formatDateTime);
 			properties.put("datetimeTravel", request.getDateTimeTravel());
 			email.setFrom("fromemail@gmail.com");
 			email.setTemplate("MailStatusOrder.html");
@@ -165,7 +166,8 @@ public class EmailServiceImpl implements EmailService {
 			properties.put("totalPrice", totalPrice);
 			properties.put("orderStatus", request.getOrderStatus());
 			properties.put("paymentStatus", request.getPaymentStatus());
-			properties.put("bookingDate", request.getBookingDate());
+			String formatDateTime = Utility.formatLocalDateTime(request.getBookingDate());
+			properties.put("bookingDate", formatDateTime);
 			properties.put("datetimeTravel", request.getDateTimeTravel());
 			email.setFrom("fromemail@gmail.com");
 			email.setTemplate("notification.html");

@@ -9,7 +9,7 @@ class ScheduleTasks {
 	@Autowired
 	private OrderService orderService;
 
-	@Scheduled(cron = "0 48 22 * * *")
+	@Scheduled(cron = "0 57 23 * * *")
 	public void scheduleTaskUsingCronExpression() {
 
 		try {

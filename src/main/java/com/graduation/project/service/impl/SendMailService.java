@@ -1,6 +1,6 @@
 package com.graduation.project.service.impl;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +17,7 @@ public class SendMailService {
 	@Autowired
 	private EmailService emailService;
 
-	public void sendMailForBrandOwner(LocalDate dateNow, String brandName, String email, String customerName,
+	public void sendMailForBrandOwner(LocalDateTime dateNow, String brandName, String email, String customerName,
 			String phone, String datetimeTravel, String dropOffPoint, List<String> seatNames, Double totalPrices,
 			String paymentStatus, String pickUpPoint, String routeName, String orderStatus, User user) {
 		MailSendInformOrderToBrandOwnerRequest requestMail = new MailSendInformOrderToBrandOwnerRequest();
@@ -37,7 +37,7 @@ public class SendMailService {
 		emailService.sendMailInformOrderToBrandOwner(requestMail, user);
 	}
 
-	public void sendMailOrderStatus(LocalDate dateNow, String brandName, String datetimeTravel, String dropOffPoint,String customerName,
+	public void sendMailOrderStatus(LocalDateTime dateNow, String brandName, String datetimeTravel, String dropOffPoint,String customerName,
 			List<String> seatNames, Double totalPrices, String paymentStatus, String pickUpPoint, String routeName,
 			String orderStatus,String orderCode, User user) {
 		MailOrderStatusRequest requestMail = new MailOrderStatusRequest();

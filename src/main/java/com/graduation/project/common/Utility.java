@@ -2,6 +2,8 @@ package com.graduation.project.common;
 
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Currency;
 import java.util.List;
@@ -66,5 +68,10 @@ public class Utility {
 			s.append(DigitString.charAt(index));
 		}
 		return s.toString();
+	}
+	public static String formatLocalDateTime(LocalDateTime dateTime) {
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");  
+        String formatDateTime = dateTime.format(format);  
+        return formatDateTime;
 	}
 }

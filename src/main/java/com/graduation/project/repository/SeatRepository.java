@@ -22,7 +22,7 @@ public interface SeatRepository extends JpaRepository<Seat, Integer>{
 	@Query(nativeQuery = true, value = "SELECT * FROM seat WHERE seat.schedule_id=:scheduleId LIMIT 1")
 	Seat findSeatByScheduleId(Integer scheduleId);
 	
-	@Query(nativeQuery = true, value = "SELECT seat.id as id, if(status.status = 'INITIALIZED',0,1 ) as status, seat.name as seatName, price as price FROM  seat, status WHERE seat.status_id = status.id and seat.schedule_id =:scheduleId")
+	@Query(nativeQuery = true, value = "SELECT seat.id as id, if(status.status = 'INITIALIZED',0,1 ) as status, seat.name as seatName, price as price FROM  seat, status WHERE seat.status_id = status.id and seat.schedule_id =:scheduleId order by id")
 	List<SeatResponseForCustomer> findSeatsBySchedule(Integer scheduleId);
 	
 	@Query(nativeQuery = true, value = "select seat.* from seat,ticket where seat.id = ticket.seat_id and ticket.id =:ticketId")

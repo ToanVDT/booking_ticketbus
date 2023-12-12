@@ -27,7 +27,7 @@ public interface OrderRepository extends JpaRepository<Order, Integer>{
 	@Query(nativeQuery = true, value = "SELECT DISTINCT orders.* FROM orders, seat, ticket, schedule WHERE seat.schedule_id =:scheduleId AND seat.schedule_id = schedule.id AND seat.id = ticket.seat_id AND orders.id = ticket.order_id AND orders.is_paid=:isPaid AND orders.deposit > 0 ORDER BY orders.order_date DESC")
 	List<Order> findOrderWithDeposit(Integer scheduleId,Integer isPaid);
 	
-	@Query(nativeQuery = true, value = "SELECT DISTINCT orders.* FROM orders, seat, ticket, schedule WHERE seat.schedule_id =:scheduleId AND orders.status_id NOT IN (2 , 3) AND seat.schedule_id = schedule.id AND seat.id = ticket.seat_id AND orders.id = ticket.order_id")
+	@Query(nativeQuery = true, value = "SELECT DISTINCT orders.* FROM orders, seat, ticket, schedule WHERE seat.schedule_id =:scheduleId AND orders.status_id NOT IN (2 , 3) AND seat.schedule_id = schedule.id AND seat.id = ticket.seat_id AND orders.id = ticket.order_id AND orders.is_paid = 1")
 	List<Order> findOrderMoneyByShcedule(Integer scheduleId);
 	
 	Order findByOrderCode(String orderCode);
@@ -47,7 +47,7 @@ public interface OrderRepository extends JpaRepository<Order, Integer>{
 	@Query(nativeQuery = true, value = "SELECT orders.* FROM orders, user, ticket, schedule, shuttle, seat WHERE ticket.order_id = orders.id AND ticket.seat_id = seat.id AND seat.schedule_id = schedule.id AND schedule.shuttle_id = shuttle.id  AND orders.status_id IN (2) AND orders.user_id = user.id AND user.id =:userId")
 	List<Order> findOrderCanceledByUserId(Integer userId);
 	
-	@Query(nativeQuery = true, value = "SELECT orders.* FROM orders, user, ticket, schedule, shuttle, seat WHERE ticket.order_id = orders.id AND ticket.seat_id = seat.id AND seat.schedule_id = schedule.id AND schedule.shuttle_id = shuttle.id AND schedule.id NOT IN (SELECT schedule.id FROM schedule, shuttle WHERE schedule.shuttle_id = shuttle.id AND schedule.date_start > date(now()) OR (schedule.date_start = date(now()) AND time(now()) < shuttle.start_time)) AND orders.status_id NOT IN (2) AND orders.user_id = user.id AND user.id =:userId")
+	@Query(nativeQuery = true, value = "SELECT orders.* FROM orders, user, ticket, schedule, shuttle, seat WHERE ticket.order_id = orders.id AND ticket.seat_id = seat.id AND seat.schedule_id = schedule.id AND schedule.shuttle_id = shuttle.id AND orders.status_id IN (4) AND orders.user_id = user.id AND user.id =:userId")
 	List<Order> findPastOrderByUserId(Integer userId);
 	
 	@Query(nativeQuery = true, value = "SELECT orders.* FROM schedule, orders, seat, ticket WHERE orders.id = ticket.order_id AND ticket.seat_id = seat.id AND ticket.is_canceled = FALSE AND seat.schedule_id = schedule.id AND schedule.date_start = date(now())")
