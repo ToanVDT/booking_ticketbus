@@ -29,6 +29,9 @@ public class Route {
 	@Column(name = "end_point")
 	private String endPoint;
 	
+	@Column(name = "duration")
+	private Double duration;
+	
 	@JsonIgnore
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "brandId",nullable = false)

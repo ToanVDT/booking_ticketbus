@@ -1,7 +1,6 @@
 package com.graduation.project.repository;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -19,8 +18,11 @@ public interface BusRepository extends JpaRepository<Bus, Integer>{
 	@Query(nativeQuery = true, value = "SELECT bus.id, bus.name FROM bus WHERE bus.brand_id =:brandId")
 	List<BusResponseForDropDown> findBusDropDown(Integer brandId);
 	
-	@Query(nativeQuery = true, value = "SELECT bus.id, bus.name FROM bus WHERE bus.brand_id =:brandId and bus.id NOT in (SELECT bus.id FROM bus, shuttle, schedule WHERE bus.id = schedule.bus_id AND shuttle.id = schedule.shuttle_id AND( (schedule.date_start =:travelDate) or (DATE_ADD(schedule.date_start, INTERVAL 1 DAY)=:travelDate and shuttle.end_time > :startTime)))")
-	List<BusResponseForDropDown> findBusAvailableInBrandByTravelDate(Integer brandId, LocalDate travelDate,LocalTime startTime);
+	@Query(nativeQuery = true, value = "SELECT bus.id, bus.name FROM bus WHERE bus.brand_id =:brandId AND bus.id NOT IN (SELECT bus_id FROM bus, shuttle, schedule WHERE bus.id = schedule.bus_id AND shuttle.id = schedule.shuttle_id AND schedule.date_start =:travelDate)")
+	List<BusResponseForDropDown> findBusAvailableInBrandByTravelDateForUpdate(Integer brandId, LocalDate travelDate);
+	
+	@Query(nativeQuery = true, value = "SELECT bus.id, bus.name FROM bus WHERE bus.brand_id =:brandId AND bus.id NOT IN (SELECT bus_id FROM bus, shuttle, schedule WHERE bus.id = schedule.bus_id AND shuttle.id = schedule.shuttle_id AND schedule.date_start BETWEEN :dateStart AND :dateEnd)")
+	List<BusResponseForDropDown> findBusAvailableInBrandByTravelDate(Integer brandId, LocalDate dateStart,LocalDate dateEnd);
 	
 	Bus findByName(String name);
 	

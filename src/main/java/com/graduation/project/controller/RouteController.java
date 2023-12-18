@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.graduation.project.common.ConstraintMSG;
 import com.graduation.project.dto.RoutePopularDTO;
+import com.graduation.project.entity.Route;
 import com.graduation.project.payload.request.RouteRequest;
 import com.graduation.project.payload.response.APIResponse;
 import com.graduation.project.payload.response.RouteResponse;
@@ -32,7 +34,12 @@ public class RouteController {
 	
 	@PostMapping("/route")
 	private ResponseEntity<APIResponse> saveRoute(@RequestBody RouteRequest routeRequest){
-		final APIResponse response = routeService.saveRoute(routeRequest);
+		final APIResponse response = routeService.createRoute(routeRequest);
+		return ResponseEntity.status(HttpStatus.OK).body(response);
+	}
+	@PutMapping("/route")
+	private ResponseEntity<APIResponse> updateRoute(@RequestBody RouteRequest routeRequest){
+		final APIResponse response = routeService.updateRoute(routeRequest);
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 	
@@ -69,6 +76,11 @@ public class RouteController {
 	@GetMapping("/route-popular")
 	private ResponseEntity<APIResponse> getRoutePopular(){
 		final Set<RoutePopularDTO> response = routeService.getAllRouteToShow();
+		return ResponseEntity.status(HttpStatus.OK).body(new APIResponse(ConstraintMSG.GET_DATA_MSG,response,true));
+	}
+	@GetMapping("/return-route")
+	private ResponseEntity<APIResponse> getReturnRoute(@RequestParam Integer routeId){
+		final Route response = routeService.getReturnRoute(routeId);
 		return ResponseEntity.status(HttpStatus.OK).body(new APIResponse(ConstraintMSG.GET_DATA_MSG,response,true));
 	}
 }

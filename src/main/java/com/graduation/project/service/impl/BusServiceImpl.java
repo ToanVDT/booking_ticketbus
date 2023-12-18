@@ -1,7 +1,6 @@
 package com.graduation.project.service.impl;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -117,12 +116,17 @@ public class BusServiceImpl implements BusService{
 	}
 
 	@Override
-	public List<BusResponseForDropDown> getBusAvailableByTravelDate(Integer userId, LocalDate travelDate,LocalTime startTime) {
+	public List<BusResponseForDropDown> getBusAvailableByTravelDateForUpdate(Integer userId, LocalDate travelDate) {
 		Brand brand = brandRepository.findByUserId(userId);
-		List<BusResponseForDropDown> list = busRepository.findBusAvailableInBrandByTravelDate(brand.getId(), travelDate,startTime);
+		List<BusResponseForDropDown> list = busRepository.findBusAvailableInBrandByTravelDateForUpdate(brand.getId(), travelDate);
 		return list;
 	}
-
+	@Override
+	public List<BusResponseForDropDown> getBusAvailableByTravelDate(Integer userId, LocalDate dateStart,LocalDate dateEnd) {
+		Brand brand = brandRepository.findByUserId(userId);
+		List<BusResponseForDropDown> list = busRepository.findBusAvailableInBrandByTravelDate(brand.getId(), dateStart,dateEnd);
+		return list;
+	}
 	@Override
 	public Boolean checkDuplicateBusName(String name) {
 		Bus bus = busRepository.findByName(name);

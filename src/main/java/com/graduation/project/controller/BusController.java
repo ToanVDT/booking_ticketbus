@@ -1,7 +1,6 @@
 package com.graduation.project.controller;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,16 +46,14 @@ public class BusController {
 		final APIResponse response = busService.getBus(id);
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
-	
 	@GetMapping("/bus/dropdown")
-	private ResponseEntity<List<BusResponseForDropDown>> getBusForDropDown(@RequestParam Integer userId){
-		final List<BusResponseForDropDown> response = busService.getBusForDropDown(userId);
+	private ResponseEntity<List<BusResponseForDropDown>> getBusForDropDownByTravelDate(@RequestParam Integer userId, @RequestParam LocalDate dateStart, @RequestParam LocalDate dateEnd){
+		final List<BusResponseForDropDown> response = busService.getBusAvailableByTravelDate(userId, dateStart,dateEnd);
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
-	
 	@GetMapping("/bus/dropdown1")
-	private ResponseEntity<List<BusResponseForDropDown>> getBusForDropDownByTravelDate(@RequestParam Integer userId, @RequestParam LocalDate travelDate, @RequestParam LocalTime startTime){
-		final List<BusResponseForDropDown> response = busService.getBusAvailableByTravelDate(userId, travelDate,startTime);
+	private ResponseEntity<List<BusResponseForDropDown>> getBusAvailableByTravelDateForUpdate(@RequestParam Integer userId, @RequestParam LocalDate travelDate){
+		final List<BusResponseForDropDown> response = busService.getBusAvailableByTravelDateForUpdate(userId, travelDate);
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 	

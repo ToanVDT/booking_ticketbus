@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.graduation.project.dto.RoutePopularDTO;
+import com.graduation.project.entity.Route;
 import com.graduation.project.payload.request.RouteRequest;
 import com.graduation.project.payload.response.APIResponse;
 import com.graduation.project.payload.response.RouteResponse;
@@ -28,4 +29,10 @@ public interface RouteService {
 	Set<String> getRouteToSearch();
 
 	Set<RoutePopularDTO> getAllRouteToShow();
+	
+	APIResponse createRoute(RouteRequest request);
+	
+	APIResponse updateRoute(RouteRequest request);
+	
+	Route getReturnRoute(Integer routeId);
 }

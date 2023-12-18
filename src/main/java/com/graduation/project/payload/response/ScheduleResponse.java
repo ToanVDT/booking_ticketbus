@@ -4,12 +4,21 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 public interface ScheduleResponse {
 
-	public Integer getId();
-	public Integer getBusId();
-	public LocalDate getDateStart();
-	public LocalTime getStartTime();
-	public String getBusName();
-	public Double getPrice();
-	public Integer getSeats();
-	public Double getEatingFee();
+	Integer getId();
+
+	Integer getBusId();
+
+	LocalDate getDateStart();
+
+	LocalTime getStartTime();
+
+	String getBusName();
+
+	Double getPrice();
+
+	Integer getSeats();
+
+	Double getEatingFee();
+	
+	Integer getEmptySeats();
 }

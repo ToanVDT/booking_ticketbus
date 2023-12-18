@@ -13,4 +13,5 @@ public class RouteRequest {
 	private Integer userId;
 	private String startPoint;
 	private String endPoint;
+	private Double duration;
 }

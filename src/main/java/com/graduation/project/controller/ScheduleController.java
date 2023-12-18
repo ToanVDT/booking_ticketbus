@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.graduation.project.payload.request.DataCreateScheduleRequest;
 import com.graduation.project.payload.request.ScheduleRequest;
 import com.graduation.project.payload.response.APIResponse;
 import com.graduation.project.payload.response.ScheduleResponseForDropDown;
@@ -27,7 +28,7 @@ public class ScheduleController {
 	private ScheduleService scheduleService;
 	
 	@PostMapping("/schedule")
-	private ResponseEntity<APIResponse> createSchedule(@RequestBody ScheduleRequest request){
+	private ResponseEntity<APIResponse> createSchedule(@RequestBody DataCreateScheduleRequest request){
 		final APIResponse response = scheduleService.createSchedule(request);
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
